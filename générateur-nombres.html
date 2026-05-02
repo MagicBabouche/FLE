@@ -35,7 +35,7 @@ body {
   height: 100vh;
   display: flex;
   flex-direction: column;
-  padding: 10px 22px 10px;
+  padding: 10px 22px 44px;
   gap: 0;
   position: relative;
 }
@@ -350,6 +350,18 @@ h1 .main-word { color: var(--terra); }
   0%,100% { box-shadow: 0 1px 4px rgba(36,26,12,.07), 0 8px 28px rgba(36,26,12,.08), inset 0 0 0 1.5px rgba(184,80,48,.12), inset 0 0 0 6px rgba(240,232,208,.7); }
   50%     { box-shadow: 0 0 0 3px rgba(184,80,48,.4), 0 8px 28px rgba(36,26,12,.08), inset 0 0 0 1.5px rgba(184,80,48,.5), inset 0 0 0 6px rgba(240,232,208,.7); }
 }
+#btn-back {
+  position: fixed; bottom: 16px; left: 18px;
+  font-family: 'Lora', Georgia, serif;
+  font-size: .67rem; font-style: italic; letter-spacing: .06em;
+  color: #7a6a5a;
+  background: none; border: 1px solid rgba(61,50,40,.2);
+  border-radius: 3px; padding: .32rem .72rem;
+  cursor: pointer; opacity: .6;
+  transition: opacity .2s, background .2s;
+  text-decoration: none; display: inline-block;
+}
+#btn-back:hover { opacity: 1; background: rgba(232,220,200,.7); }
 </style>
 </head>
 <body>
@@ -571,5 +583,6 @@ function nombreEnLettres(n) {
   return milleStr + '-' + below1000(r);
 }
 </script>
+<a href="index.html" id="btn-back">← Retour aux jeux</a>
 </body>
 </html>

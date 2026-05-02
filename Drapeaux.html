@@ -160,7 +160,7 @@
       flex-direction: column;
       align-items: center;
       justify-content: space-evenly;
-      padding: 2rem 1.5rem;
+      padding: 2rem 1.5rem 3.5rem;
       gap: 0;
     }
 
@@ -370,7 +370,22 @@
       letter-spacing: .06em;
       text-align: center;
       font-style: italic;
+      margin-bottom: 2rem;
     }
+
+    #btn-back {
+      position: fixed; bottom: 16px; left: 18px;
+      font-family: 'Lora', Georgia, serif;
+      font-size: .67rem; font-style: italic; letter-spacing: .06em;
+      color: var(--faded-ink);
+      background: none; border: 1px solid rgba(61,50,40,.2);
+      border-radius: 3px; padding: .32rem .72rem;
+      cursor: pointer; opacity: .6;
+      transition: opacity .2s, background .2s;
+      text-decoration: none; display: inline-block;
+      z-index: 10;
+    }
+    #btn-back:hover { opacity: 1; background: var(--parchment); }
   </style>
 </head>
 <body>
@@ -437,7 +452,8 @@
   </div>
 
 <script>
-  const API = 'https://restcountries.com/v3.1/all?fields=name,flags,cca2,region,translations';
+  // ── Données embarquées (183 pays) ──────────────────────────────────────
+  const COUNTRIES = [{"name":"Albanie","cca2":"al","region":"Europe","flag":"https://flagcdn.com/w640/al.png"},{"name":"Andorre","cca2":"ad","region":"Europe","flag":"https://flagcdn.com/w640/ad.png"},{"name":"Autriche","cca2":"at","region":"Europe","flag":"https://flagcdn.com/w640/at.png"},{"name":"Biélorussie","cca2":"by","region":"Europe","flag":"https://flagcdn.com/w640/by.png"},{"name":"Belgique","cca2":"be","region":"Europe","flag":"https://flagcdn.com/w640/be.png"},{"name":"Bosnie-Herzégovine","cca2":"ba","region":"Europe","flag":"https://flagcdn.com/w640/ba.png"},{"name":"Bulgarie","cca2":"bg","region":"Europe","flag":"https://flagcdn.com/w640/bg.png"},{"name":"Croatie","cca2":"hr","region":"Europe","flag":"https://flagcdn.com/w640/hr.png"},{"name":"Chypre","cca2":"cy","region":"Europe","flag":"https://flagcdn.com/w640/cy.png"},{"name":"République tchèque","cca2":"cz","region":"Europe","flag":"https://flagcdn.com/w640/cz.png"},{"name":"Danemark","cca2":"dk","region":"Europe","flag":"https://flagcdn.com/w640/dk.png"},{"name":"Estonie","cca2":"ee","region":"Europe","flag":"https://flagcdn.com/w640/ee.png"},{"name":"Finlande","cca2":"fi","region":"Europe","flag":"https://flagcdn.com/w640/fi.png"},{"name":"France","cca2":"fr","region":"Europe","flag":"https://flagcdn.com/w640/fr.png"},{"name":"Géorgie","cca2":"ge","region":"Europe","flag":"https://flagcdn.com/w640/ge.png"},{"name":"Allemagne","cca2":"de","region":"Europe","flag":"https://flagcdn.com/w640/de.png"},{"name":"Grèce","cca2":"gr","region":"Europe","flag":"https://flagcdn.com/w640/gr.png"},{"name":"Hongrie","cca2":"hu","region":"Europe","flag":"https://flagcdn.com/w640/hu.png"},{"name":"Islande","cca2":"is","region":"Europe","flag":"https://flagcdn.com/w640/is.png"},{"name":"Irlande","cca2":"ie","region":"Europe","flag":"https://flagcdn.com/w640/ie.png"},{"name":"Italie","cca2":"it","region":"Europe","flag":"https://flagcdn.com/w640/it.png"},{"name":"Kosovo","cca2":"xk","region":"Europe","flag":"https://flagcdn.com/w640/xk.png"},{"name":"Lettonie","cca2":"lv","region":"Europe","flag":"https://flagcdn.com/w640/lv.png"},{"name":"Liechtenstein","cca2":"li","region":"Europe","flag":"https://flagcdn.com/w640/li.png"},{"name":"Lituanie","cca2":"lt","region":"Europe","flag":"https://flagcdn.com/w640/lt.png"},{"name":"Luxembourg","cca2":"lu","region":"Europe","flag":"https://flagcdn.com/w640/lu.png"},{"name":"Malte","cca2":"mt","region":"Europe","flag":"https://flagcdn.com/w640/mt.png"},{"name":"Moldavie","cca2":"md","region":"Europe","flag":"https://flagcdn.com/w640/md.png"},{"name":"Monaco","cca2":"mc","region":"Europe","flag":"https://flagcdn.com/w640/mc.png"},{"name":"Monténégro","cca2":"me","region":"Europe","flag":"https://flagcdn.com/w640/me.png"},{"name":"Pays-Bas","cca2":"nl","region":"Europe","flag":"https://flagcdn.com/w640/nl.png"},{"name":"Macédoine du Nord","cca2":"mk","region":"Europe","flag":"https://flagcdn.com/w640/mk.png"},{"name":"Norvège","cca2":"no","region":"Europe","flag":"https://flagcdn.com/w640/no.png"},{"name":"Pologne","cca2":"pl","region":"Europe","flag":"https://flagcdn.com/w640/pl.png"},{"name":"Portugal","cca2":"pt","region":"Europe","flag":"https://flagcdn.com/w640/pt.png"},{"name":"Roumanie","cca2":"ro","region":"Europe","flag":"https://flagcdn.com/w640/ro.png"},{"name":"Russie","cca2":"ru","region":"Europe","flag":"https://flagcdn.com/w640/ru.png"},{"name":"Saint-Marin","cca2":"sm","region":"Europe","flag":"https://flagcdn.com/w640/sm.png"},{"name":"Serbie","cca2":"rs","region":"Europe","flag":"https://flagcdn.com/w640/rs.png"},{"name":"Slovaquie","cca2":"sk","region":"Europe","flag":"https://flagcdn.com/w640/sk.png"},{"name":"Slovénie","cca2":"si","region":"Europe","flag":"https://flagcdn.com/w640/si.png"},{"name":"Espagne","cca2":"es","region":"Europe","flag":"https://flagcdn.com/w640/es.png"},{"name":"Suède","cca2":"se","region":"Europe","flag":"https://flagcdn.com/w640/se.png"},{"name":"Suisse","cca2":"ch","region":"Europe","flag":"https://flagcdn.com/w640/ch.png"},{"name":"Ukraine","cca2":"ua","region":"Europe","flag":"https://flagcdn.com/w640/ua.png"},{"name":"Royaume-Uni","cca2":"gb","region":"Europe","flag":"https://flagcdn.com/w640/gb.png"},{"name":"Vatican","cca2":"va","region":"Europe","flag":"https://flagcdn.com/w640/va.png"},{"name":"Afghanistan","cca2":"af","region":"Asia","flag":"https://flagcdn.com/w640/af.png"},{"name":"Arménie","cca2":"am","region":"Asia","flag":"https://flagcdn.com/w640/am.png"},{"name":"Azerbaïdjan","cca2":"az","region":"Asia","flag":"https://flagcdn.com/w640/az.png"},{"name":"Bahreïn","cca2":"bh","region":"Asia","flag":"https://flagcdn.com/w640/bh.png"},{"name":"Bangladesh","cca2":"bd","region":"Asia","flag":"https://flagcdn.com/w640/bd.png"},{"name":"Bhoutan","cca2":"bt","region":"Asia","flag":"https://flagcdn.com/w640/bt.png"},{"name":"Brunei","cca2":"bn","region":"Asia","flag":"https://flagcdn.com/w640/bn.png"},{"name":"Cambodge","cca2":"kh","region":"Asia","flag":"https://flagcdn.com/w640/kh.png"},{"name":"Chine","cca2":"cn","region":"Asia","flag":"https://flagcdn.com/w640/cn.png"},{"name":"Timor oriental","cca2":"tl","region":"Asia","flag":"https://flagcdn.com/w640/tl.png"},{"name":"Inde","cca2":"in","region":"Asia","flag":"https://flagcdn.com/w640/in.png"},{"name":"Indonésie","cca2":"id","region":"Asia","flag":"https://flagcdn.com/w640/id.png"},{"name":"Iran","cca2":"ir","region":"Asia","flag":"https://flagcdn.com/w640/ir.png"},{"name":"Irak","cca2":"iq","region":"Asia","flag":"https://flagcdn.com/w640/iq.png"},{"name":"Israël","cca2":"il","region":"Asia","flag":"https://flagcdn.com/w640/il.png"},{"name":"Japon","cca2":"jp","region":"Asia","flag":"https://flagcdn.com/w640/jp.png"},{"name":"Jordanie","cca2":"jo","region":"Asia","flag":"https://flagcdn.com/w640/jo.png"},{"name":"Kazakhstan","cca2":"kz","region":"Asia","flag":"https://flagcdn.com/w640/kz.png"},{"name":"Koweït","cca2":"kw","region":"Asia","flag":"https://flagcdn.com/w640/kw.png"},{"name":"Kirghizistan","cca2":"kg","region":"Asia","flag":"https://flagcdn.com/w640/kg.png"},{"name":"Laos","cca2":"la","region":"Asia","flag":"https://flagcdn.com/w640/la.png"},{"name":"Liban","cca2":"lb","region":"Asia","flag":"https://flagcdn.com/w640/lb.png"},{"name":"Malaisie","cca2":"my","region":"Asia","flag":"https://flagcdn.com/w640/my.png"},{"name":"Maldives","cca2":"mv","region":"Asia","flag":"https://flagcdn.com/w640/mv.png"},{"name":"Mongolie","cca2":"mn","region":"Asia","flag":"https://flagcdn.com/w640/mn.png"},{"name":"Myanmar","cca2":"mm","region":"Asia","flag":"https://flagcdn.com/w640/mm.png"},{"name":"Népal","cca2":"np","region":"Asia","flag":"https://flagcdn.com/w640/np.png"},{"name":"Corée du Nord","cca2":"kp","region":"Asia","flag":"https://flagcdn.com/w640/kp.png"},{"name":"Oman","cca2":"om","region":"Asia","flag":"https://flagcdn.com/w640/om.png"},{"name":"Pakistan","cca2":"pk","region":"Asia","flag":"https://flagcdn.com/w640/pk.png"},{"name":"Palestine","cca2":"ps","region":"Asia","flag":"https://flagcdn.com/w640/ps.png"},{"name":"Philippines","cca2":"ph","region":"Asia","flag":"https://flagcdn.com/w640/ph.png"},{"name":"Qatar","cca2":"qa","region":"Asia","flag":"https://flagcdn.com/w640/qa.png"},{"name":"Arabie saoudite","cca2":"sa","region":"Asia","flag":"https://flagcdn.com/w640/sa.png"},{"name":"Singapour","cca2":"sg","region":"Asia","flag":"https://flagcdn.com/w640/sg.png"},{"name":"Corée du Sud","cca2":"kr","region":"Asia","flag":"https://flagcdn.com/w640/kr.png"},{"name":"Sri Lanka","cca2":"lk","region":"Asia","flag":"https://flagcdn.com/w640/lk.png"},{"name":"Syrie","cca2":"sy","region":"Asia","flag":"https://flagcdn.com/w640/sy.png"},{"name":"Taïwan","cca2":"tw","region":"Asia","flag":"https://flagcdn.com/w640/tw.png"},{"name":"Tadjikistan","cca2":"tj","region":"Asia","flag":"https://flagcdn.com/w640/tj.png"},{"name":"Thaïlande","cca2":"th","region":"Asia","flag":"https://flagcdn.com/w640/th.png"},{"name":"Turquie","cca2":"tr","region":"Asia","flag":"https://flagcdn.com/w640/tr.png"},{"name":"Turkménistan","cca2":"tm","region":"Asia","flag":"https://flagcdn.com/w640/tm.png"},{"name":"Émirats arabes unis","cca2":"ae","region":"Asia","flag":"https://flagcdn.com/w640/ae.png"},{"name":"Ouzbékistan","cca2":"uz","region":"Asia","flag":"https://flagcdn.com/w640/uz.png"},{"name":"Vietnam","cca2":"vn","region":"Asia","flag":"https://flagcdn.com/w640/vn.png"},{"name":"Yémen","cca2":"ye","region":"Asia","flag":"https://flagcdn.com/w640/ye.png"},{"name":"Algérie","cca2":"dz","region":"Africa","flag":"https://flagcdn.com/w640/dz.png"},{"name":"Angola","cca2":"ao","region":"Africa","flag":"https://flagcdn.com/w640/ao.png"},{"name":"Bénin","cca2":"bj","region":"Africa","flag":"https://flagcdn.com/w640/bj.png"},{"name":"Botswana","cca2":"bw","region":"Africa","flag":"https://flagcdn.com/w640/bw.png"},{"name":"Burkina Faso","cca2":"bf","region":"Africa","flag":"https://flagcdn.com/w640/bf.png"},{"name":"Burundi","cca2":"bi","region":"Africa","flag":"https://flagcdn.com/w640/bi.png"},{"name":"Cameroun","cca2":"cm","region":"Africa","flag":"https://flagcdn.com/w640/cm.png"},{"name":"Cap-Vert","cca2":"cv","region":"Africa","flag":"https://flagcdn.com/w640/cv.png"},{"name":"République centrafricaine","cca2":"cf","region":"Africa","flag":"https://flagcdn.com/w640/cf.png"},{"name":"Tchad","cca2":"td","region":"Africa","flag":"https://flagcdn.com/w640/td.png"},{"name":"Comores","cca2":"km","region":"Africa","flag":"https://flagcdn.com/w640/km.png"},{"name":"Congo","cca2":"cg","region":"Africa","flag":"https://flagcdn.com/w640/cg.png"},{"name":"RD Congo","cca2":"cd","region":"Africa","flag":"https://flagcdn.com/w640/cd.png"},{"name":"Djibouti","cca2":"dj","region":"Africa","flag":"https://flagcdn.com/w640/dj.png"},{"name":"Égypte","cca2":"eg","region":"Africa","flag":"https://flagcdn.com/w640/eg.png"},{"name":"Guinée équatoriale","cca2":"gq","region":"Africa","flag":"https://flagcdn.com/w640/gq.png"},{"name":"Érythrée","cca2":"er","region":"Africa","flag":"https://flagcdn.com/w640/er.png"},{"name":"Eswatini","cca2":"sz","region":"Africa","flag":"https://flagcdn.com/w640/sz.png"},{"name":"Éthiopie","cca2":"et","region":"Africa","flag":"https://flagcdn.com/w640/et.png"},{"name":"Gabon","cca2":"ga","region":"Africa","flag":"https://flagcdn.com/w640/ga.png"},{"name":"Gambie","cca2":"gm","region":"Africa","flag":"https://flagcdn.com/w640/gm.png"},{"name":"Ghana","cca2":"gh","region":"Africa","flag":"https://flagcdn.com/w640/gh.png"},{"name":"Guinée","cca2":"gn","region":"Africa","flag":"https://flagcdn.com/w640/gn.png"},{"name":"Guinée-Bissau","cca2":"gw","region":"Africa","flag":"https://flagcdn.com/w640/gw.png"},{"name":"Côte d'Ivoire","cca2":"ci","region":"Africa","flag":"https://flagcdn.com/w640/ci.png"},{"name":"Kenya","cca2":"ke","region":"Africa","flag":"https://flagcdn.com/w640/ke.png"},{"name":"Lesotho","cca2":"ls","region":"Africa","flag":"https://flagcdn.com/w640/ls.png"},{"name":"Libéria","cca2":"lr","region":"Africa","flag":"https://flagcdn.com/w640/lr.png"},{"name":"Libye","cca2":"ly","region":"Africa","flag":"https://flagcdn.com/w640/ly.png"},{"name":"Madagascar","cca2":"mg","region":"Africa","flag":"https://flagcdn.com/w640/mg.png"},{"name":"Malawi","cca2":"mw","region":"Africa","flag":"https://flagcdn.com/w640/mw.png"},{"name":"Mali","cca2":"ml","region":"Africa","flag":"https://flagcdn.com/w640/ml.png"},{"name":"Mauritanie","cca2":"mr","region":"Africa","flag":"https://flagcdn.com/w640/mr.png"},{"name":"Maurice","cca2":"mu","region":"Africa","flag":"https://flagcdn.com/w640/mu.png"},{"name":"Maroc","cca2":"ma","region":"Africa","flag":"https://flagcdn.com/w640/ma.png"},{"name":"Mozambique","cca2":"mz","region":"Africa","flag":"https://flagcdn.com/w640/mz.png"},{"name":"Namibie","cca2":"na","region":"Africa","flag":"https://flagcdn.com/w640/na.png"},{"name":"Niger","cca2":"ne","region":"Africa","flag":"https://flagcdn.com/w640/ne.png"},{"name":"Nigeria","cca2":"ng","region":"Africa","flag":"https://flagcdn.com/w640/ng.png"},{"name":"Rwanda","cca2":"rw","region":"Africa","flag":"https://flagcdn.com/w640/rw.png"},{"name":"São Tomé-et-Príncipe","cca2":"st","region":"Africa","flag":"https://flagcdn.com/w640/st.png"},{"name":"Sénégal","cca2":"sn","region":"Africa","flag":"https://flagcdn.com/w640/sn.png"},{"name":"Seychelles","cca2":"sc","region":"Africa","flag":"https://flagcdn.com/w640/sc.png"},{"name":"Sierra Leone","cca2":"sl","region":"Africa","flag":"https://flagcdn.com/w640/sl.png"},{"name":"Somalie","cca2":"so","region":"Africa","flag":"https://flagcdn.com/w640/so.png"},{"name":"Afrique du Sud","cca2":"za","region":"Africa","flag":"https://flagcdn.com/w640/za.png"},{"name":"Soudan du Sud","cca2":"ss","region":"Africa","flag":"https://flagcdn.com/w640/ss.png"},{"name":"Soudan","cca2":"sd","region":"Africa","flag":"https://flagcdn.com/w640/sd.png"},{"name":"Tanzanie","cca2":"tz","region":"Africa","flag":"https://flagcdn.com/w640/tz.png"},{"name":"Togo","cca2":"tg","region":"Africa","flag":"https://flagcdn.com/w640/tg.png"},{"name":"Tunisie","cca2":"tn","region":"Africa","flag":"https://flagcdn.com/w640/tn.png"},{"name":"Ouganda","cca2":"ug","region":"Africa","flag":"https://flagcdn.com/w640/ug.png"},{"name":"Zambie","cca2":"zm","region":"Africa","flag":"https://flagcdn.com/w640/zm.png"},{"name":"Zimbabwe","cca2":"zw","region":"Africa","flag":"https://flagcdn.com/w640/zw.png"},{"name":"Antigua-et-Barbuda","cca2":"ag","region":"Americas","flag":"https://flagcdn.com/w640/ag.png"},{"name":"Argentine","cca2":"ar","region":"Americas","flag":"https://flagcdn.com/w640/ar.png"},{"name":"Bahamas","cca2":"bs","region":"Americas","flag":"https://flagcdn.com/w640/bs.png"},{"name":"Barbade","cca2":"bb","region":"Americas","flag":"https://flagcdn.com/w640/bb.png"},{"name":"Belize","cca2":"bz","region":"Americas","flag":"https://flagcdn.com/w640/bz.png"},{"name":"Bolivie","cca2":"bo","region":"Americas","flag":"https://flagcdn.com/w640/bo.png"},{"name":"Brésil","cca2":"br","region":"Americas","flag":"https://flagcdn.com/w640/br.png"},{"name":"Canada","cca2":"ca","region":"Americas","flag":"https://flagcdn.com/w640/ca.png"},{"name":"Chili","cca2":"cl","region":"Americas","flag":"https://flagcdn.com/w640/cl.png"},{"name":"Colombie","cca2":"co","region":"Americas","flag":"https://flagcdn.com/w640/co.png"},{"name":"Costa Rica","cca2":"cr","region":"Americas","flag":"https://flagcdn.com/w640/cr.png"},{"name":"Cuba","cca2":"cu","region":"Americas","flag":"https://flagcdn.com/w640/cu.png"},{"name":"Dominique","cca2":"dm","region":"Americas","flag":"https://flagcdn.com/w640/dm.png"},{"name":"République dominicaine","cca2":"do","region":"Americas","flag":"https://flagcdn.com/w640/do.png"},{"name":"Équateur","cca2":"ec","region":"Americas","flag":"https://flagcdn.com/w640/ec.png"},{"name":"El Salvador","cca2":"sv","region":"Americas","flag":"https://flagcdn.com/w640/sv.png"},{"name":"Grenade","cca2":"gd","region":"Americas","flag":"https://flagcdn.com/w640/gd.png"},{"name":"Guatemala","cca2":"gt","region":"Americas","flag":"https://flagcdn.com/w640/gt.png"},{"name":"Guyana","cca2":"gy","region":"Americas","flag":"https://flagcdn.com/w640/gy.png"},{"name":"Haïti","cca2":"ht","region":"Americas","flag":"https://flagcdn.com/w640/ht.png"},{"name":"Honduras","cca2":"hn","region":"Americas","flag":"https://flagcdn.com/w640/hn.png"},{"name":"Jamaïque","cca2":"jm","region":"Americas","flag":"https://flagcdn.com/w640/jm.png"},{"name":"Mexique","cca2":"mx","region":"Americas","flag":"https://flagcdn.com/w640/mx.png"},{"name":"Nicaragua","cca2":"ni","region":"Americas","flag":"https://flagcdn.com/w640/ni.png"},{"name":"Panama","cca2":"pa","region":"Americas","flag":"https://flagcdn.com/w640/pa.png"},{"name":"Paraguay","cca2":"py","region":"Americas","flag":"https://flagcdn.com/w640/py.png"},{"name":"Pérou","cca2":"pe","region":"Americas","flag":"https://flagcdn.com/w640/pe.png"},{"name":"Saint-Christophe-et-Niévès","cca2":"kn","region":"Americas","flag":"https://flagcdn.com/w640/kn.png"},{"name":"Sainte-Lucie","cca2":"lc","region":"Americas","flag":"https://flagcdn.com/w640/lc.png"},{"name":"Saint-Vincent-et-les-Grenadines","cca2":"vc","region":"Americas","flag":"https://flagcdn.com/w640/vc.png"},{"name":"Suriname","cca2":"sr","region":"Americas","flag":"https://flagcdn.com/w640/sr.png"},{"name":"Trinité-et-Tobago","cca2":"tt","region":"Americas","flag":"https://flagcdn.com/w640/tt.png"},{"name":"États-Unis","cca2":"us","region":"Americas","flag":"https://flagcdn.com/w640/us.png"},{"name":"Uruguay","cca2":"uy","region":"Americas","flag":"https://flagcdn.com/w640/uy.png"},{"name":"Venezuela","cca2":"ve","region":"Americas","flag":"https://flagcdn.com/w640/ve.png"}];
 
   const REGION_MAP = {
     'Europe':   ['Europe'],
@@ -446,12 +462,6 @@
     'Amérique': ['Americas'],
   };
 
-  const FR_FALLBACK = {
-    'AQ':'Antarctique','BV':'Île Bouvet','TF':'Terres australes françaises',
-    'HM':'Îles Heard-et-MacDonald','CX':'Île Christmas','CC':'Îles Cocos','NF':'Île Norfolk',
-  };
-
-  let allCountries  = [];
   let activeRegions = new Set(['Europe']);
   let current       = null;
   let nameVisible   = false;
@@ -464,16 +474,10 @@
   const loader      = document.getElementById('loader');
   const toast       = document.getElementById('toast');
 
-  function frenchName(c) {
-    return c.translations?.fra?.common || FR_FALLBACK[c.cca2] || c.name.common;
-  }
-
   function getPool() {
     if (!activeRegions.size) return [];
     const allowed = [...activeRegions].flatMap(r => REGION_MAP[r]);
-    return allCountries.filter(c =>
-      c.region && allowed.includes(c.region) && c.flags && (c.flags.svg || c.flags.png)
-    );
+    return COUNTRIES.filter(c => allowed.includes(c.region));
   }
 
   function showToast(msg) {
@@ -490,18 +494,6 @@
     btnReveal.disabled = true;
   }
 
-  async function loadCountries() {
-    btnNew.disabled = true;
-    try {
-      const r = await fetch(API);
-      allCountries = await r.json();
-    } catch(e) {
-      placeholder.textContent = 'Impossible de charger les drapeaux.';
-    } finally {
-      btnNew.disabled = false;
-    }
-  }
-
   function showNewFlag() {
     const pool = getPool();
     if (!pool.length) { showToast('Activez au moins un continent.'); return; }
@@ -516,11 +508,10 @@
     while (pool.length > 1 && next.cca2 === current?.cca2);
     current = next;
 
-    const src = current.flags.svg || current.flags.png;
     const tmp = new Image();
     tmp.onload = () => {
-      flagImg.src = src;
-      flagImg.alt = frenchName(current);
+      flagImg.src = current.flag;
+      flagImg.alt = current.name;
       loader.classList.remove('active');
       requestAnimationFrame(() => requestAnimationFrame(() => {
         flagImg.classList.add('visible');
@@ -530,8 +521,9 @@
     tmp.onerror = () => {
       loader.classList.remove('active');
       placeholder.classList.remove('hidden');
+      placeholder.textContent = 'Image introuvable, réessayez.';
     };
-    tmp.src = src;
+    tmp.src = current.flag;
   }
 
   function toggleName() {
@@ -541,7 +533,7 @@
       btnReveal.textContent = 'Afficher le nom';
       nameVisible = false;
     } else {
-      countryName.textContent = frenchName(current);
+      countryName.textContent = current.name;
       countryName.classList.add('visible');
       btnReveal.textContent = 'Masquer le nom';
       nameVisible = true;
@@ -563,7 +555,10 @@
 
   btnNew.addEventListener('click', showNewFlag);
   btnReveal.addEventListener('click', toggleName);
-  loadCountries();
+
 </script>
+
+<a href="index.html" id="btn-back">← Retour aux jeux</a>
+
 </body>
 </html>
