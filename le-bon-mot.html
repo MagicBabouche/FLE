@@ -757,3 +757,53 @@ buildSlots();
 <a href="index.html" id="btn-back">← Retour aux jeux</a>
 </body>
 </html>
+<!-- RESPONSIVE PATCH -->
+<style>
+@media (max-width: 700px) {
+  html, body { overflow: auto; height: auto; }
+  body {
+    grid-template-rows: auto auto 1fr auto;
+    grid-template-areas: "header" "letter" "main" "bottom";
+  }
+  .header { padding: 8px 20px 10px; }
+  h1 { font-size: clamp(24px, 7vw, 40px); }
+  .orn-rule { padding: 0 20px; }
+
+  .main {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto auto;
+    padding: 0 12px 4px;
+  }
+  /* Hide the vertical divider on mobile */
+  .col-div { display: none; }
+  /* Letter frame goes above slots */
+  .col-letter {
+    padding-right: 0;
+    height: 28vw;
+    min-height: 100px;
+    max-height: 160px;
+    margin-bottom: 8px;
+  }
+  #bigLetter { font-size: clamp(60px, 18vw, 110px); }
+
+  .col-slots {
+    padding: 0;
+    gap: 5px;
+  }
+  .slot-row {
+    flex: 0 0 auto;
+    min-height: 44px;
+  }
+  .stog { flex-direction: row; }
+  .stbtn { padding: 4px 8px; font-size: 8px; }
+  .slot-theme { font-size: clamp(12px, 3.8vw, 20px); padding: 0 80px 0 4px; }
+  .slot-special-text { font-size: clamp(10px, 2.8vw, 16px); padding: 0 80px 0 60px; }
+  .slot-label { font-size: clamp(8px, 2.2vw, 10px); }
+  .btn-in-slot { font-size: clamp(8px, 2.2vw, 11px); padding: 4px 9px; }
+
+  .bottom { padding: 6px 12px 14px; }
+  .ctrl-bar { gap: 8px; flex-wrap: wrap; justify-content: center; }
+  .btn { padding: 7px 16px; font-size: clamp(11px, 3.2vw, 14px); }
+  #btn-back { bottom: 12px; left: 12px; font-size: .6rem; }
+}
+</style>

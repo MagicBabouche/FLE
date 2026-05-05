@@ -488,3 +488,23 @@ updateEmptyHint();
 </script>
 </body>
 </html>
+<!-- RESPONSIVE PATCH -->
+<style>
+@media (max-width: 700px) {
+  html, body { overflow: auto; height: auto; }
+  body { padding: 20px 14px 70px; gap: 14px; }
+  body::after { inset: 4px; }
+  .main-frame {
+    min-height: 280px;
+    padding: 18px 14px;
+    gap: 12px;
+  }
+  .die { width: 64px; height: 64px; border-radius: 14px; padding: 8px; }
+  .dot { width: 11px; height: 11px; }
+  .die.face-5 .dot, .die.face-6 .dot { width: 9px; height: 9px; }
+  .btn-launch { font-size: 14px; padding: 11px 26px; }
+  .dice-count-section { gap: 6px; }
+  .dice-count-input { width: 60px; height: 38px; font-size: 18px; }
+  #btn-back { bottom: 12px; left: 12px; }
+}
+</style>

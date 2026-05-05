@@ -494,3 +494,32 @@ buildSlots();
 </script>
 </body>
 </html>
+<!-- RESPONSIVE PATCH -->
+<style>
+@media (max-width: 700px) {
+  html, body { overflow: auto; height: auto; }
+  body { grid-template-rows: auto 1fr auto; }
+  .header { padding: 8px 20px 8px; }
+  h1 { font-size: clamp(22px, 6.5vw, 40px); }
+  .orn-rule { padding: 0 20px; }
+
+  .main { padding: 0 12px 4px; gap: 6px; }
+  .phrase-wrap { margin: 4px 0 6px; }
+  #phrase-input { font-size: clamp(14px, 4vw, 22px); padding: 12px 16px; min-height: 52px; }
+
+  .slots-grid { gap: 6px; }
+  .slot-row {
+    flex: 0 0 auto;
+    min-height: 48px;
+  }
+  .stog { width: 36px; }
+  .stbtn { font-size: 8px; padding: 0 4px; }
+  .slot-rule { font-size: clamp(13px, 3.8vw, 22px); padding: 0 36px; }
+  .slot-empty { font-size: clamp(10px, 2.8vw, 13px); }
+  .lock-icon { right: 8px; font-size: clamp(11px, 3vw, 15px); }
+
+  .bottom { padding: 4px 12px 10px; }
+  .btn-variante { font-size: clamp(12px, 3.5vw, 15px); padding: 9px 32px; }
+  #btn-back { position: static; margin-right: auto; font-size: .62rem; padding: .3rem .6rem; }
+}
+</style>

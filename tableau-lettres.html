@@ -482,3 +482,33 @@
 </script>
 </body>
 </html>
+<!-- RESPONSIVE PATCH -->
+<style>
+@media (max-width: 700px) {
+  html, body { overflow: auto; height: auto; }
+  body {
+    flex-direction: column;
+    padding-bottom: 60px;
+  }
+  .col-grid { padding: 16px 12px 8px; min-height: 50vw; }
+  .sep-line { width: 80%; height: 1px; margin: 0 auto;
+    background: linear-gradient(to right, transparent, rgba(61,50,40,.15), transparent); }
+  .col-controls {
+    width: 100%;
+    padding: 12px 20px 16px;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 16px;
+  }
+  header { width: 100%; }
+  .btn-col { width: 100%; max-width: 280px; }
+  .dim-section { width: 100%; max-width: 340px; }
+  footer { width: 100%; text-align: center; font-size: .6rem; }
+  #letter-grid td {
+    width:  clamp(40px, 11vw, 72px);
+    height: clamp(40px, 11vw, 72px);
+  }
+  .cell-inner { font-size: clamp(1rem, 5vw, 1.8rem); }
+}
+</style>

@@ -3,581 +3,479 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Mes Jeux</title>
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400;1,700&family=Lora:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+<title>Mes Jeux — Annuaire</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=Lora:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
 <style>
-
-/* ══════════════════════════════════════
-   TOKENS — même palette que vos jeux
-══════════════════════════════════════ */
 :root {
-  --cream:      #f0e8d5;
-  --paper:      #faf5e8;
-  --ink:        #2a1f10;
-  --ink-mid:    #5a4830;
-  --ink-dim:    #9a8060;
-  --ink-ghost:  #c8a870;
-  --terra:      #b85030;
-  --terra-lt:   #d4785a;
-  --sage:       #6c9e56;
-  --sage-dk:    #4c7838;
+  --cream:     #f0e8d5;
+  --paper:     #faf5e8;
+  --ink:       #2a1f10;
+  --ink-mid:   #5a4830;
+  --ink-dim:   #9a8060;
+  --ink-ghost: #c8a870;
+  --terra:     #b85030;
+  --terra-lt:  #d4785a;
+  --sage:      #6c9e56;
+  --sage-dk:   #4c7838;
 }
-
-*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
 
 body {
   min-height: 100vh;
   background: var(--cream);
-  /* Grain vintage */
-  background-image:
-    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='600' height='600'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.68' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='600' height='600' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E"),
-    radial-gradient(ellipse at 50% 0%, rgba(255,248,228,.6) 0%, transparent 60%);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='600' height='600'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.68' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='600' height='600' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E");
   font-family: 'Lora', Georgia, serif;
   color: var(--ink);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 40px 24px 60px;
-  gap: 0;
 }
 
-/* Cadre décoratif extérieur */
+/* Cadre */
 body::after {
-  content: '';
-  position: fixed; inset: 8px;
-  border: 1.5px solid rgba(184,80,48,.2);
-  border-radius: 6px;
-  pointer-events: none;
-  z-index: 900;
+  content:''; position:fixed; inset:8px;
+  border:1.5px solid rgba(184,80,48,.18);
+  border-radius:6px; pointer-events:none; z-index:900;
 }
-
-/* Coins ornementaux */
-.corner {
-  position: fixed;
-  pointer-events: none;
-  z-index: 901;
-  opacity: .2;
-  width: 50px; height: 50px;
-}
+.corner { position:fixed; pointer-events:none; z-index:901; opacity:.22; width:50px; height:50px; }
 .corner.tl { top:10px; left:10px; }
 .corner.tr { top:10px; right:10px; transform:scaleX(-1); }
 .corner.bl { bottom:10px; left:10px; transform:scaleY(-1); }
 .corner.br { bottom:10px; right:10px; transform:scale(-1); }
 
-/* ══════════════════════════════════════
-   EN-TÊTE
-══════════════════════════════════════ */
-.header {
-  text-align: center;
-  margin-bottom: 48px;
+/* ══ BARRE SUPÉRIEURE FIXE ══ */
+.top-bar {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 48px;
+  height: 56px;
+  background: var(--cream);
+  border-bottom: 1.5px solid var(--ink);
 }
 
-h1 {
+.top-bar-title {
   font-family: 'Playfair Display', serif;
-  font-size: clamp(36px, 5vw, 64px);
+  font-size: 18px;
   font-weight: 700;
-  line-height: 1;
   letter-spacing: -.01em;
 }
-h1 .acc { color: var(--terra); font-style: italic; }
+.top-bar-title .acc { color:var(--terra); font-style:italic; }
 
-.tagline {
-  display: block;
-  font-style: italic;
-  font-size: 14px;
+.top-bar-right {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  font-size: 10.5px;
+  letter-spacing: .18em;
+  text-transform: uppercase;
   color: var(--ink-dim);
-  letter-spacing: .16em;
-  text-transform: uppercase;
-  margin-top: 6px;
 }
-
-/* Filet ornemental */
-.h-rule {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  margin: 10px auto 0;
-  width: clamp(260px, 40vw, 440px);
-}
-.h-rule-line {
-  flex: 1;
-  height: 1px;
-  background: linear-gradient(to right, transparent, rgba(184,80,48,.38), transparent);
-}
-.h-rule-orn {
-  font-family: 'Playfair Display', serif;
-  font-size: 13px;
+.top-bar-count {
+  padding: 4px 12px;
+  border: 1px solid rgba(184,80,48,.3);
+  border-radius: 2px;
   color: var(--terra);
-  opacity: .55;
-  letter-spacing: .14em;
+  font-size: 10px;
 }
 
-/* ══════════════════════════════════════
-   SÉPARATEUR DE SECTION
-══════════════════════════════════════ */
-.section-sep {
-  width: 100%;
-  max-width: 1100px;
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  margin: 44px 0 36px;
-}
-.section-sep-line {
-  flex: 1;
-  height: 1px;
-  background: linear-gradient(to right, transparent, rgba(184,80,48,.25), transparent);
-}
-.section-sep-label {
-  font-family: 'Playfair Display', serif;
-  font-size: 11px;
-  color: var(--ink-ghost);
-  letter-spacing: .22em;
-  text-transform: uppercase;
+/* ══ GRILLE CATALOGUE ══
+   Inspirée des annuaires Pentagram / catalogues galerie */
+.catalogue {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  border-left: 1.5px solid var(--ink);
 }
 
-/* ══════════════════════════════════════
-   GRILLE DE JEUX
-   ─ Ajoutez des .game-card pour plus de jeux
-══════════════════════════════════════ */
-.games-grid {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 32px;
-  width: 100%;
-  max-width: 1100px;
-}
-
-/* ══════════════════════════════════════
-   CARTE DE JEU
-══════════════════════════════════════ */
-.game-card {
+/* Chaque cellule */
+.cat-item {
   text-decoration: none;
   color: inherit;
+  border-right: 1.5px solid var(--ink);
+  border-bottom: 1.5px solid var(--ink);
   display: flex;
   flex-direction: column;
-  width: clamp(260px, 28vw, 340px);
-  background: var(--paper);
-  border-radius: 16px;
-  overflow: hidden;
-  box-shadow:
-    0 2px 8px  rgba(42,31,16,.07),
-    0 12px 36px rgba(42,31,16,.09),
-    inset 0 0 0 1.5px rgba(184,80,48,.1),
-    inset 0 0 0 7px rgba(240,232,208,.6);
   position: relative;
-  transition: transform .28s cubic-bezier(.34,1.2,.64,1),
-              box-shadow .28s ease;
-  cursor: pointer;
+  overflow: hidden;
+  transition: background .2s ease;
+  min-height: 260px;
 }
 
-.game-card:hover {
-  transform: translateY(-6px) scale(1.015);
-  box-shadow:
-    0 6px 18px  rgba(42,31,16,.12),
-    0 22px 50px rgba(42,31,16,.13),
-    inset 0 0 0 1.5px rgba(184,80,48,.18),
-    inset 0 0 0 7px rgba(240,232,208,.6);
-}
-
-/* Filet interne (comme les autres pages) */
-.game-card::before {
-  content: '';
-  position: absolute;
-  inset: 12px;
-  border: 1px solid rgba(184,80,48,.1);
-  border-radius: 8px;
-  pointer-events: none;
-  z-index: 2;
-}
-
-/* Reflet lumineux */
-.game-card::after {
+/* Survol : overlay sombre semi-transparent par-dessus l'image */
+.cat-item::before {
   content: '';
   position: absolute; inset: 0;
-  background: linear-gradient(135deg, rgba(255,248,220,.3) 0%, transparent 50%);
-  pointer-events: none;
-  z-index: 3;
-  border-radius: inherit;
-}
-
-/* ── IMAGE ── */
-.card-img-wrap {
-  width: 100%;
-  aspect-ratio: 16 / 10;
-  overflow: hidden;
-  position: relative;
-  flex-shrink: 0;
-}
-
-.card-img-wrap img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  display: block;
-  transition: transform .42s ease, filter .3s ease;
-  filter: sepia(.12) saturate(.9) brightness(1.02);
-}
-
-.game-card:hover .card-img-wrap img {
-  transform: scale(1.06);
-  filter: sepia(.05) saturate(1) brightness(1.05);
-}
-
-/* Placeholder si pas d'image */
-.card-img-placeholder {
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(135deg, var(--cream) 0%, #e0d5be 100%);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-family: 'Playfair Display', serif;
-  font-size: 52px;
-  color: rgba(184,80,48,.2);
-}
-
-/* Overlay "Jouer" au survol */
-.card-overlay {
-  position: absolute;
-  inset: 0;
-  background: rgba(42,31,16,.38);
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  background: rgba(20, 12, 4, 0.52);
   opacity: 0;
-  transition: opacity .25s ease;
-  z-index: 4;
+  transition: opacity .38s cubic-bezier(.77,0,.18,1);
+  z-index: 1;
 }
-.game-card:hover .card-overlay { opacity: 1; }
+.cat-item:hover::before { opacity: 1; }
 
-.overlay-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 7px;
-  padding: 10px 24px;
-  border-radius: 50px;
-  background: var(--terra);
-  color: #fff;
-  font-family: 'Lora', serif;
-  font-size: 14px;
-  font-weight: 600;
-  letter-spacing: .04em;
-  box-shadow: 0 3px 14px rgba(184,80,48,.45);
-  transform: translateY(6px);
-  transition: transform .25s .05s ease;
+/* Image en fond */
+.cat-bg {
+  position: absolute; inset: 0;
+  z-index: 0;
 }
-.game-card:hover .overlay-btn {
-  transform: translateY(0);
-}
-
-/* ── TEXTE DE CARTE ── */
-.card-body {
-  padding: 18px 20px 20px;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  position: relative;
-  z-index: 2;
-  flex: 1;
-}
-
-.card-title {
-  font-family: 'Playfair Display', serif;
-  font-size: clamp(18px, 2vw, 22px);
-  font-weight: 700;
-  color: var(--ink);
-  line-height: 1.15;
-}
-
-.card-desc {
-  font-style: italic;
-  font-size: 13px;
-  color: var(--ink-dim);
-  line-height: 1.55;
-}
-
-/* Tag coloré (optionnel) */
-.card-tag {
-  display: inline-block;
-  margin-top: 4px;
-  padding: 3px 11px;
-  border-radius: 50px;
-  font-size: 10px;
-  font-weight: 600;
-  letter-spacing: .1em;
-  text-transform: uppercase;
-  align-self: flex-start;
-}
-.tag-terra  { background: rgba(184,80,48,.14); color: var(--terra); }
-.tag-sage   { background: rgba(108,158,86,.16); color: var(--sage-dk); }
-.tag-lav    { background: rgba(140,120,210,.14); color: #5848a0; }
-.tag-butter { background: rgba(200,176,56,.18); color: #806820; }
-.tag-ocean  { background: rgba(56,130,190,.14); color: #2a6090; }
-.tag-rose   { background: rgba(190,80,120,.14); color: #902050; }
-
-/* Flèche dans le titre au survol */
-.card-title::after {
-  content: ' →';
-  font-size: .8em;
+.cat-bg img {
+  width:100%; height:100%; object-fit:cover;
+  filter: sepia(.15) saturate(.8) brightness(.85) contrast(1.05);
   opacity: 0;
-  transition: opacity .2s, transform .2s;
-  display: inline-block;
-  transform: translateX(-4px);
+  transition: opacity .42s ease, transform .5s ease;
+  transform: scale(1.04);
 }
-.game-card:hover .card-title::after {
+.cat-item:hover .cat-bg img {
   opacity: 1;
-  transform: translateX(2px);
+  transform: scale(1);
 }
 
-/* ══════════════════════════════════════
-   PIED DE PAGE
-══════════════════════════════════════ */
-.footer {
-  margin-top: 56px;
-  text-align: center;
-  font-style: italic;
-  font-size: 12px;
+/* Numéro en overlay gros */
+.cat-num {
+  position: absolute;
+  top: 16px; right: 18px;
+  font-family: 'Playfair Display', serif;
+  font-size: 11px;
+  font-weight: 400;
   color: var(--ink-ghost);
   letter-spacing: .1em;
+  z-index: 3;
+  transition: color .3s;
 }
-.footer .orn { display: block; font-size: 16px; opacity: .35; margin-bottom: 4px; }
+.cat-item:hover .cat-num { color: rgba(240,232,213,.5); }
 
+/* Contenu */
+.cat-body {
+  padding: 24px 22px 22px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  flex: 1;
+  position: relative;
+  z-index: 2;
+}
+
+.cat-tag {
+  font-size: 9px;
+  letter-spacing: .22em;
+  text-transform: uppercase;
+  color: var(--terra);
+  margin-bottom: 10px;
+  transition: color .3s;
+}
+.cat-item:hover .cat-tag { color: var(--terra-lt); }
+
+.cat-title {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(17px, 1.8vw, 24px);
+  font-weight: 700;
+  line-height: 1.1;
+  letter-spacing: -.01em;
+  color: var(--ink);
+  margin-bottom: 10px;
+  transition: color .3s;
+}
+.cat-item:hover .cat-title { color: var(--cream); }
+
+.cat-desc {
+  font-style: italic;
+  font-size: 12px;
+  color: var(--ink-dim);
+  line-height: 1.5;
+  transition: color .3s;
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height .35s ease, color .3s, opacity .3s;
+  opacity: 0;
+}
+.cat-item:hover .cat-desc {
+  max-height: 80px;
+  opacity: 1;
+  color: var(--ink-ghost);
+}
+
+/* Flèche en bas */
+.cat-arrow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 16px;
+  font-size: 10px;
+  letter-spacing: .2em;
+  text-transform: uppercase;
+  color: var(--cream);
+  opacity: 0;
+  transform: translateY(6px);
+  transition: opacity .3s .06s, transform .3s .06s;
+}
+.cat-arrow-line {
+  width: 24px; height: 1px;
+  background: var(--terra);
+  transition: width .3s;
+}
+.cat-item:hover .cat-arrow { opacity:1; transform:translateY(0); }
+.cat-item:hover .cat-arrow-line { width:40px; }
+
+/* Cellule GRAND FORMAT — occupe 2 colonnes × 2 lignes */
+.cat-item.featured {
+  grid-column: span 2;
+  grid-row: span 2;
+  min-height: 520px;
+}
+.cat-item.featured .cat-body { padding:36px 32px 32px; }
+.cat-item.featured .cat-title { font-size:clamp(28px,3vw,44px); margin-bottom:14px; }
+.cat-item.featured .cat-desc { font-size:14px; }
+.cat-item.featured .cat-bg img { opacity:.0; }
+.cat-item.featured:hover .cat-bg img { opacity: 1; transform: scale(1); }
+
+/* Cellule LARGE — 2 colonnes */
+.cat-item.wide {
+  grid-column: span 2;
+}
+
+/* ══ ZONE BASSE : grande typo + image côte à côte ══ */
+.bottom-banner {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  border-left: 1.5px solid var(--ink);
+  border-bottom: 1.5px solid var(--ink);
+}
+
+.banner-text {
+  border-right: 1.5px solid var(--ink);
+  padding: 48px 48px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.banner-eyebrow {
+  font-size: 10px;
+  letter-spacing: .28em;
+  text-transform: uppercase;
+  color: var(--terra);
+  margin-bottom: 20px;
+}
+
+.banner-quote {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(28px, 3.5vw, 52px);
+  font-style: italic;
+  font-weight: 400;
+  color: var(--ink);
+  line-height: 1.1;
+  letter-spacing: -.015em;
+}
+
+.banner-sub {
+  margin-top: 20px;
+  font-size: 12.5px;
+  color: var(--ink-dim);
+  font-style: italic;
+}
+
+/* Footer */
+.footer-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 48px;
+  border-top: 1.5px solid var(--ink);
+  font-size: 11px;
+  letter-spacing: .14em;
+  color: var(--ink-ghost);
+}
+.footer-orn { color:var(--terra); font-size:14px; opacity:.45; }
+
+/* Animation entrée */
+@keyframes fadeUp {
+  from { opacity:0; transform:translateY(12px); }
+  to   { opacity:1; transform:translateY(0); }
+}
+.cat-item { animation:fadeUp .5s ease both; }
+.cat-item:nth-child(1) { animation-delay:.04s; }
+.cat-item:nth-child(2) { animation-delay:.08s; }
+.cat-item:nth-child(3) { animation-delay:.12s; }
+.cat-item:nth-child(4) { animation-delay:.16s; }
+.cat-item:nth-child(5) { animation-delay:.20s; }
+.cat-item:nth-child(6) { animation-delay:.24s; }
+.cat-item:nth-child(7) { animation-delay:.28s; }
+.cat-item:nth-child(8) { animation-delay:.32s; }
+.cat-item:nth-child(9) { animation-delay:.36s; }
+.cat-item:nth-child(10){ animation-delay:.40s; }
+
+/* Responsive */
+@media (max-width:900px) {
+  .catalogue { grid-template-columns:repeat(2,1fr); }
+  .cat-item.featured { grid-column:span 2; min-height:320px; }
+  .cat-item.wide { grid-column:span 2; }
+  .top-bar { padding:0 24px; }
+  .bottom-banner { grid-template-columns:1fr; }
+  .banner-text { border-right:none; border-bottom:1.5px solid var(--ink); }
+}
+@media (max-width:560px) {
+  .catalogue { grid-template-columns:1fr; }
+  .cat-item.featured, .cat-item.wide { grid-column:span 1; }
+}
 </style>
 </head>
 <body>
 
-<!-- COINS ORNEMENTAUX -->
 <svg class="corner tl" viewBox="0 0 50 50" fill="none">
   <path d="M5 5L5 22M5 5L22 5" stroke="#b85030" stroke-width="1.6" stroke-linecap="round"/>
   <path d="M5 5Q14 9 18 18" stroke="#b85030" stroke-width="1" stroke-linecap="round"/>
   <circle cx="5" cy="5" r="2.2" fill="#b85030"/>
-  <path d="M12 5L12 8M5 12L8 12" stroke="#b85030" stroke-width=".9" stroke-linecap="round" opacity=".5"/>
 </svg>
 <svg class="corner tr" viewBox="0 0 50 50" fill="none">
   <path d="M5 5L5 22M5 5L22 5" stroke="#b85030" stroke-width="1.6" stroke-linecap="round"/>
   <path d="M5 5Q14 9 18 18" stroke="#b85030" stroke-width="1" stroke-linecap="round"/>
   <circle cx="5" cy="5" r="2.2" fill="#b85030"/>
-  <path d="M12 5L12 8M5 12L8 12" stroke="#b85030" stroke-width=".9" stroke-linecap="round" opacity=".5"/>
 </svg>
 <svg class="corner bl" viewBox="0 0 50 50" fill="none">
   <path d="M5 5L5 22M5 5L22 5" stroke="#b85030" stroke-width="1.6" stroke-linecap="round"/>
   <path d="M5 5Q14 9 18 18" stroke="#b85030" stroke-width="1" stroke-linecap="round"/>
   <circle cx="5" cy="5" r="2.2" fill="#b85030"/>
-  <path d="M12 5L12 8M5 12L8 12" stroke="#b85030" stroke-width=".9" stroke-linecap="round" opacity=".5"/>
 </svg>
 <svg class="corner br" viewBox="0 0 50 50" fill="none">
   <path d="M5 5L5 22M5 5L22 5" stroke="#b85030" stroke-width="1.6" stroke-linecap="round"/>
   <path d="M5 5Q14 9 18 18" stroke="#b85030" stroke-width="1" stroke-linecap="round"/>
   <circle cx="5" cy="5" r="2.2" fill="#b85030"/>
-  <path d="M12 5L12 8M5 12L8 12" stroke="#b85030" stroke-width=".9" stroke-linecap="round" opacity=".5"/>
 </svg>
 
-<!-- EN-TÊTE -->
-<div class="header">
-  <h1>Mes <span class="acc">Jeux</span></h1>
-  <span class="tagline">— choisissez votre jeu —</span>
-  <div class="h-rule">
-    <div class="h-rule-line"></div>
-    <span class="h-rule-orn">— ✦ —</span>
-    <div class="h-rule-line"></div>
+<!-- BARRE FIXE -->
+<div class="top-bar">
+  <div class="top-bar-title">Mes <span class="acc">Jeux</span></div>
+  <div class="top-bar-right">
+    <span>— choisissez votre jeu —</span>
+    <span class="top-bar-count">10 jeux</span>
   </div>
 </div>
 
-<!-- ══════════════════════════════════════════════
-     GRILLE DES JEUX
-     Pour ajouter un jeu : copiez un bloc .game-card
-     et changez href, img src, titre, description, tag.
-══════════════════════════════════════════════ -->
-<div class="games-grid">
+<!-- GRILLE CATALOGUE -->
+<div class="catalogue">
 
-  <!-- ── JEU 1 ── -->
-  <a class="game-card" href="le-bon-mot.html">
-    <div class="card-img-wrap">
-      <img src="image1.jpg" alt="Le Bon Mot"
-           onerror="this.onerror=null;this.style.display='none';this.nextElementSibling.style.display='flex'">
-      <div class="card-img-placeholder" style="display:none">✦</div>
-      <div class="card-overlay">
-        <div class="overlay-btn">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>
-          Jouer
-        </div>
-      </div>
+  <!-- Cellule vedette 2×2 -->
+  <a class="cat-item featured" href="le-bon-mot.html">
+    <div class="cat-bg">
+      <img src="image1.jpg" alt="Le Bon Mot" onerror="this.onerror=null;this.style.display='none'">
     </div>
-    <div class="card-body">
-      <div class="card-title">Le Bon Mot</div>
-      <div class="card-desc">Jeu de vocabulaire — lettres, thèmes et variantes pour toute la famille.</div>
-      <span class="card-tag tag-terra">Vocabulaire</span>
+    <div class="cat-num">01</div>
+    <div class="cat-body">
+      <div class="cat-tag">Vocabulaire</div>
+      <div class="cat-title">Le Bon Mot</div>
+      <div class="cat-desc">Jeu de vocabulaire — lettres, thèmes et variantes pour toute la famille.</div>
+      <div class="cat-arrow"><div class="cat-arrow-line"></div>Jouer</div>
     </div>
   </a>
 
-  <!-- ── JEU 2 ── -->
-  <a class="game-card" href="lanceur-des.html">
-    <div class="card-img-wrap">
-      <img src="image2.jpg" alt="Lanceur de Dés"
-           onerror="this.onerror=null;this.style.display='none';this.nextElementSibling.style.display='flex'">
-      <div class="card-img-placeholder" style="display:none">⚄</div>
-      <div class="card-overlay">
-        <div class="overlay-btn">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>
-          Jouer
-        </div>
-      </div>
-    </div>
-    <div class="card-body">
-      <div class="card-title">Lanceur de Dés</div>
-      <div class="card-desc">Lancez jusqu'à 10 dés colorés, bloquez vos favoris et calculez votre total.</div>
-      <span class="card-tag tag-sage">Stratégie</span>
+  <!-- 3 cellules normales sur la ligne 1 -->
+  <a class="cat-item" href="lanceur-des.html">
+    <div class="cat-bg"><img src="image2.jpg" alt="Lanceur de Dés" onerror="this.onerror=null;this.style.display='none'"></div>
+    <div class="cat-num">02</div>
+    <div class="cat-body">
+      <div class="cat-tag">Stratégie</div>
+      <div class="cat-title">Lanceur de Dés</div>
+      <div class="cat-desc">Lancez jusqu'à 10 dés colorés, bloquez vos favoris.</div>
+      <div class="cat-arrow"><div class="cat-arrow-line"></div>Jouer</div>
     </div>
   </a>
 
-  <!-- ── JEU 3 ── -->
-  <a class="game-card" href="Les-mots.html">
-    <div class="card-img-wrap">
-      <img src="image3.jpg" alt="Les Mots"
-           onerror="this.onerror=null;this.style.display='none';this.nextElementSibling.style.display='flex'">
-      <div class="card-img-placeholder" style="display:none">✎</div>
-      <div class="card-overlay">
-        <div class="overlay-btn">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>
-          Jouer
-        </div>
-      </div>
-    </div>
-    <div class="card-body">
-      <div class="card-title">Les Mots</div>
-      <div class="card-desc">Explorez le langage — trouvez, composez et déchiffrez des mots à toute vitesse.</div>
-      <span class="card-tag tag-lav">Langage</span>
+  <a class="cat-item" href="Les-mots.html">
+    <div class="cat-bg"><img src="image3.jpg" alt="Les Mots" onerror="this.onerror=null;this.style.display='none'"></div>
+    <div class="cat-num">03</div>
+    <div class="cat-body">
+      <div class="cat-tag">Langage</div>
+      <div class="cat-title">Les Mots</div>
+      <div class="cat-desc">Trouvez, composez et déchiffrez des mots.</div>
+      <div class="cat-arrow"><div class="cat-arrow-line"></div>Jouer</div>
     </div>
   </a>
 
-  <!-- ── JEU 4 ── -->
-  <a class="game-card" href="drapeaux.html">
-    <div class="card-img-wrap">
-      <img src="image4.jpg" alt="Drapeaux"
-           onerror="this.onerror=null;this.style.display='none';this.nextElementSibling.style.display='flex'">
-      <div class="card-img-placeholder" style="display:none">🏳</div>
-      <div class="card-overlay">
-        <div class="overlay-btn">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>
-          Jouer
-        </div>
-      </div>
-    </div>
-    <div class="card-body">
-      <div class="card-title">Drapeaux</div>
-      <div class="card-desc">Reconnaissez les drapeaux du monde entier et testez vos connaissances géographiques.</div>
-      <span class="card-tag tag-butter">Géographie</span>
+  <a class="cat-item" href="drapeaux.html">
+    <div class="cat-bg"><img src="image4.jpg" alt="Drapeaux" onerror="this.onerror=null;this.style.display='none'"></div>
+    <div class="cat-num">04</div>
+    <div class="cat-body">
+      <div class="cat-tag">Géographie</div>
+      <div class="cat-title">Drapeaux</div>
+      <div class="cat-desc">Reconnaissez les drapeaux du monde entier.</div>
+      <div class="cat-arrow"><div class="cat-arrow-line"></div>Jouer</div>
     </div>
   </a>
 
-  <!-- ── JEU 5 ── -->
-  <a class="game-card" href="générateur-mots.html">
-    <div class="card-img-wrap">
-      <img src="image5.jpg" alt="Générateur de Mots"
-           onerror="this.onerror=null;this.style.display='none';this.nextElementSibling.style.display='flex'">
-      <div class="card-img-placeholder" style="display:none">⊞</div>
-      <div class="card-overlay">
-        <div class="overlay-btn">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>
-          Jouer
-        </div>
-      </div>
-    </div>
-    <div class="card-body">
-      <div class="card-title">Générateur de Mots</div>
-      <div class="card-desc">Générez des mots aléatoires et laissez-vous surprendre par la richesse du lexique.</div>
-      <span class="card-tag tag-ocean">Créativité</span>
+  <!-- 5e cellule vient se placer ligne 2, col 3 (puisque featured prend 1-2 / 1-2) -->
+  <a class="cat-item" href="générateur-mots.html">
+    <div class="cat-bg"><img src="image5.jpg" alt="Générateur de Mots" onerror="this.onerror=null;this.style.display='none'"></div>
+    <div class="cat-num">05</div>
+    <div class="cat-body">
+      <div class="cat-tag">Créativité</div>
+      <div class="cat-title">Générateur de Mots</div>
+      <div class="cat-desc">Générez des mots aléatoires du lexique.</div>
+      <div class="cat-arrow"><div class="cat-arrow-line"></div>Jouer</div>
     </div>
   </a>
 
-  <!-- ── JEU 6 ── -->
-  <a class="game-card" href="générateur-nombres.html">
-    <div class="card-img-wrap">
-      <img src="image6.jpg" alt="Générateur de Nombres"
-           onerror="this.onerror=null;this.style.display='none';this.nextElementSibling.style.display='flex'">
-      <div class="card-img-placeholder" style="display:none">∞</div>
-      <div class="card-overlay">
-        <div class="overlay-btn">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>
-          Jouer
-        </div>
-      </div>
-    </div>
-    <div class="card-body">
-      <div class="card-title">Générateur de Nombres</div>
-      <div class="card-desc">Tirez des nombres au hasard selon vos règles et explorez les probabilités.</div>
-      <span class="card-tag tag-sage">Calcul</span>
+  <!-- Ligne 3 : 5 cellules -->
+  <a class="cat-item wide" href="générateur-nombres.html">
+    <div class="cat-bg"><img src="image6.jpg" alt="Générateur de Nombres" onerror="this.onerror=null;this.style.display='none'"></div>
+    <div class="cat-num">06</div>
+    <div class="cat-body">
+      <div class="cat-tag">Calcul</div>
+      <div class="cat-title">Générateur de Nombres</div>
+      <div class="cat-desc">Tirez des nombres au hasard selon vos règles et explorez les probabilités.</div>
+      <div class="cat-arrow"><div class="cat-arrow-line"></div>Jouer</div>
     </div>
   </a>
 
-  <!-- ── JEU 7 ── -->
-  <a class="game-card" href="tableau-lettres.html">
-    <div class="card-img-wrap">
-      <img src="image7.jpg" alt="Tableau de Lettres"
-           onerror="this.onerror=null;this.style.display='none';this.nextElementSibling.style.display='flex'">
-      <div class="card-img-placeholder" style="display:none">▦</div>
-      <div class="card-overlay">
-        <div class="overlay-btn">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>
-          Jouer
-        </div>
-      </div>
-    </div>
-    <div class="card-body">
-      <div class="card-title">Tableau de Lettres</div>
-      <div class="card-desc">Naviguez dans une grille de lettres et formez un maximum de mots cachés.</div>
-      <span class="card-tag tag-rose">Grille</span>
+  <a class="cat-item" href="tableau-lettres.html">
+    <div class="cat-bg"><img src="image7.jpg" alt="Tableau de Lettres" onerror="this.onerror=null;this.style.display='none'"></div>
+    <div class="cat-num">07</div>
+    <div class="cat-body">
+      <div class="cat-tag">Grille</div>
+      <div class="cat-title">Tableau de Lettres</div>
+      <div class="cat-desc">Formez un maximum de mots cachés.</div>
+      <div class="cat-arrow"><div class="cat-arrow-line"></div>Jouer</div>
     </div>
   </a>
 
-  <!-- ── JEU 8 ── -->
-  <a class="game-card" href="variante.html">
-    <div class="card-img-wrap">
-      <img src="image8.jpg" alt="Variante"
-           onerror="this.onerror=null;this.style.display='none';this.nextElementSibling.style.display='flex'">
-      <div class="card-img-placeholder" style="display:none">✦</div>
-      <div class="card-overlay">
-        <div class="overlay-btn">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>
-          Jouer
-        </div>
-      </div>
-    </div>
-    <div class="card-body">
-      <div class="card-title">Variante</div>
-      <div class="card-desc">Découvrez une nouvelle façon de jouer avec des règles revisitées et surprenantes.</div>
-      <span class="card-tag tag-terra">Variante</span>
+  <a class="cat-item" href="variante.html">
+    <div class="cat-bg"><img src="image8.jpg" alt="Variante" onerror="this.onerror=null;this.style.display='none'"></div>
+    <div class="cat-num">08</div>
+    <div class="cat-body">
+      <div class="cat-tag">Variante</div>
+      <div class="cat-title">Variante</div>
+      <div class="cat-desc">Des règles revisitées et surprenantes.</div>
+      <div class="cat-arrow"><div class="cat-arrow-line"></div>Jouer</div>
     </div>
   </a>
 
-  <!-- ── JEU 9 ── -->
-  <a class="game-card" href="le-correcteur.html">
-    <div class="card-img-wrap">
-      <img src="image9.jpg" alt="Le Correcteur"
-           onerror="this.onerror=null;this.style.display='none';this.nextElementSibling.style.display='flex'">
-      <div class="card-img-placeholder" style="display:none">✎</div>
-      <div class="card-overlay">
-        <div class="overlay-btn">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>
-          Jouer
-        </div>
-      </div>
+  <a class="cat-item" href="le-correcteur.html">
+    <div class="cat-bg"><img src="image9.jpg" alt="Le Correcteur" onerror="this.onerror=null;this.style.display='none'"></div>
+    <div class="cat-num">09</div>
+    <div class="cat-body">
+      <div class="cat-tag">Orthographe</div>
+      <div class="cat-title">Le Correcteur</div>
+      <div class="cat-desc">Affûtez votre sens de l'orthographe.</div>
+      <div class="cat-arrow"><div class="cat-arrow-line"></div>Jouer</div>
     </div>
-    <div class="card-body">
-      <div class="card-title">Le Correcteur</div>
-      <div class="card-desc">Repérez les erreurs, corrigez les fautes et affûtez votre sens de l'orthographe.</div>
-      <span class="card-tag tag-lav">Orthographe</span>
+  </a>
+
+  <a class="cat-item" href="cadres-interactifs.html">
+    <div class="cat-bg"><img src="image10.jpg" alt="Cadres" onerror="this.onerror=null;this.style.display='none'"></div>
+    <div class="cat-num">10</div>
+    <div class="cat-body">
+      <div class="cat-tag">Utilitaire</div>
+      <div class="cat-title">Cadres</div>
+      <div class="cat-desc">Générez des cadres colorés.</div>
+      <div class="cat-arrow"><div class="cat-arrow-line"></div>Jouer</div>
     </div>
   </a>
 
 </div>
 
-<!-- PIED DE PAGE -->
-<div class="footer">
-  <span class="orn">✦</span>
-  Cliquez sur une carte pour lancer le jeu
+<!-- FOOTER BAR -->
+<div class="footer-bar">
+  <span>Cliquez sur un jeu pour le lancer</span>
+  <span class="footer-orn">✦</span>
+  <span>Collection 2024</span>
 </div>
 
 </body>
