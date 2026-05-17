@@ -23,6 +23,8 @@
   --c-verbe:   #9ec898;
   --c-compl:   #a8a0d0;
   --c-adj:     #dace7a;
+  --c-aux:     #f0c8b0;
+  --t-aux:     #4a1a08;
   --t-sujet:   #3a2010;
   --t-verbe:   #0e3818;
   --t-compl:   #1e1848;
@@ -347,7 +349,7 @@ svg.ico { width:13px; height:13px; flex-shrink:0; }
 <div class="cards-row" id="cards-row">
 
   <!-- Sujet -->
-  <div class="card-col" id="col-sujet" style="order:1">
+  <div class="card-col" id="col-sujet" style="order:1;">
     <div class="card" style="background:var(--c-sujet);">
       <span class="card-label" style="color:var(--t-sujet)">Sujet</span>
       <span class="card-value" id="val-sujet" style="color:var(--t-sujet)">—</span>
@@ -358,8 +360,16 @@ svg.ico { width:13px; height:13px; flex-shrink:0; }
     </button>
   </div>
 
+  <!-- Auxiliaire (caché par défaut) -->
+  <div class="card-col" id="col-aux" style="order:2; display:none;">
+    <div class="card" style="background:var(--c-aux);">
+      <span class="card-label" style="color:var(--t-aux)">Auxiliaire</span>
+      <span class="card-value" id="val-aux" style="color:var(--t-aux)">être ou avoir</span>
+    </div>
+  </div>
+
   <!-- Verbe -->
-  <div class="card-col" id="col-verbe" style="order:2">
+  <div class="card-col" id="col-verbe" style="order:3">
     <div class="card" style="background:var(--c-verbe);">
       <span class="card-label" style="color:var(--t-verbe)">Verbe</span>
       <span class="card-value" id="val-verbe" style="color:var(--t-verbe)">Verbe</span>
@@ -367,7 +377,7 @@ svg.ico { width:13px; height:13px; flex-shrink:0; }
   </div>
 
   <!-- Complément -->
-  <div class="card-col" id="col-compl" style="order:3">
+  <div class="card-col" id="col-compl" style="order:4">
     <div class="card" style="background:var(--c-compl);">
       <span class="card-label" style="color:var(--t-compl)">Complément</span>
       <span class="card-value" id="val-compl" style="color:var(--t-compl)">—</span>
@@ -379,7 +389,7 @@ svg.ico { width:13px; height:13px; flex-shrink:0; }
   </div>
 
   <!-- Adjectif (caché par défaut) -->
-  <div class="card-col" id="col-adj" style="order:4; display:none;">
+  <div class="card-col" id="col-adj" style="order:5; display:none;">
     <div class="card" style="background:var(--c-adj);">
       <span class="card-value" id="val-adj" style="color:var(--t-adj)">Adjectif</span>
     </div>
@@ -400,6 +410,14 @@ svg.ico { width:13px; height:13px; flex-shrink:0; }
     <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m15 6 6 6-6 6"/><path d="M9 18l-6-6 6-6"/></svg>
     <span id="side-label">Avant le complément</span>
   </button>
+
+  <span class="adj-toggle-label" style="margin-left:10px;">Passé Composé</span>
+  <div class="toggle-wrap" onclick="togglePC()">
+    <div class="toggle-track" id="toggle-track-pc">
+      <div class="toggle-thumb"></div>
+    </div>
+    <span class="toggle-onoff" id="toggle-onoff-pc">OFF</span>
+  </div>
 </div>
 
 <!-- BOTTOM -->
@@ -429,6 +447,7 @@ const DATA = {
 
 let adjActive = false;
 let adjSide = 'left';
+let pcActive = false;
 
 function pick(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
 
@@ -451,12 +470,12 @@ function applyAdjOrder() {
   const colCompl = document.getElementById('col-compl');
   const lbl      = document.getElementById('side-label');
   if (adjSide === 'left') {
-    colAdj.style.order   = '3';
-    colCompl.style.order = '4';
+    colAdj.style.order   = '4';
+    colCompl.style.order = '5';
     lbl.textContent = 'Avant le complément';
   } else {
-    colCompl.style.order = '3';
-    colAdj.style.order   = '4';
+    colCompl.style.order = '4';
+    colAdj.style.order   = '5';
     lbl.textContent = 'Après le complément';
   }
 }
@@ -479,7 +498,25 @@ function toggleAdj() {
     onoff.textContent = 'OFF';
     colAdj.style.display = 'none';
     btnSide.classList.remove('visible');
-    document.getElementById('col-compl').style.order = '3';
+    document.getElementById('col-compl').style.order = '4';
+  }
+}
+
+function togglePC() {
+  pcActive = !pcActive;
+  const track  = document.getElementById('toggle-track-pc');
+  const onoff  = document.getElementById('toggle-onoff-pc');
+  const colAux = document.getElementById('col-aux');
+
+  if (pcActive) {
+    track.classList.add('on');
+    onoff.textContent = 'ON';
+    colAux.style.display = 'flex';
+    colAux.style.order = '2';
+  } else {
+    track.classList.remove('on');
+    onoff.textContent = 'OFF';
+    colAux.style.display = 'none';
   }
 }
 
