@@ -1,0 +1,1215 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cadres Interactifs</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400;1,700&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400;1,600&display=swap" rel="stylesheet">
+<style>
+/* ════════════════════════════
+   TOKENS
+════════════════════════════ */
+:root {
+  --parchment: #ede5cf;
+  --paper:     #faf4e4;
+  --ink:       #241a0c;
+  --ink-mid:   #58482e;
+  --ink-dim:   #9a8660;
+  --ink-ghost: #c8a878;
+  --terra:     #b85030;
+  --sage:      #6c9e56;
+  --sage-dk:   #4c7838;
+  --blush:     #c88878;
+  --lav:       #9a90c8;
+  --butter:    #c8b038;
+
+  --frame-1: #e8d4b8; --frame-1-tx: #3a2010;
+  --frame-2: #b8d4b0; --frame-2-tx: #0e3018;
+  --frame-3: #b8b0d8; --frame-3-tx: #1e1448;
+  --frame-4: #d8cc8a; --frame-4-tx: #2e2400;
+  --frame-5: #a8ccd8; --frame-5-tx: #082030;
+  --frame-6: #d8b0c0; --frame-6-tx: #3a0e1e;
+
+  --sidebar-w: 200px;
+}
+
+*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+html, body {
+  width:100%; height:100%;
+  overflow: hidden;
+}
+
+body {
+  background: var(--parchment);
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  color: var(--ink);
+  height: 100vh;
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  grid-template-columns: 1fr var(--sidebar-w);
+  grid-template-areas:
+    "header sidebar"
+    "canvas sidebar"
+    "bar    sidebar";
+}
+
+/* Grain overlay */
+body::before {
+  content: '';
+  position: fixed; inset: 0;
+  background-image:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='700' height='700'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.72' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='700' height='700' filter='url(%23n)' opacity='0.065'/%3E%3C/svg%3E"),
+    radial-gradient(ellipse at 50% 50%, transparent 52%, rgba(36,26,12,.10) 100%);
+  pointer-events: none; z-index: 900;
+}
+/* Outer border */
+body::after {
+  content: '';
+  position: fixed; inset: 7px;
+  border: 1.5px solid rgba(184,80,48,.2);
+  border-radius: 5px;
+  box-shadow: inset 0 0 0 4px rgba(184,80,48,.04);
+  pointer-events: none; z-index: 901;
+}
+
+/* Corner ornaments */
+.orn { position:fixed; pointer-events:none; z-index:902; opacity:.2; width:46px; height:46px; }
+.orn.tl { top:9px;    left:9px; }
+.orn.tr { top:9px;    right:9px;  transform:scaleX(-1); }
+.orn.bl { bottom:9px; left:9px;   transform:scaleY(-1); }
+.orn.br { bottom:9px; right:9px;  transform:scale(-1); }
+
+/* ════════════════════════════
+   HEADER
+════════════════════════════ */
+.header {
+  grid-area: header;
+  text-align: center;
+  padding: 10px 60px 10px;
+  flex-shrink: 0;
+}
+
+h1 {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(22px, 3.2vw, 44px);
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: -.01em;
+  display: inline-flex; align-items: baseline; gap: .22em;
+}
+h1 .les   { font-style:italic; font-weight:400; color:var(--ink-mid); font-size:.8em; }
+h1 .cadres { color:var(--terra); }
+h1 .lib   { color:var(--ink); }
+
+.orn-rule {
+  display:flex; align-items:center; gap:10px;
+  margin:3px auto 0; padding:0 80px;
+}
+.orn-line { flex:1; height:1px; background:linear-gradient(to right, transparent, rgba(184,80,48,.35), transparent); }
+.orn-c { font-family:'Playfair Display',serif; font-size:10px; color:var(--terra); opacity:.5; letter-spacing:.2em; }
+
+/* ════════════════════════════
+   CANVAS — draggable area
+════════════════════════════ */
+#canvas {
+  grid-area: canvas;
+  position: relative;
+  overflow: hidden;
+  width: 100%;
+  flex: 1;
+  min-height: 0;
+}
+
+/* ════════════════════════════
+   SIDEBAR
+════════════════════════════ */
+#sidebar {
+  grid-area: sidebar;
+  width: var(--sidebar-w);
+  background: rgba(255,255,255,.22);
+  border-left: 1.5px solid rgba(184,80,48,.18);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  z-index: 50;
+  backdrop-filter: blur(4px);
+}
+
+.sidebar-header {
+  padding: 12px 14px 8px;
+  border-bottom: 1px solid rgba(184,80,48,.15);
+  flex-shrink: 0;
+}
+
+.sidebar-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--terra);
+  opacity: .8;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.sidebar-title svg { width:13px; height:13px; flex-shrink:0; }
+
+/* Font size control */
+.font-size-section {
+  padding: 10px 14px;
+  border-bottom: 1px solid rgba(184,80,48,.12);
+  flex-shrink: 0;
+}
+
+.font-size-label {
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-size: 11px;
+  color: var(--ink-dim);
+  letter-spacing: .05em;
+  margin-bottom: 6px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.font-size-label span.val {
+  font-style: normal;
+  font-weight: 600;
+  color: var(--ink-mid);
+  font-size: 12px;
+  font-family: 'Playfair Display', serif;
+  min-width: 30px;
+  text-align: right;
+}
+
+.font-size-no-frame {
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-size: 11px;
+  color: var(--ink-ghost);
+  letter-spacing: .03em;
+  text-align: center;
+  padding: 4px 0;
+}
+
+.font-size-slider {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 4px;
+  border-radius: 2px;
+  background: linear-gradient(to right, var(--terra) 0%, rgba(184,80,48,.2) 0%);
+  outline: none;
+  cursor: pointer;
+  margin-top: 2px;
+}
+.font-size-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 16px; height: 16px;
+  border-radius: 50%;
+  background: var(--terra);
+  border: 2px solid rgba(255,255,255,.7);
+  box-shadow: 0 1px 4px rgba(184,80,48,.3);
+  cursor: pointer;
+  transition: transform .15s;
+}
+.font-size-slider::-webkit-slider-thumb:hover { transform: scale(1.2); }
+.font-size-slider::-moz-range-thumb {
+  width: 16px; height: 16px;
+  border-radius: 50%;
+  background: var(--terra);
+  border: 2px solid rgba(255,255,255,.7);
+  cursor: pointer;
+}
+
+.font-size-buttons {
+  display: flex;
+  gap: 4px;
+  margin-top: 7px;
+}
+.fs-btn {
+  flex: 1;
+  padding: 4px 0;
+  font-family: 'Playfair Display', serif;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--ink-mid);
+  background: rgba(255,255,255,.4);
+  border: 1px solid rgba(184,80,48,.2);
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background .15s, color .15s;
+  line-height: 1;
+}
+.fs-btn:hover { background: rgba(184,80,48,.12); color: var(--terra); }
+.fs-btn:active { background: rgba(184,80,48,.22); }
+
+/* Frame list */
+.sidebar-list {
+  flex: 1;
+  overflow-y: auto;
+  padding: 8px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+.sidebar-list::-webkit-scrollbar { width: 4px; }
+.sidebar-list::-webkit-scrollbar-track { background: transparent; }
+.sidebar-list::-webkit-scrollbar-thumb { background: rgba(184,80,48,.2); border-radius: 2px; }
+
+.sidebar-empty {
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-size: 12px;
+  color: var(--ink-ghost);
+  text-align: center;
+  padding: 18px 8px;
+  letter-spacing: .04em;
+  line-height: 1.6;
+}
+
+/* Individual frame entry in sidebar */
+.sidebar-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 10px;
+  border-radius: 7px;
+  cursor: pointer;
+  border: 1.5px solid transparent;
+  background: rgba(255,255,255,.3);
+  transition: background .18s, border-color .18s, transform .12s;
+  position: relative;
+  overflow: hidden;
+}
+.sidebar-item::before {
+  content: '';
+  position: absolute;
+  left: 0; top: 0; bottom: 0;
+  width: 3px;
+  background: currentColor;
+  opacity: .5;
+  border-radius: 2px 0 0 2px;
+}
+.sidebar-item:hover {
+  background: rgba(255,255,255,.55);
+  border-color: rgba(184,80,48,.22);
+  transform: translateX(2px);
+}
+.sidebar-item.sidebar-active {
+  background: rgba(255,255,255,.65);
+  border-color: rgba(184,80,48,.38);
+  box-shadow: 0 2px 8px rgba(184,80,48,.1);
+}
+
+.sidebar-item-num {
+  font-family: 'Playfair Display', serif;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--ink-dim);
+  min-width: 18px;
+  text-align: center;
+  opacity: .7;
+}
+
+.sidebar-item-dot {
+  width: 9px; height: 9px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  border: 1.5px solid rgba(0,0,0,.12);
+}
+
+.sidebar-item-text {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 12px;
+  color: var(--ink-mid);
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-style: italic;
+  letter-spacing: .02em;
+}
+.sidebar-item-text.has-content {
+  font-style: normal;
+  color: var(--ink);
+  font-weight: 600;
+}
+
+/* ════════════════════════════
+   FRAMES
+════════════════════════════ */
+.frame {
+  position: absolute;
+  border-radius: 10px;
+  border: 2px solid rgba(184,80,48,.22);
+  box-shadow:
+    0 2px 16px rgba(36,26,12,.10),
+    0 6px 32px rgba(36,26,12,.07),
+    inset 0 0 0 5px rgba(255,255,255,.22);
+  cursor: default;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  user-select: none;
+  transition: box-shadow .2s, border-color .2s;
+}
+
+.frame.active {
+  box-shadow:
+    0 6px 32px rgba(184,80,48,.22),
+    0 10px 48px rgba(36,26,12,.14),
+    inset 0 0 0 5px rgba(255,255,255,.3);
+  border-color: rgba(184,80,48,.48);
+  z-index: 100;
+}
+
+/* Inner subtle decoration */
+.frame::before {
+  content: '';
+  position: absolute; inset: 8px;
+  border: 1px solid rgba(184,80,48,.10);
+  border-radius: 6px;
+  pointer-events: none;
+}
+.frame::after {
+  content: '';
+  position: absolute; inset: 0;
+  background: linear-gradient(135deg, rgba(255,255,255,.18) 0%, transparent 50%);
+  pointer-events: none;
+}
+
+/* Drag handle bar at top of frame */
+.frame .drag-bar {
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 28px;
+  cursor: grab;
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 6px;
+  border-radius: 10px 10px 0 0;
+  background: linear-gradient(to bottom, rgba(0,0,0,.07), transparent);
+  transition: background .18s;
+}
+.frame .drag-bar:active { cursor: grabbing; }
+.frame .drag-bar:hover { background: linear-gradient(to bottom, rgba(0,0,0,.13), transparent); }
+.frame .drag-bar-dots {
+  display: flex; gap: 4px; opacity: .35;
+  pointer-events: none;
+  flex: 1;
+  justify-content: center;
+}
+.frame .drag-bar-dots span {
+  width: 4px; height: 4px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+/* Font size mini control in drag bar */
+.frame .bar-font-ctrl {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  opacity: 0;
+  transition: opacity .18s;
+  pointer-events: auto;
+  flex-shrink: 0;
+}
+.frame:hover .bar-font-ctrl { opacity: 1; }
+.frame .bar-fs-btn {
+  width: 18px; height: 18px;
+  border-radius: 4px;
+  background: rgba(0,0,0,.12);
+  border: none;
+  color: inherit;
+  font-size: 12px;
+  font-weight: 700;
+  font-family: 'Playfair Display', serif;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  line-height: 1;
+  transition: background .14s;
+}
+.frame .bar-fs-btn:hover { background: rgba(0,0,0,.22); }
+.frame .bar-fs-val {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 10px;
+  font-weight: 600;
+  min-width: 22px;
+  text-align: center;
+  opacity: .7;
+  pointer-events: none;
+}
+
+/* Textarea inside each frame */
+.frame textarea {
+  position: absolute;
+  left: 0; right: 0;
+  top: 28px; bottom: 0;
+  width: 100%;
+  height: calc(100% - 28px);
+  background: transparent;
+  border: none;
+  outline: none;
+  resize: none;
+  font-family: 'Playfair Display', serif;
+  font-weight: 700;
+  font-size: clamp(28px, 5vw, 72px);
+  line-height: 1.15;
+  text-align: center;
+  padding: 16px;
+  cursor: text !important;
+  z-index: 2;
+  color: inherit;
+  caret-color: var(--terra);
+  word-break: break-word;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.frame textarea::placeholder {
+  color: rgba(36,26,12,.18);
+  font-style: italic;
+  font-weight: 400;
+  font-size: .55em;
+}
+
+/* Close button */
+.frame .close-btn {
+  position: absolute;
+  top: 5px; right: 5px;
+  width: 20px; height: 20px;
+  border-radius: 50%;
+  background: rgba(184,80,48,.18);
+  border: 1px solid rgba(184,80,48,.3);
+  color: var(--terra);
+  font-size: 13px;
+  line-height: 1;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  opacity: 0;
+  transition: opacity .18s, background .18s, transform .15s;
+  z-index: 15;
+  font-family: sans-serif;
+  font-weight: 700;
+  padding: 0;
+}
+.frame:hover .close-btn { opacity: 1; }
+.frame .close-btn:hover { background: rgba(184,80,48,.55); transform: scale(1.15); opacity: 1; }
+
+/* Resize handles — all 4 corners */
+.frame .rh {
+  position: absolute;
+  width: 28px; height: 28px;
+  z-index: 10;
+  opacity: .22;
+  transition: opacity .18s;
+  display: flex; align-items: center; justify-content: center;
+}
+.frame:hover .rh { opacity: .7; }
+.frame .rh:hover { opacity: 1 !important; }
+.frame .rh svg { width: 13px; height: 13px; }
+
+.frame .rh-se { bottom: 1px; right: 1px; cursor: se-resize; }
+.frame .rh-sw { bottom: 1px; left:  1px; cursor: sw-resize; transform: scaleX(-1); }
+.frame .rh-ne { top:    1px; right: 1px; cursor: ne-resize; transform: scaleY(-1); }
+.frame .rh-nw { top:    1px; left:  1px; cursor: nw-resize; transform: scale(-1); }
+
+/* Color variants for frames */
+.frame-c0 { background: var(--frame-1); color: var(--frame-1-tx); }
+.frame-c1 { background: var(--frame-2); color: var(--frame-2-tx); }
+.frame-c2 { background: var(--frame-3); color: var(--frame-3-tx); }
+.frame-c3 { background: var(--frame-4); color: var(--frame-4-tx); }
+.frame-c4 { background: var(--frame-5); color: var(--frame-5-tx); }
+.frame-c5 { background: var(--frame-6); color: var(--frame-6-tx); }
+
+/* Animation for frame entry */
+@keyframes frameIn {
+  from { opacity:0; transform:scale(.82) translateY(12px); }
+  to   { opacity:1; transform:scale(1) translateY(0); }
+}
+.frame.entering { animation: frameIn .38s cubic-bezier(.34,1.36,.64,1) both; }
+
+/* ════════════════════════════
+   BOTTOM BAR
+════════════════════════════ */
+.bottom-bar {
+  grid-area: bar;
+  padding: 6px 18px 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  flex-shrink: 0;
+}
+
+.ctrl-group {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  background: rgba(255,255,255,.38);
+  border: 1.5px solid rgba(184,80,48,.2);
+  border-radius: 50px;
+  overflow: hidden;
+  box-shadow: 0 1px 8px rgba(36,26,12,.06);
+}
+
+.ctrl-btn {
+  padding: 8px 18px;
+  font-family: 'Playfair Display', serif;
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--ink-mid);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  transition: background .18s, color .18s;
+  line-height: 1;
+}
+.ctrl-btn:hover { background: rgba(184,80,48,.12); color: var(--terra); }
+.ctrl-btn:active { background: rgba(184,80,48,.22); }
+
+.ctrl-sep {
+  width: 1px;
+  height: 26px;
+  background: rgba(184,80,48,.2);
+  flex-shrink: 0;
+}
+
+.count-input {
+  width: 52px;
+  padding: 7px 0;
+  text-align: center;
+  font-family: 'Playfair Display', serif;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--ink);
+  background: transparent;
+  border: none;
+  outline: none;
+  -moz-appearance: textfield;
+}
+.count-input::-webkit-outer-spin-button,
+.count-input::-webkit-inner-spin-button { -webkit-appearance: none; }
+
+.ctrl-label {
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-size: 13px;
+  color: var(--ink-dim);
+  letter-spacing: .06em;
+  white-space: nowrap;
+}
+
+/* ════════════════════════════
+   BACK BUTTON (same as ref)
+════════════════════════════ */
+#btn-back {
+  position: fixed; bottom: 14px; left: 18px;
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-size: .67rem; font-style: italic; letter-spacing: .06em;
+  color: var(--ink-dim);
+  background: none; border: 1px solid rgba(61,50,40,.2);
+  border-radius: 3px; padding: .32rem .72rem;
+  cursor: pointer; opacity: .6;
+  transition: opacity .2s, background .2s;
+  text-decoration: none; display: inline-block;
+  z-index: 950;
+}
+#btn-back:hover { opacity: 1; background: rgba(232,220,200,.7); }
+</style>
+</head>
+<body>
+
+<!-- Corners -->
+<svg class="orn tl" viewBox="0 0 46 46" fill="none"><path d="M5 5L5 21M5 5L21 5" stroke="#b85030" stroke-width="1.6" stroke-linecap="round"/><path d="M5 5Q13 9 17 17" stroke="#b85030" stroke-width="1" stroke-linecap="round"/><circle cx="5" cy="5" r="2.2" fill="#b85030"/><path d="M11 5L11 8M5 11L8 11" stroke="#b85030" stroke-width=".9" stroke-linecap="round" opacity=".55"/><path d="M16 5L16 7M5 16L7 16" stroke="#b85030" stroke-width=".7" stroke-linecap="round" opacity=".3"/></svg>
+<svg class="orn tr" viewBox="0 0 46 46" fill="none"><path d="M5 5L5 21M5 5L21 5" stroke="#b85030" stroke-width="1.6" stroke-linecap="round"/><path d="M5 5Q13 9 17 17" stroke="#b85030" stroke-width="1" stroke-linecap="round"/><circle cx="5" cy="5" r="2.2" fill="#b85030"/><path d="M11 5L11 8M5 11L8 11" stroke="#b85030" stroke-width=".9" stroke-linecap="round" opacity=".55"/><path d="M16 5L16 7M5 16L7 16" stroke="#b85030" stroke-width=".7" stroke-linecap="round" opacity=".3"/></svg>
+<svg class="orn bl" viewBox="0 0 46 46" fill="none"><path d="M5 5L5 21M5 5L21 5" stroke="#b85030" stroke-width="1.6" stroke-linecap="round"/><path d="M5 5Q13 9 17 17" stroke="#b85030" stroke-width="1" stroke-linecap="round"/><circle cx="5" cy="5" r="2.2" fill="#b85030"/><path d="M11 5L11 8M5 11L8 11" stroke="#b85030" stroke-width=".9" stroke-linecap="round" opacity=".55"/><path d="M16 5L16 7M5 16L7 16" stroke="#b85030" stroke-width=".7" stroke-linecap="round" opacity=".3"/></svg>
+<svg class="orn br" viewBox="0 0 46 46" fill="none"><path d="M5 5L5 21M5 5L21 5" stroke="#b85030" stroke-width="1.6" stroke-linecap="round"/><path d="M5 5Q13 9 17 17" stroke="#b85030" stroke-width="1" stroke-linecap="round"/><circle cx="5" cy="5" r="2.2" fill="#b85030"/><path d="M11 5L11 8M5 11L8 11" stroke="#b85030" stroke-width=".9" stroke-linecap="round" opacity=".55"/><path d="M16 5L16 7M5 16L7 16" stroke="#b85030" stroke-width=".7" stroke-linecap="round" opacity=".3"/></svg>
+
+<!-- HEADER -->
+<div class="header">
+  <h1>
+    <span class="les">L'espace</span>
+    <span class="cadres">des</span>
+    <span class="lib">Cadres</span>
+  </h1>
+  <div class="orn-rule">
+    <div class="orn-line"></div>
+    <span class="orn-c">— ✦ tableau interactif ✦ —</span>
+    <div class="orn-line"></div>
+  </div>
+</div>
+
+<!-- CANVAS -->
+<div id="canvas"></div>
+
+<!-- BOTTOM BAR -->
+<div class="bottom-bar">
+  <span class="ctrl-label">Cadres :</span>
+  <div class="ctrl-group">
+    <button class="ctrl-btn" id="btn-minus" title="Moins">−</button>
+    <div class="ctrl-sep"></div>
+    <input class="count-input" id="count-input" type="number" min="0" max="20" value="0" />
+    <div class="ctrl-sep"></div>
+    <button class="ctrl-btn" id="btn-plus" title="Plus">+</button>
+  </div>
+</div>
+
+<!-- SIDEBAR -->
+<aside id="sidebar">
+  <div class="sidebar-header">
+    <div class="sidebar-title">
+      <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round">
+        <rect x="1" y="1" width="5" height="5" rx="1"/>
+        <rect x="8" y="1" width="5" height="5" rx="1"/>
+        <rect x="1" y="8" width="5" height="5" rx="1"/>
+        <rect x="8" y="8" width="5" height="5" rx="1"/>
+      </svg>
+      Cadres
+    </div>
+  </div>
+
+  <!-- Font size control -->
+  <div class="font-size-section">
+    <div class="font-size-label">
+      Taille du texte
+      <span class="val" id="fs-display">—</span>
+    </div>
+    <div id="fs-no-frame" class="font-size-no-frame">Sélectionnez un cadre</div>
+    <input type="range" class="font-size-slider" id="fs-slider" min="10" max="120" value="48" style="display:none">
+    <div class="font-size-buttons" id="fs-buttons" style="display:none">
+      <button class="fs-btn" id="fs-sm" title="Petit">A</button>
+      <button class="fs-btn" id="fs-md" title="Moyen" style="font-size:16px">A</button>
+      <button class="fs-btn" id="fs-lg" title="Grand" style="font-size:19px">A</button>
+    </div>
+  </div>
+
+  <!-- Frame list -->
+  <div class="sidebar-list" id="sidebar-list">
+    <div class="sidebar-empty" id="sidebar-empty">Aucun cadre.<br>Ajoutez-en avec le&nbsp;+</div>
+  </div>
+</aside>
+
+<!-- BACK BUTTON -->
+<a href="index.html" id="btn-back">← Retour aux jeux</a>
+
+<script>
+const canvas = document.getElementById('canvas');
+const countInput = document.getElementById('count-input');
+const btnPlus = document.getElementById('btn-plus');
+const btnMinus = document.getElementById('btn-minus');
+const sidebarList = document.getElementById('sidebar-list');
+const sidebarEmpty = document.getElementById('sidebar-empty');
+const fsSlider = document.getElementById('fs-slider');
+const fsDisplay = document.getElementById('fs-display');
+const fsButtons = document.getElementById('fs-buttons');
+const fsNoFrame = document.getElementById('fs-no-frame');
+
+let frames = [];       // array of frame objects { el, ta, sidebarItem, id, fontSize }
+let targetCount = 0;
+let zCounter = 10;
+let frameCounter = 0; // ever-increasing id
+let activeFrame = null; // currently focused frame object
+
+/* ─── color cycling ─── */
+const COLORS = 6;
+let colorIdx = 0;
+function nextColor() {
+  const c = colorIdx % COLORS;
+  colorIdx++;
+  return c;
+}
+
+/* ─── color bg values for sidebar dot ─── */
+const FRAME_BG_COLORS = [
+  '#e8d4b8', '#b8d4b0', '#b8b0d8', '#d8cc8a', '#a8ccd8', '#d8b0c0'
+];
+
+/* ─── layout helper: place a new frame in a tiled position ─── */
+function computePosition(index) {
+  const cw = canvas.clientWidth;
+  const ch = canvas.clientHeight;
+  const cols = Math.ceil(Math.sqrt(targetCount)) || 1;
+  const rows = Math.ceil(targetCount / cols);
+  const pad = 16;
+  const w = Math.floor((cw - pad * (cols + 1)) / cols);
+  const h = Math.floor((ch - pad * (rows + 1)) / rows);
+  const col = index % cols;
+  const row = Math.floor(index / cols);
+  return {
+    x: pad + col * (w + pad),
+    y: pad + row * (h + pad),
+    w: Math.max(w, 120),
+    h: Math.max(h, 80)
+  };
+}
+
+/* ─── font size helpers ─── */
+const DEFAULT_FONT_SIZE = 48;
+
+function setFrameFontSize(frameObj, size) {
+  size = Math.min(120, Math.max(10, size));
+  frameObj.fontSize = size;
+  frameObj.ta.style.fontSize = size + 'px';
+  // update bar display
+  if (frameObj.barFsVal) frameObj.barFsVal.textContent = size + 'px';
+  // if this is the active frame, update sidebar slider too
+  if (activeFrame === frameObj) {
+    fsSlider.value = size;
+    updateSliderTrack(size);
+    fsDisplay.textContent = size + 'px';
+  }
+}
+
+function updateSliderTrack(val) {
+  const min = 10, max = 120;
+  const pct = ((val - min) / (max - min)) * 100;
+  fsSlider.style.background = `linear-gradient(to right, var(--terra) ${pct}%, rgba(184,80,48,.2) ${pct}%)`;
+}
+
+/* ─── sidebar: set active item ─── */
+function setActiveFrameInSidebar(frameObj) {
+  // Deactivate previous
+  frames.forEach(f => f.sidebarItem && f.sidebarItem.classList.remove('sidebar-active'));
+
+  activeFrame = frameObj;
+
+  if (frameObj) {
+    frameObj.sidebarItem && frameObj.sidebarItem.classList.add('sidebar-active');
+    // Show slider
+    fsNoFrame.style.display = 'none';
+    fsSlider.style.display = 'block';
+    fsButtons.style.display = 'flex';
+    const size = frameObj.fontSize || DEFAULT_FONT_SIZE;
+    fsSlider.value = size;
+    updateSliderTrack(size);
+    fsDisplay.textContent = size + 'px';
+  } else {
+    // No frame active
+    fsNoFrame.style.display = 'block';
+    fsSlider.style.display = 'none';
+    fsButtons.style.display = 'none';
+    fsDisplay.textContent = '—';
+  }
+}
+
+/* ─── sidebar list: rebuild ─── */
+function rebuildSidebarList() {
+  // Clear existing items
+  Array.from(sidebarList.querySelectorAll('.sidebar-item')).forEach(el => el.remove());
+
+  if (frames.length === 0) {
+    sidebarEmpty.style.display = '';
+    return;
+  }
+  sidebarEmpty.style.display = 'none';
+
+  frames.forEach((frameObj) => {
+    const item = createSidebarItem(frameObj);
+    frameObj.sidebarItem = item;
+    sidebarList.appendChild(item);
+  });
+}
+
+function createSidebarItem(frameObj) {
+  const item = document.createElement('div');
+  item.className = 'sidebar-item';
+  item.style.color = FRAME_BG_COLORS[frameObj.colorIdx] || '#b85030';
+
+  const num = document.createElement('span');
+  num.className = 'sidebar-item-num';
+  num.textContent = '#' + frameObj.id;
+
+  const dot = document.createElement('span');
+  dot.className = 'sidebar-item-dot';
+  dot.style.background = FRAME_BG_COLORS[frameObj.colorIdx] || '#b85030';
+  dot.style.borderColor = 'rgba(0,0,0,.15)';
+
+  const text = document.createElement('span');
+  text.className = 'sidebar-item-text';
+  text.textContent = 'Vide…';
+
+  item.appendChild(num);
+  item.appendChild(dot);
+  item.appendChild(text);
+
+  // Click → bring to front + activate
+  item.addEventListener('click', () => {
+    bringToFront(frameObj.el);
+    setActiveFrameInSidebar(frameObj);
+    // Flash effect
+    frameObj.el.classList.add('active');
+    setTimeout(() => frameObj.el.classList.remove('active'), 600);
+  });
+
+  // Store text ref so textarea can update it
+  frameObj.sidebarTextEl = text;
+
+  return item;
+}
+
+/* ─── update sidebar item text when typing ─── */
+function updateSidebarText(frameObj) {
+  if (!frameObj.sidebarTextEl) return;
+  const val = frameObj.ta.value.trim();
+  if (val) {
+    frameObj.sidebarTextEl.textContent = val.substring(0, 22) + (val.length > 22 ? '…' : '');
+    frameObj.sidebarTextEl.classList.add('has-content');
+  } else {
+    frameObj.sidebarTextEl.textContent = 'Vide…';
+    frameObj.sidebarTextEl.classList.remove('has-content');
+  }
+}
+
+/* ─── z-index ─── */
+function bringToFront(el) {
+  zCounter++;
+  el.style.zIndex = zCounter;
+}
+
+/* ─── create one frame ─── */
+function createFrame(index, animated = true) {
+  const pos = computePosition(index);
+  const c = nextColor();
+  frameCounter++;
+  const id = frameCounter;
+
+  const el = document.createElement('div');
+  el.className = `frame frame-c${c}${animated ? ' entering' : ''}`;
+  el.style.left   = pos.x + 'px';
+  el.style.top    = pos.y + 'px';
+  el.style.width  = pos.w + 'px';
+  el.style.height = pos.h + 'px';
+
+  // Drag bar
+  const dragBar = document.createElement('div');
+  dragBar.className = 'drag-bar';
+
+  const dots = document.createElement('div');
+  dots.className = 'drag-bar-dots';
+  dots.innerHTML = '<span></span><span></span><span></span><span></span><span></span><span></span>';
+  dragBar.appendChild(dots);
+
+  // Mini font-size controls in drag bar
+  const fontCtrl = document.createElement('div');
+  fontCtrl.className = 'bar-font-ctrl';
+
+  const fsBtnMinus = document.createElement('button');
+  fsBtnMinus.className = 'bar-fs-btn';
+  fsBtnMinus.textContent = '−';
+  fsBtnMinus.title = 'Réduire le texte';
+
+  const barFsVal = document.createElement('span');
+  barFsVal.className = 'bar-fs-val';
+  barFsVal.textContent = DEFAULT_FONT_SIZE + 'px';
+
+  const fsBtnPlus = document.createElement('button');
+  fsBtnPlus.className = 'bar-fs-btn';
+  fsBtnPlus.textContent = '+';
+  fsBtnPlus.title = 'Agrandir le texte';
+
+  fontCtrl.appendChild(fsBtnMinus);
+  fontCtrl.appendChild(barFsVal);
+  fontCtrl.appendChild(fsBtnPlus);
+  dragBar.appendChild(fontCtrl);
+
+  el.appendChild(dragBar);
+
+  // Textarea
+  const ta = document.createElement('textarea');
+  ta.placeholder = 'Écrivez ici…';
+  ta.style.fontSize = DEFAULT_FONT_SIZE + 'px';
+  el.appendChild(ta);
+
+  // Close button
+  const closeBtn = document.createElement('button');
+  closeBtn.className = 'close-btn';
+  closeBtn.innerHTML = '×';
+  closeBtn.title = 'Fermer';
+  closeBtn.addEventListener('mousedown', e => e.stopPropagation());
+  closeBtn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    el.style.transition = 'opacity .22s, transform .22s';
+    el.style.opacity = '0';
+    el.style.transform = 'scale(.85)';
+    setTimeout(() => {
+      el.remove();
+      frames = frames.filter(f => f.el !== el);
+      targetCount = frames.length;
+      countInput.value = targetCount;
+      if (activeFrame && activeFrame.el === el) {
+        setActiveFrameInSidebar(null);
+      }
+      rebuildSidebarList();
+    }, 220);
+  });
+  el.appendChild(closeBtn);
+
+  // Resize handle SVG snippet
+  const rhSvg = `<svg viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><line x1="3" y1="10" x2="10" y2="3"/><line x1="6.5" y1="10" x2="10" y2="6.5"/></svg>`;
+  const corners = [
+    { cls: 'rh-se', dir: 'se' },
+    { cls: 'rh-sw', dir: 'sw' },
+    { cls: 'rh-ne', dir: 'ne' },
+    { cls: 'rh-nw', dir: 'nw' },
+  ];
+  const handles = {};
+  corners.forEach(({ cls, dir }) => {
+    const h = document.createElement('div');
+    h.className = `rh ${cls}`;
+    h.innerHTML = rhSvg;
+    el.appendChild(h);
+    handles[dir] = h;
+  });
+
+  // Remove animation class after it ends
+  if (animated) {
+    el.addEventListener('animationend', () => el.classList.remove('entering'), { once: true });
+  }
+
+  // Create frame object
+  const frameObj = {
+    el,
+    ta,
+    id,
+    colorIdx: c,
+    fontSize: DEFAULT_FONT_SIZE,
+    sidebarItem: null,
+    sidebarTextEl: null,
+    barFsVal,
+  };
+
+  // Click anywhere on frame → bring to front + activate in sidebar
+  el.addEventListener('mousedown', () => {
+    bringToFront(el);
+    setActiveFrameInSidebar(frameObj);
+  });
+
+  // Focus textarea → also activate
+  ta.addEventListener('focus', () => {
+    setActiveFrameInSidebar(frameObj);
+  });
+
+  // Typing → update sidebar label
+  ta.addEventListener('input', () => updateSidebarText(frameObj));
+
+  // Font size controls in drag bar
+  fsBtnMinus.addEventListener('mousedown', e => { e.stopPropagation(); });
+  fsBtnMinus.addEventListener('click', (e) => {
+    e.stopPropagation();
+    setFrameFontSize(frameObj, (frameObj.fontSize || DEFAULT_FONT_SIZE) - 4);
+  });
+  fsBtnPlus.addEventListener('mousedown', e => { e.stopPropagation(); });
+  fsBtnPlus.addEventListener('click', (e) => {
+    e.stopPropagation();
+    setFrameFontSize(frameObj, (frameObj.fontSize || DEFAULT_FONT_SIZE) + 4);
+  });
+
+  makeDraggable(el, ta, handles, dragBar);
+  makeResizable(el, handles);
+
+  canvas.appendChild(el);
+  return frameObj;
+}
+
+/* ─── drag logic ─── */
+function makeDraggable(el, textarea, handles, dragBar) {
+  let dragging = false;
+  let startX, startY, origLeft, origTop;
+
+  function startDrag(e) {
+    if (
+      e.target === textarea ||
+      e.target.closest('.close-btn') ||
+      e.target.closest('.rh') ||
+      e.target.closest('.bar-font-ctrl')
+    ) return;
+
+    dragging = true;
+    startX = e.clientX;
+    startY = e.clientY;
+    const rect = el.getBoundingClientRect();
+    const cr = canvas.getBoundingClientRect();
+    origLeft = rect.left - cr.left;
+    origTop  = rect.top  - cr.top;
+
+    el.classList.add('active');
+    e.preventDefault();
+  }
+
+  dragBar.addEventListener('mousedown', (e) => {
+    e.stopPropagation();
+    startDrag(e);
+  });
+
+  document.addEventListener('mousemove', (e) => {
+    if (!dragging) return;
+    const dx = e.clientX - startX;
+    const dy = e.clientY - startY;
+    const cr = canvas.getBoundingClientRect();
+    const newLeft = Math.max(0, Math.min(origLeft + dx, cr.width  - el.offsetWidth));
+    const newTop  = Math.max(0, Math.min(origTop  + dy, cr.height - el.offsetHeight));
+    el.style.left = newLeft + 'px';
+    el.style.top  = newTop  + 'px';
+  });
+
+  document.addEventListener('mouseup', () => {
+    if (!dragging) return;
+    dragging = false;
+    el.classList.remove('active');
+  });
+}
+
+/* ─── resize logic (drag from any corner) ─── */
+function makeResizable(el, handles) {
+  const dirs = ['se','sw','ne','nw'];
+  dirs.forEach(dir => {
+    const handle = handles[dir];
+    let resizing = false;
+    let startX, startY, startW, startH, startLeft, startTop;
+
+    handle.addEventListener('mousedown', (e) => {
+      resizing = true;
+      bringToFront(el);
+      startX    = e.clientX;
+      startY    = e.clientY;
+      startW    = el.offsetWidth;
+      startH    = el.offsetHeight;
+      startLeft = parseInt(el.style.left, 10) || 0;
+      startTop  = parseInt(el.style.top,  10) || 0;
+      el.classList.add('active');
+      e.preventDefault();
+      e.stopPropagation();
+    });
+
+    document.addEventListener('mousemove', (e) => {
+      if (!resizing) return;
+      const dx = e.clientX - startX;
+      const dy = e.clientY - startY;
+      const minW = 40, minH = 30;
+
+      if (dir === 'se') {
+        el.style.width  = Math.max(minW, startW + dx) + 'px';
+        el.style.height = Math.max(minH, startH + dy) + 'px';
+      } else if (dir === 'sw') {
+        const newW = Math.max(minW, startW - dx);
+        el.style.width  = newW + 'px';
+        el.style.left   = (startLeft + startW - newW) + 'px';
+        el.style.height = Math.max(minH, startH + dy) + 'px';
+      } else if (dir === 'ne') {
+        el.style.width  = Math.max(minW, startW + dx) + 'px';
+        const newH = Math.max(minH, startH - dy);
+        el.style.height = newH + 'px';
+        el.style.top    = (startTop + startH - newH) + 'px';
+      } else if (dir === 'nw') {
+        const newW = Math.max(minW, startW - dx);
+        const newH = Math.max(minH, startH - dy);
+        el.style.width  = newW + 'px';
+        el.style.left   = (startLeft + startW - newW) + 'px';
+        el.style.height = newH + 'px';
+        el.style.top    = (startTop + startH - newH) + 'px';
+      }
+    });
+
+    document.addEventListener('mouseup', () => {
+      if (!resizing) return;
+      resizing = false;
+      el.classList.remove('active');
+    });
+  });
+}
+
+/* ─── sync frames to target count ─── */
+function syncFrames() {
+  const current = frames.length;
+  const target  = targetCount;
+
+  if (target > current) {
+    for (let i = current; i < target; i++) {
+      const frameObj = createFrame(i, true);
+      frames.push(frameObj);
+    }
+    rebuildSidebarList();
+  } else if (target < current) {
+    for (let i = current - 1; i >= target; i--) {
+      frames[i].el.remove();
+      frames.pop();
+    }
+    colorIdx = target;
+    if (activeFrame && !frames.includes(activeFrame)) {
+      setActiveFrameInSidebar(null);
+    }
+    rebuildSidebarList();
+  }
+}
+
+/* ─── Sidebar font-size slider ─── */
+fsSlider.addEventListener('input', () => {
+  if (!activeFrame) return;
+  const val = parseInt(fsSlider.value, 10);
+  setFrameFontSize(activeFrame, val);
+});
+
+/* ─── Font size preset buttons in sidebar ─── */
+document.getElementById('fs-sm').addEventListener('click', () => {
+  if (activeFrame) setFrameFontSize(activeFrame, 20);
+});
+document.getElementById('fs-md').addEventListener('click', () => {
+  if (activeFrame) setFrameFontSize(activeFrame, 48);
+});
+document.getElementById('fs-lg').addEventListener('click', () => {
+  if (activeFrame) setFrameFontSize(activeFrame, 80);
+});
+
+/* ─── controls ─── */
+btnPlus.addEventListener('click', () => {
+  if (targetCount >= 20) return;
+  targetCount++;
+  countInput.value = targetCount;
+  syncFrames();
+});
+
+btnMinus.addEventListener('click', () => {
+  if (targetCount <= 0) return;
+  targetCount--;
+  countInput.value = targetCount;
+  syncFrames();
+});
+
+countInput.addEventListener('change', () => {
+  let v = parseInt(countInput.value, 10);
+  if (isNaN(v) || v < 0) v = 0;
+  if (v > 20) v = 20;
+  countInput.value = v;
+  targetCount = v;
+  colorIdx = 0;
+  frames.forEach(f => f.el.remove());
+  frames = [];
+  frameCounter = 0;
+  setActiveFrameInSidebar(null);
+  syncFrames();
+});
+
+countInput.addEventListener('input', () => {
+  let v = parseInt(countInput.value, 10);
+  if (!isNaN(v) && v >= 0 && v <= 20) {
+    targetCount = v;
+    colorIdx = 0;
+    frames.forEach(f => f.el.remove());
+    frames = [];
+    frameCounter = 0;
+    setActiveFrameInSidebar(null);
+    syncFrames();
+  }
+});
+</script>
+</body>
+</html>

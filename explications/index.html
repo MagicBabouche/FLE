@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Explications et conseils — Jeux FLE</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=Lora:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+:root {
+  --cream:     #f0e8d5;
+  --paper:     #faf5e8;
+  --ink:       #2a1f10;
+  --ink-mid:   #5a4830;
+  --ink-dim:   #9a8060;
+  --ink-ghost: #c8a870;
+  --terra:     #b85030;
+  --terra-lt:  #d4785a;
+  --sage:      #6c9e56;
+  --sage-dk:   #4c7838;
+}
+*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+
+body {
+  min-height: 100vh;
+  background: var(--cream);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='600' height='600'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.68' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='600' height='600' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E");
+  font-family: 'Lora', Georgia, serif;
+  color: var(--ink);
+}
+
+/* Cadre */
+body::after {
+  content:''; position:fixed; inset:8px;
+  border:1.5px solid rgba(184,80,48,.18);
+  border-radius:6px; pointer-events:none; z-index:900;
+}
+.corner { position:fixed; pointer-events:none; z-index:901; opacity:.22; width:50px; height:50px; }
+.corner.tl { top:10px; left:10px; }
+.corner.tr { top:10px; right:10px; transform:scaleX(-1); }
+.corner.bl { bottom:10px; left:10px; transform:scaleY(-1); }
+.corner.br { bottom:10px; right:10px; transform:scale(-1); }
+
+/* ══ BARRE SUPÉRIEURE FIXE ══ */
+.top-bar {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 48px;
+  height: 80px;
+  background: var(--cream);
+  border-bottom: 1.5px solid var(--ink);
+}
+
+.top-bar-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 26px;
+  font-weight: 700;
+  letter-spacing: -.01em;
+}
+.top-bar-title .acc { color:var(--terra); font-style:italic; }
+
+.top-bar-right {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  font-size: 10.5px;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+  color: var(--ink-dim);
+}
+
+.btn-home {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: 'Lora', serif;
+  font-size: 10px;
+  letter-spacing: .22em;
+  text-transform: uppercase;
+  color: var(--cream);
+  background: var(--ink);
+  text-decoration: none;
+  padding: 8px 18px;
+  border: 1.5px solid var(--ink);
+  transition: background .2s, color .2s, border-color .2s;
+}
+.btn-home:hover {
+  background: var(--terra);
+  border-color: var(--terra);
+}
+.btn-home svg {
+  width: 11px; height: 11px;
+  fill: none; stroke: currentColor;
+  stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round;
+  flex-shrink: 0;
+}
+
+/* ══ EN-TÊTE DE PAGE ══ */
+.page-head {
+  padding: 64px clamp(20px, 5vw, 64px) 40px;
+  border-bottom: 1.5px solid var(--ink);
+  position: relative;
+}
+.page-eyebrow {
+  font-size: 10px;
+  letter-spacing: .28em;
+  text-transform: uppercase;
+  color: var(--terra);
+  margin-bottom: 18px;
+}
+.page-title {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(34px, 5vw, 58px);
+  font-weight: 700;
+  line-height: 1.05;
+  letter-spacing: -.015em;
+}
+.page-title .acc {
+  color: var(--terra);
+  font-style: italic;
+  font-weight: 400;
+}
+.page-sub {
+  margin-top: 18px;
+  font-style: italic;
+  font-size: 16px;
+  color: var(--ink-mid);
+}
+
+/* ══ CORPS DE TEXTE ══ */
+.content-wrap {
+  border-left: 1.5px solid var(--ink);
+  border-right: 1.5px solid var(--ink);
+  border-bottom: 1.5px solid var(--ink);
+}
+
+.content-main {
+  padding: 56px clamp(20px, 5vw, 64px) 80px;
+  width: 100%;
+}
+.example-card, .callout, .signature-block, .divider {
+  break-inside: avoid;
+}
+.content-main p {
+  break-inside: avoid;
+}
+
+.content-main p {
+  font-size: 16.5px;
+  line-height: 1.85;
+  color: var(--ink);
+  margin-bottom: 24px;
+  text-align: justify;
+  hyphens: auto;
+  orphans: 3;
+  widows: 3;
+}
+
+.content-main p.lead {
+  font-size: 19px;
+  color: var(--ink-mid);
+}
+
+.divider {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin: 44px 0 32px;
+}
+.divider-line { flex:1; height:1px; background: rgba(184,80,48,.3); }
+.divider-mark {
+  font-family: 'Playfair Display', serif;
+  font-style: italic;
+  font-size: 14px;
+  color: var(--terra);
+  letter-spacing: .05em;
+}
+
+.example-card {
+  background: var(--paper);
+  border: 1.5px solid var(--ink);
+  border-left: 5px solid var(--terra);
+  padding: 28px 30px;
+  margin: 28px 0 32px;
+  position: relative;
+}
+.example-card .tag {
+  font-size: 9.5px;
+  letter-spacing: .22em;
+  text-transform: uppercase;
+  color: var(--terra);
+  margin-bottom: 14px;
+}
+.example-card p {
+  margin-bottom: 14px;
+  font-size: 15.5px;
+  text-align: justify;
+  hyphens: auto;
+}
+.example-card p:last-child { margin-bottom: 0; }
+.example-card ul {
+  margin: 0 0 14px 0;
+  padding-left: 22px;
+}
+.example-card li {
+  font-size: 15.5px;
+  line-height: 1.75;
+  margin-bottom: 10px;
+  text-align: justify;
+  hyphens: auto;
+}
+.example-card li::marker { color: var(--terra); }
+
+.callout {
+  background: var(--ink);
+  color: var(--cream);
+  padding: 30px 32px;
+  margin: 32px 0;
+  position: relative;
+}
+.callout .tag {
+  font-size: 9.5px;
+  letter-spacing: .22em;
+  text-transform: uppercase;
+  color: var(--terra-lt);
+  margin-bottom: 12px;
+}
+.callout p {
+  color: var(--cream);
+  font-size: 15px;
+  line-height: 1.7;
+  margin-bottom: 0;
+  font-style: italic;
+  text-align: justify;
+  hyphens: auto;
+}
+
+.signature-block {
+  margin-top: 48px;
+  padding-top: 28px;
+  border-top: 1px solid rgba(184,80,48,.25);
+}
+.signature-block p {
+  margin-bottom: 18px;
+}
+.signature-name {
+  font-family: 'Playfair Display', serif;
+  font-style: italic;
+  font-size: 24px;
+  color: var(--terra);
+  margin-top: 8px;
+}
+
+.contact-link {
+  color: var(--terra);
+  text-decoration: none;
+  border-bottom: 1px solid rgba(184,80,48,.4);
+  transition: color .2s, border-color .2s;
+}
+.contact-link:hover { color: var(--terra-lt); border-color: var(--terra-lt); }
+
+/* ══ SIDEBAR ══ */
+.content-side {
+  padding: 56px 36px 64px;
+}
+.side-block {
+  margin-bottom: 44px;
+}
+.side-eyebrow {
+  font-size: 9.5px;
+  letter-spacing: .22em;
+  text-transform: uppercase;
+  color: var(--terra);
+  margin-bottom: 16px;
+}
+.side-block p {
+  font-size: 13.5px;
+  line-height: 1.75;
+  color: var(--ink-mid);
+  font-style: italic;
+}
+.side-num {
+  font-family: 'Playfair Display', serif;
+  font-size: 42px;
+  font-weight: 900;
+  color: var(--ink-ghost);
+  line-height: 1;
+  margin-bottom: 10px;
+}
+.side-divider {
+  width: 36px; height: 1.5px;
+  background: var(--terra);
+  margin-bottom: 18px;
+}
+.side-contact {
+  background: var(--paper);
+  border: 1.5px solid var(--ink);
+  padding: 24px;
+}
+.side-contact .side-eyebrow { margin-bottom: 12px; }
+.side-contact a {
+  display: block;
+  font-size: 13px;
+  color: var(--terra);
+  word-break: break-all;
+  text-decoration: none;
+  margin-top: 6px;
+}
+.side-contact a:hover { color: var(--terra-lt); }
+
+/* Footer */
+.footer-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 48px;
+  border-top: 1.5px solid var(--ink);
+  font-size: 11px;
+  letter-spacing: .14em;
+  color: var(--ink-ghost);
+}
+.footer-orn { color:var(--terra); font-size:14px; opacity:.45; }
+
+@keyframes fadeUp {
+  from { opacity:0; transform:translateY(12px); }
+  to   { opacity:1; transform:translateY(0); }
+}
+.content-main, .content-side { animation: fadeUp .55s ease both; }
+
+@media (max-width:900px) {
+  .top-bar { padding:0 24px; }
+}
+</style>
+</head>
+<body>
+
+<svg class="corner tl" viewBox="0 0 50 50" fill="none">
+  <path d="M5 5L5 22M5 5L22 5" stroke="#b85030" stroke-width="1.6" stroke-linecap="round"/>
+  <path d="M5 5Q14 9 18 18" stroke="#b85030" stroke-width="1" stroke-linecap="round"/>
+  <circle cx="5" cy="5" r="2.2" fill="#b85030"/>
+</svg>
+<svg class="corner tr" viewBox="0 0 50 50" fill="none">
+  <path d="M5 5L5 22M5 5L22 5" stroke="#b85030" stroke-width="1.6" stroke-linecap="round"/>
+  <path d="M5 5Q14 9 18 18" stroke="#b85030" stroke-width="1" stroke-linecap="round"/>
+  <circle cx="5" cy="5" r="2.2" fill="#b85030"/>
+</svg>
+<svg class="corner bl" viewBox="0 0 50 50" fill="none">
+  <path d="M5 5L5 22M5 5L22 5" stroke="#b85030" stroke-width="1.6" stroke-linecap="round"/>
+  <path d="M5 5Q14 9 18 18" stroke="#b85030" stroke-width="1" stroke-linecap="round"/>
+  <circle cx="5" cy="5" r="2.2" fill="#b85030"/>
+</svg>
+<svg class="corner br" viewBox="0 0 50 50" fill="none">
+  <path d="M5 5L5 22M5 5L22 5" stroke="#b85030" stroke-width="1.6" stroke-linecap="round"/>
+  <path d="M5 5Q14 9 18 18" stroke="#b85030" stroke-width="1" stroke-linecap="round"/>
+  <circle cx="5" cy="5" r="2.2" fill="#b85030"/>
+</svg>
+
+<div class="top-bar">
+  <div class="top-bar-title">Jeux <span class="acc">FLE</span></div>
+  <div class="top-bar-right">
+    <span>— explications & conseils —</span>
+    <a class="btn-home" href="../index.html" title="Retour à l'accueil">
+      <svg viewBox="0 0 16 16">
+        <path d="M2 6.5L8 2l6 4.5V14H10v-3.5H6V14H2V6.5z"/>
+      </svg>
+      Accueil
+    </a>
+  </div>
+</div>
+
+<div class="page-head">
+  <div class="page-eyebrow">Mode d'emploi</div>
+  <h1 class="page-title">Explication et <span class="acc">conseils</span> pour utiliser le site</h1>
+  <p class="page-sub">Quelques mots pour comprendre l'esprit du site et tirer le meilleur parti de chaque activité.</p>
+</div>
+
+<div class="content-wrap">
+  <div class="content-main">
+
+    <p class="lead">Ce site internet a été créé pour servir de base d'activités dans des cours de <span style="color: var(--terra);">Français Langue Étrangères</span>, mais il peut tout à fait servir pour d'autres utilisations : professionnelle, ludique, personnelle, etc.</p>
+
+    <p>Chaque page a été pensée comme un support pour proposer des activités. L'objectif est que chacun·e puisse s'approprier ces activités pour les adapter au niveau des participants ou à ce que vous souhaitez leur apprendre.</p>
+
+    <div class="divider">
+      <div class="divider-line"></div>
+      <div class="divider-mark">par exemple</div>
+      <div class="divider-line"></div>
+    </div>
+
+    <p>La page <strong style="color: var(--terra);">« Le Bon Mot »</strong> est une sorte de P'tit Bac (pour celles et ceux qui connaissent).</p>
+
+    <div class="example-card">
+      <div class="tag">Variante classique</div>
+      <ul>
+        <li>On génère une lettre, on choisit combien de thèmes différents on veut et on demande aux participants (en équipe ou non) de trouver des mots qui commencent par cette lettre.</li>
+        <li>On laisse quelques minutes, ou on s'arrête quand quelqu'un a trouvé tous les thèmes, et les participants marquent autant de points qu'ils ont de mots qui correspondent au thème s'ils sont les seuls à avoir le mot.</li>
+      </ul>
+    </div>
+
+    <p><strong>MAIS</strong>, on peut aussi, à l'inverse, leur demander de trouver les <strong>MÊMES</strong> mots que les autres. Ils marquent un point pour chaque personne qui a trouvé le même mot qu'elle/lui.</p>
+
+    <div class="callout">
+      <div class="tag">Exemple</div>
+      <p>Un animal qui commence par un C.<br>Si 3 personnes ont répondu « chat », elles marquent 3 points chacune. Si une seule personne a répondu « crocodile », elle marque 0 point.</p>
+    </div>
+
+    <p>Le site est amené à évoluer régulièrement et de nouvelles activités seront créées et ajoutées aux autres. Si vous avez des questions ou que vous souhaitez discuter des différentes idées et activités, n'hésitez pas à me contacter à <a class="contact-link" href="mailto:kleintheo01@gmail.com">kleintheo01@gmail.com</a></p>
+
+    <div class="signature-block">
+      <p>En tout cas j'espère que ce site pourra vous aider d'une manière ou d'une autre.<br>
+      Amusez-vous bien, bon courage et au plaisir de peut-être échanger avec vous si vous avez des retours, des questions ou des propositions :)</p>
+      <div class="signature-name">Théo</div>
+    </div>
+
+  </div>
+</div>
+
+</body>
+</html>
