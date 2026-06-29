@@ -322,9 +322,33 @@ svg.ico { width:13px; height:13px; flex-shrink:0; }
   z-index: 900;
 }
 #btn-back:hover { opacity: 1; background: rgba(232,220,200,.7); }
+
+#btn-regles {
+  position: fixed; top: 14px; left: 22px;
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-size: .74rem; font-style: italic; letter-spacing: .09em;
+  color: #b85030;
+  background: linear-gradient(to bottom, #fdfaf3 60%, #f2e8d5);
+  border: 1.5px solid rgba(184,80,48,.28);
+  border-radius: 20px;
+  padding: .4rem 1.1rem;
+  cursor: pointer; opacity: .78;
+  transition: opacity .2s, background .2s, box-shadow .2s, transform .15s;
+  text-decoration: none; display: inline-flex; align-items: center; gap: .38em;
+  box-shadow: 0 2px 8px rgba(184,80,48,.08), 0 1px 3px rgba(36,26,12,.07);
+  z-index: 900;
+}
+#btn-regles:hover {
+  opacity: 1;
+  background: linear-gradient(to bottom, #fff9f0, #f0e4cc);
+  box-shadow: 0 4px 14px rgba(184,80,48,.14), 0 1px 4px rgba(36,26,12,.09);
+  transform: translateY(-1px);
+}
 </style>
 </head>
 <body>
+
+<a href="bonnephraseregles.html" id="btn-regles">✦ Exemples de règles</a>
 
 <svg class="orn tl" viewBox="0 0 46 46" fill="none"><path d="M5 5L5 21M5 5L21 5" stroke="#b85030" stroke-width="1.6" stroke-linecap="round"/><path d="M5 5Q13 9 17 17" stroke="#b85030" stroke-width="1" stroke-linecap="round"/><circle cx="5" cy="5" r="2.2" fill="#b85030"/><path d="M11 5L11 8M5 11L8 11" stroke="#b85030" stroke-width=".9" stroke-linecap="round" opacity=".55"/><path d="M16 5L16 7M5 16L7 16" stroke="#b85030" stroke-width=".7" stroke-linecap="round" opacity=".3"/></svg>
 <svg class="orn tr" viewBox="0 0 46 46" fill="none"><path d="M5 5L5 21M5 5L21 5" stroke="#b85030" stroke-width="1.6" stroke-linecap="round"/><path d="M5 5Q13 9 17 17" stroke="#b85030" stroke-width="1" stroke-linecap="round"/><circle cx="5" cy="5" r="2.2" fill="#b85030"/><path d="M11 5L11 8M5 11L8 11" stroke="#b85030" stroke-width=".9" stroke-linecap="round" opacity=".55"/><path d="M16 5L16 7M5 16L7 16" stroke="#b85030" stroke-width=".7" stroke-linecap="round" opacity=".3"/></svg>

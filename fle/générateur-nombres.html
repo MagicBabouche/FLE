@@ -362,9 +362,33 @@ h1 .main-word { color: var(--terra); }
   text-decoration: none; display: inline-block;
 }
 #btn-back:hover { opacity: 1; background: rgba(232,220,200,.7); }
+
+#btn-regles {
+  position: fixed; top: 14px; left: 22px;
+  font-family: 'Lora', Georgia, serif;
+  font-size: .74rem; font-style: italic; letter-spacing: .09em;
+  color: var(--terra);
+  background: linear-gradient(to bottom, #fdfaf3 60%, #f2e8d5);
+  border: 1.5px solid rgba(184,80,48,.28);
+  border-radius: 20px;
+  padding: .4rem 1.1rem;
+  cursor: pointer; opacity: .78;
+  transition: opacity .2s, background .2s, box-shadow .2s, transform .15s;
+  text-decoration: none; display: inline-flex; align-items: center; gap: .38em;
+  box-shadow: 0 2px 8px rgba(184,80,48,.08), 0 1px 3px rgba(36,26,12,.07);
+  z-index: 803;
+}
+#btn-regles:hover {
+  opacity: 1;
+  background: linear-gradient(to bottom, #fff9f0, #f0e4cc);
+  box-shadow: 0 4px 14px rgba(184,80,48,.14), 0 1px 4px rgba(36,26,12,.09);
+  transform: translateY(-1px);
+}
 </style>
 </head>
 <body>
+
+<a href="generateurnombresregles.html" id="btn-regles">✦ Exemples de règles</a>
 
 <div class="splash"></div>
 

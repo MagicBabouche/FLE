@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Cadres Interactifs</title>
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400;1,700&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400;1,600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400;1,700&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400;1,600&family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
 <style>
 /* ════════════════════════════
    TOKENS
@@ -155,6 +155,44 @@ h1 .lib   { color:var(--ink); }
 }
 .sidebar-title svg { width:13px; height:13px; flex-shrink:0; }
 
+.sidebar-footer {
+  flex-shrink: 0;
+  padding: 8px 10px 10px;
+  border-top: 1px solid rgba(184,80,48,.15);
+}
+
+.sidebar-closeall-btn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  padding: 7px 0;
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-size: 12px;
+  letter-spacing: .04em;
+  color: var(--ink-mid);
+  background: rgba(255,255,255,.4);
+  border: 1px solid rgba(184,80,48,.22);
+  border-radius: 7px;
+  cursor: pointer;
+  transition: background .15s, color .15s, border-color .15s;
+}
+.sidebar-closeall-btn .x {
+  font-family: sans-serif;
+  font-style: normal;
+  font-weight: 700;
+  font-size: 14px;
+  line-height: 1;
+}
+.sidebar-closeall-btn:hover {
+  background: rgba(184,80,48,.16);
+  color: var(--terra);
+  border-color: rgba(184,80,48,.4);
+}
+.sidebar-closeall-btn:active { background: rgba(184,80,48,.26); }
+
 /* Font size control */
 .font-size-section {
   padding: 10px 14px;
@@ -244,6 +282,76 @@ h1 .lib   { color:var(--ink); }
 }
 .fs-btn:hover { background: rgba(184,80,48,.12); color: var(--terra); }
 .fs-btn:active { background: rgba(184,80,48,.22); }
+
+/* Font style control */
+.font-style-section {
+  padding: 10px 14px;
+  border-bottom: 1px solid rgba(184,80,48,.12);
+  flex-shrink: 0;
+}
+
+.font-style-label {
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-size: 11px;
+  color: var(--ink-dim);
+  letter-spacing: .05em;
+  margin-bottom: 6px;
+}
+
+.font-style-no-frame {
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-size: 11px;
+  color: var(--ink-ghost);
+  letter-spacing: .03em;
+  text-align: center;
+  padding: 4px 0;
+}
+
+.font-style-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 5px;
+}
+
+.fst-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  padding: 7px 2px;
+  color: var(--ink-mid);
+  background: rgba(255,255,255,.4);
+  border: 1px solid rgba(184,80,48,.2);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background .15s, color .15s, border-color .15s;
+  line-height: 1;
+}
+.fst-btn .fst-sample {
+  font-size: 15px;
+  line-height: 1;
+}
+.fst-btn .fst-name {
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-size: 9.5px;
+  letter-spacing: .03em;
+  opacity: .8;
+}
+.fst-btn[data-fam="sans"] .fst-sample { font-family: 'Montserrat', Arial, sans-serif; }
+.fst-btn[data-fam="serif"] .fst-sample { font-family: 'Playfair Display', Georgia, serif; }
+.fst-btn[data-case="upper"] .fst-sample { text-transform: uppercase; }
+
+.fst-btn:hover { background: rgba(184,80,48,.12); border-color: rgba(184,80,48,.35); }
+.fst-btn:active { background: rgba(184,80,48,.22); }
+.fst-btn.fst-active {
+  background: rgba(184,80,48,.22);
+  border-color: var(--terra);
+  color: var(--terra);
+}
 
 /* Frame list */
 .sidebar-list {
@@ -336,6 +444,27 @@ h1 .lib   { color:var(--ink); }
   color: var(--ink);
   font-weight: 600;
 }
+
+.sidebar-item-close {
+  flex-shrink: 0;
+  width: 17px; height: 17px;
+  border-radius: 50%;
+  background: rgba(184,80,48,.12);
+  border: 1px solid rgba(184,80,48,.22);
+  color: var(--terra);
+  font-size: 11px;
+  line-height: 1;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  opacity: 0;
+  transition: opacity .15s, background .15s, transform .15s;
+  font-family: sans-serif;
+  font-weight: 700;
+  padding: 0;
+}
+.sidebar-item:hover .sidebar-item-close { opacity: 1; }
+.sidebar-item-close:hover { background: rgba(184,80,48,.5); color: #fff; transform: scale(1.12); }
+.sidebar-item-close:active { transform: scale(.92); }
 
 /* ════════════════════════════
    FRAMES
@@ -468,11 +597,21 @@ h1 .lib   { color:var(--ink); }
   color: inherit;
   caret-color: var(--terra);
   word-break: break-word;
-  overflow: hidden;
+  overflow-x: hidden;
+  overflow-y: auto;
   display: flex;
   align-items: center;
   justify-content: center;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(0,0,0,.28) transparent;
 }
+.frame textarea::-webkit-scrollbar { width: 6px; }
+.frame textarea::-webkit-scrollbar-track { background: transparent; }
+.frame textarea::-webkit-scrollbar-thumb {
+  background: rgba(0,0,0,.25);
+  border-radius: 3px;
+}
+.frame textarea::-webkit-scrollbar-thumb:hover { background: rgba(0,0,0,.4); }
 
 .frame textarea::placeholder {
   color: rgba(36,26,12,.18);
@@ -624,6 +763,28 @@ h1 .lib   { color:var(--ink); }
   z-index: 950;
 }
 #btn-back:hover { opacity: 1; background: rgba(232,220,200,.7); }
+
+#btn-explications {
+  position: fixed; top: 14px; left: 22px;
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: .74rem; font-style: italic; letter-spacing: .09em;
+  color: var(--terra);
+  background: linear-gradient(to bottom, var(--paper) 60%, #f2e8d5);
+  border: 1.5px solid rgba(184,80,48,.28);
+  border-radius: 20px;
+  padding: .4rem 1.1rem;
+  cursor: pointer; opacity: .78;
+  transition: opacity .2s, background .2s, box-shadow .2s, transform .15s;
+  text-decoration: none; display: inline-flex; align-items: center; gap: .38em;
+  box-shadow: 0 2px 8px rgba(184,80,48,.08), 0 1px 3px rgba(36,26,12,.07);
+  z-index: 950;
+}
+#btn-explications:hover {
+  opacity: 1;
+  background: linear-gradient(to bottom, #fff9f0, #f0e4cc);
+  box-shadow: 0 4px 14px rgba(184,80,48,.14), 0 1px 4px rgba(36,26,12,.09);
+  transform: translateY(-1px);
+}
 </style>
 </head>
 <body>
@@ -692,14 +853,48 @@ h1 .lib   { color:var(--ink); }
     </div>
   </div>
 
+  <!-- Font style control -->
+  <div class="font-style-section">
+    <div class="font-style-label">Style du texte</div>
+    <div id="fst-no-frame" class="font-style-no-frame">Sélectionnez un cadre</div>
+    <div class="font-style-grid" id="fst-grid" style="display:none">
+      <button class="fst-btn" id="fst-sans-upper" data-fam="sans" data-case="upper" title="Capitales sans serif">
+        <span class="fst-sample">AB</span>
+        <span class="fst-name">Capit. sans</span>
+      </button>
+      <button class="fst-btn" id="fst-sans-normal" data-fam="sans" data-case="normal" title="Texte normal sans serif">
+        <span class="fst-sample">Ab</span>
+        <span class="fst-name">Normal sans</span>
+      </button>
+      <button class="fst-btn" id="fst-serif-upper" data-fam="serif" data-case="upper" title="Capitales serif">
+        <span class="fst-sample">AB</span>
+        <span class="fst-name">Capit. serif</span>
+      </button>
+      <button class="fst-btn" id="fst-serif-normal" data-fam="serif" data-case="normal" title="Texte normal serif">
+        <span class="fst-sample">Ab</span>
+        <span class="fst-name">Normal serif</span>
+      </button>
+    </div>
+  </div>
+
   <!-- Frame list -->
   <div class="sidebar-list" id="sidebar-list">
     <div class="sidebar-empty" id="sidebar-empty">Aucun cadre.<br>Ajoutez-en avec le&nbsp;+</div>
+  </div>
+
+  <!-- Close all -->
+  <div class="sidebar-footer">
+    <button class="sidebar-closeall-btn" id="btn-close-all" title="Fermer tous les cadres">
+      <span class="x">×</span> Tout fermer
+    </button>
   </div>
 </aside>
 
 <!-- BACK BUTTON -->
 <a href="index.html" id="btn-back">← Retour aux jeux</a>
+
+<!-- EXPLICATIONS BUTTON -->
+<a href="cadresinteractifsregles.html" id="btn-explications">✦ Explications</a>
 
 <script>
 const canvas = document.getElementById('canvas');
@@ -712,6 +907,9 @@ const fsSlider = document.getElementById('fs-slider');
 const fsDisplay = document.getElementById('fs-display');
 const fsButtons = document.getElementById('fs-buttons');
 const fsNoFrame = document.getElementById('fs-no-frame');
+const fstGrid = document.getElementById('fst-grid');
+const fstNoFrame = document.getElementById('fst-no-frame');
+const fstButtons = Array.from(document.querySelectorAll('.fst-btn'));
 
 let frames = [];       // array of frame objects { el, ta, sidebarItem, id, fontSize }
 let targetCount = 0;
@@ -775,6 +973,33 @@ function updateSliderTrack(val) {
   fsSlider.style.background = `linear-gradient(to right, var(--terra) ${pct}%, rgba(184,80,48,.2) ${pct}%)`;
 }
 
+/* ─── font family/case helpers ─── */
+const FONT_FAMILIES = {
+  sans:  "'Montserrat', Arial, Helvetica, sans-serif",
+  serif: "'Playfair Display', Georgia, serif"
+};
+const DEFAULT_FONT_FAM  = 'serif';
+const DEFAULT_FONT_CASE = 'normal';
+
+function setFrameFontStyle(frameObj, fam, caseStyle) {
+  frameObj.fontFam  = fam;
+  frameObj.fontCase = caseStyle;
+  frameObj.ta.style.fontFamily = FONT_FAMILIES[fam];
+  frameObj.ta.style.textTransform = caseStyle === 'upper' ? 'uppercase' : 'none';
+  frameObj.ta.style.letterSpacing = caseStyle === 'upper' ? '.04em' : 'normal';
+
+  if (activeFrame === frameObj) {
+    updateFontStyleButtons(fam, caseStyle);
+  }
+}
+
+function updateFontStyleButtons(fam, caseStyle) {
+  fstButtons.forEach(btn => {
+    const match = btn.dataset.fam === fam && btn.dataset.case === caseStyle;
+    btn.classList.toggle('fst-active', match);
+  });
+}
+
 /* ─── sidebar: set active item ─── */
 function setActiveFrameInSidebar(frameObj) {
   // Deactivate previous
@@ -792,13 +1017,56 @@ function setActiveFrameInSidebar(frameObj) {
     fsSlider.value = size;
     updateSliderTrack(size);
     fsDisplay.textContent = size + 'px';
+    // Show font style grid
+    fstNoFrame.style.display = 'none';
+    fstGrid.style.display = 'grid';
+    updateFontStyleButtons(frameObj.fontFam || DEFAULT_FONT_FAM, frameObj.fontCase || DEFAULT_FONT_CASE);
   } else {
     // No frame active
     fsNoFrame.style.display = 'block';
     fsSlider.style.display = 'none';
     fsButtons.style.display = 'none';
     fsDisplay.textContent = '—';
+    // Hide font style grid
+    fstNoFrame.style.display = 'block';
+    fstGrid.style.display = 'none';
   }
+}
+
+/* ─── close a single frame (used by frame's own × and sidebar's ×) ─── */
+function closeFrame(frameObj) {
+  const el = frameObj.el;
+  el.style.transition = 'opacity .22s, transform .22s';
+  el.style.opacity = '0';
+  el.style.transform = 'scale(.85)';
+  setTimeout(() => {
+    el.remove();
+    frames = frames.filter(f => f !== frameObj);
+    targetCount = frames.length;
+    countInput.value = targetCount;
+    if (activeFrame === frameObj) {
+      setActiveFrameInSidebar(null);
+    }
+    rebuildSidebarList();
+  }, 220);
+}
+
+/* ─── close all frames at once ─── */
+function closeAllFrames() {
+  if (frames.length === 0) return;
+  frames.forEach(f => {
+    f.el.style.transition = 'opacity .2s, transform .2s';
+    f.el.style.opacity = '0';
+    f.el.style.transform = 'scale(.85)';
+  });
+  setTimeout(() => {
+    frames.forEach(f => f.el.remove());
+    frames = [];
+    targetCount = 0;
+    countInput.value = 0;
+    setActiveFrameInSidebar(null);
+    rebuildSidebarList();
+  }, 200);
 }
 
 /* ─── sidebar list: rebuild ─── */
@@ -837,9 +1105,19 @@ function createSidebarItem(frameObj) {
   text.className = 'sidebar-item-text';
   text.textContent = 'Vide…';
 
+  const closeX = document.createElement('button');
+  closeX.className = 'sidebar-item-close';
+  closeX.innerHTML = '×';
+  closeX.title = 'Fermer ce cadre';
+  closeX.addEventListener('click', (e) => {
+    e.stopPropagation();
+    closeFrame(frameObj);
+  });
+
   item.appendChild(num);
   item.appendChild(dot);
   item.appendChild(text);
+  item.appendChild(closeX);
 
   // Click → bring to front + activate
   item.addEventListener('click', () => {
@@ -927,6 +1205,8 @@ function createFrame(index, animated = true) {
   const ta = document.createElement('textarea');
   ta.placeholder = 'Écrivez ici…';
   ta.style.fontSize = DEFAULT_FONT_SIZE + 'px';
+  ta.style.fontFamily = FONT_FAMILIES[DEFAULT_FONT_FAM];
+  ta.style.textTransform = 'none';
   el.appendChild(ta);
 
   // Close button
@@ -937,19 +1217,7 @@ function createFrame(index, animated = true) {
   closeBtn.addEventListener('mousedown', e => e.stopPropagation());
   closeBtn.addEventListener('click', (e) => {
     e.stopPropagation();
-    el.style.transition = 'opacity .22s, transform .22s';
-    el.style.opacity = '0';
-    el.style.transform = 'scale(.85)';
-    setTimeout(() => {
-      el.remove();
-      frames = frames.filter(f => f.el !== el);
-      targetCount = frames.length;
-      countInput.value = targetCount;
-      if (activeFrame && activeFrame.el === el) {
-        setActiveFrameInSidebar(null);
-      }
-      rebuildSidebarList();
-    }, 220);
+    closeFrame(frameObj);
   });
   el.appendChild(closeBtn);
 
@@ -982,6 +1250,8 @@ function createFrame(index, animated = true) {
     id,
     colorIdx: c,
     fontSize: DEFAULT_FONT_SIZE,
+    fontFam: DEFAULT_FONT_FAM,
+    fontCase: DEFAULT_FONT_CASE,
     sidebarItem: null,
     sidebarTextEl: null,
     barFsVal,
@@ -1169,7 +1439,17 @@ document.getElementById('fs-lg').addEventListener('click', () => {
   if (activeFrame) setFrameFontSize(activeFrame, 80);
 });
 
+/* ─── Font style buttons in sidebar ─── */
+fstButtons.forEach(btn => {
+  btn.addEventListener('click', () => {
+    if (!activeFrame) return;
+    setFrameFontStyle(activeFrame, btn.dataset.fam, btn.dataset.case);
+  });
+});
+
 /* ─── controls ─── */
+document.getElementById('btn-close-all').addEventListener('click', closeAllFrames);
+
 btnPlus.addEventListener('click', () => {
   if (targetCount >= 20) return;
   targetCount++;

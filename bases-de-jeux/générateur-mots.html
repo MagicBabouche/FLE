@@ -293,9 +293,33 @@
       text-decoration: none; display: inline-block;
     }
     #btn-back:hover { opacity: 1; background: rgba(232,220,200,.7); }
+
+    #btn-regles {
+      position: fixed; top: 14px; left: 22px;
+      font-family: 'Lato', sans-serif;
+      font-size: .74rem; font-style: italic; letter-spacing: .09em;
+      color: var(--warm);
+      background: linear-gradient(to bottom, #fdfaf3 60%, #f2e8d5);
+      border: 1.5px solid rgba(212,149,106,.38);
+      border-radius: 20px;
+      padding: .4rem 1.1rem;
+      cursor: pointer; opacity: .78;
+      transition: opacity .2s, background .2s, box-shadow .2s, transform .15s;
+      text-decoration: none; display: inline-flex; align-items: center; gap: .38em;
+      box-shadow: 0 2px 8px rgba(212,149,106,.12), 0 1px 3px rgba(74,55,40,.08);
+      z-index: 1001;
+    }
+    #btn-regles:hover {
+      opacity: 1;
+      background: linear-gradient(to bottom, #fff9f0, #f0e4cc);
+      box-shadow: 0 4px 14px rgba(212,149,106,.2), 0 1px 4px rgba(74,55,40,.1);
+      transform: translateY(-1px);
+    }
   </style>
 </head>
 <body>
+
+<a href="generateurmotsregles.html" id="btn-regles">✦ Exemples de règles</a>
 
 <header>
   <span class="ornament">— ✦ —</span>
