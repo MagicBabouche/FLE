@@ -390,9 +390,33 @@
       z-index: 10;
     }
     #btn-back:hover { opacity: 1; background: var(--parchment); }
+
+    #btn-regles {
+      position: fixed; top: 14px; left: 22px;
+      font-family: 'Playfair Display', Georgia, serif;
+      font-size: .74rem; font-style: italic; letter-spacing: .09em;
+      color: var(--terracotta);
+      background: linear-gradient(to bottom, var(--cream) 60%, var(--parchment));
+      border: 1.5px solid rgba(196,137,106,.35);
+      border-radius: 20px;
+      padding: .4rem 1.1rem;
+      cursor: pointer; opacity: .78;
+      transition: opacity .2s, background .2s, box-shadow .2s, transform .15s;
+      text-decoration: none; display: inline-flex; align-items: center; gap: .38em;
+      box-shadow: 0 2px 8px rgba(196,137,106,.1), 0 1px 3px rgba(61,50,40,.07);
+      z-index: 901;
+    }
+    #btn-regles:hover {
+      opacity: 1;
+      background: linear-gradient(to bottom, #fffaf2, var(--parchment));
+      box-shadow: 0 4px 14px rgba(196,137,106,.16), 0 1px 4px rgba(61,50,40,.09);
+      transform: translateY(-1px);
+    }
   </style>
 </head>
 <body>
+
+  <a href="drapeauxregles.html" id="btn-regles">✦ Exemples de règles</a>
 
   <!-- LEFT: flag -->
   <div class="col-flag">

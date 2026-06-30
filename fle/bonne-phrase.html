@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>La Belle Phrase</title>
+<title>La Bonne Phrase</title>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400;1,700&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400;1,600&display=swap" rel="stylesheet">
 <style>
 :root {
@@ -81,7 +81,7 @@ h1 {
   display: inline-flex; align-items: baseline; gap: .2em;
 }
 h1 .la  { font-style:italic; font-weight:400; color:var(--ink-mid); font-size:.8em; }
-h1 .belle { color:var(--terra); }
+h1 .bonne { color:var(--terra); }
 h1 .phrase { color:var(--ink); }
 .orn-rule {
   display:flex; align-items:center; gap:10px;
@@ -138,6 +138,32 @@ h1 .phrase { color:var(--ink); }
   border:1px solid rgba(255,255,255,.2);
   border-radius:8px;
   pointer-events:none;
+}
+
+.card { cursor: pointer; transition: box-shadow .25s, filter .25s; }
+.card.lockable:hover { filter: brightness(.97); }
+.card.locked {
+  box-shadow:
+    0 2px 18px rgba(36,26,12,.12),
+    inset 0 0 0 2.5px var(--terra);
+}
+.lock-icon {
+  position: absolute;
+  top: 8px; right: 10px;
+  width: 18px; height: 18px;
+  z-index: 3;
+  opacity: 0;
+  transform: scale(.7);
+  transition: opacity .2s, transform .2s;
+  color: var(--terra);
+}
+.card.locked .lock-icon {
+  opacity: .85;
+  transform: scale(1);
+}
+.card.lockable:not(.locked):hover .lock-icon {
+  opacity: .35;
+  transform: scale(1);
 }
 
 .card-label {
@@ -359,7 +385,7 @@ svg.ico { width:13px; height:13px; flex-shrink:0; }
 <div class="header">
   <h1>
     <span class="la">La</span>
-    <span class="belle">Belle</span>
+    <span class="belle">Bonne</span>
     <span class="phrase">Phrase</span>
   </h1>
   <div class="orn-rule">
@@ -374,11 +400,12 @@ svg.ico { width:13px; height:13px; flex-shrink:0; }
 
   <!-- Sujet -->
   <div class="card-col" id="col-sujet" style="order:1;">
-    <div class="card" style="background:var(--c-sujet);">
+    <div class="card lockable" id="card-sujet" style="background:var(--c-sujet);" onclick="toggleLock('sujet')">
+      <svg class="lock-icon" id="lock-sujet" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="11" width="16" height="9" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>
       <span class="card-label" style="color:var(--t-sujet)">Sujet</span>
       <span class="card-value" id="val-sujet" style="color:var(--t-sujet)">—</span>
     </div>
-    <button class="btn-change s" onclick="draw('sujet')">
+    <button class="btn-change s" onclick="event.stopPropagation(); draw('sujet', true)">
       <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16"/><path d="M16 16h5v5"/></svg>
       Changer
     </button>
@@ -402,11 +429,12 @@ svg.ico { width:13px; height:13px; flex-shrink:0; }
 
   <!-- Complément -->
   <div class="card-col" id="col-compl" style="order:4">
-    <div class="card" style="background:var(--c-compl);">
+    <div class="card lockable" id="card-compl" style="background:var(--c-compl);" onclick="toggleLock('compl')">
+      <svg class="lock-icon" id="lock-compl" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="11" width="16" height="9" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>
       <span class="card-label" style="color:var(--t-compl)">Complément</span>
       <span class="card-value" id="val-compl" style="color:var(--t-compl)">—</span>
     </div>
-    <button class="btn-change c" onclick="draw('compl')">
+    <button class="btn-change c" onclick="event.stopPropagation(); draw('compl', true)">
       <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16"/><path d="M16 16h5v5"/></svg>
       Changer
     </button>
@@ -472,10 +500,18 @@ const DATA = {
 let adjActive = false;
 let adjSide = 'left';
 let pcActive = false;
+const locked = { sujet: false, compl: false };
 
 function pick(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
 
-function draw(key) {
+function toggleLock(key) {
+  locked[key] = !locked[key];
+  const card = document.getElementById('card-' + key);
+  if (card) card.classList.toggle('locked', locked[key]);
+}
+
+function draw(key, force) {
+  if (locked[key] && !force) return;
   const el = document.getElementById('val-' + key);
   if (!el) return;
   el.classList.remove('pop');

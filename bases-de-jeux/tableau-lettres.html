@@ -419,12 +419,24 @@
   <a href="index.html" id="btn-back">← Retour aux jeux</a>
 
 <script>
-  const LETTERS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
+  const LETTER_FREQ = [
+    ['E', 14.73], ['A', 7.64], ['I', 7.53], ['S', 7.31], ['N', 7.10],
+    ['R', 6.55], ['T', 5.86], ['O', 5.38], ['L', 5.38], ['U', 5.20],
+    ['D', 3.55], ['C', 3.26], ['M', 2.97], ['P', 2.49], ['G', 1.02],
+    ['B', 0.93], ['V', 0.92], ['H', 0.74], ['F', 0.73], ['Q', 0.65],
+    ['Y', 0.28], ['X', 0.27], ['J', 0.24], ['K', 0.05], ['W', 0.04], ['Z', 0.03]
+  ];
+  const TOTAL_FREQ = LETTER_FREQ.reduce((sum, [, freq]) => sum + freq, 0);
   let rows = 2, cols = 2;
   let cells = [];
 
   function rndLetter() {
-    return LETTERS[Math.floor(Math.random() * LETTERS.length)];
+    let target = Math.random() * TOTAL_FREQ;
+    for (const [letter, freq] of LETTER_FREQ) {
+      target -= freq;
+      if (target <= 0) return letter;
+    }
+    return LETTER_FREQ[LETTER_FREQ.length - 1][0];
   }
 
   function initCells() {
