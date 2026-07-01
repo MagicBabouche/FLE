@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Explications et conseils — Jeux FLE</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=Lora:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+:root {
+  --cream:     #f0e8d5;
+  --paper:     #faf5e8;
+  --ink:       #2a1f10;
+  --ink-mid:   #5a4830;
+  --ink-dim:   #9a8060;
+  --ink-ghost: #c8a870;
+  --terra:     #b85030;
+  --terra-lt:  #d4785a;
+  --sage:      #6c9e56;
+  --sage-dk:   #4c7838;
+}
+*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+
+body {
+  min-height: 100vh;
+  background: var(--cream);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='600' height='600'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.68' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='600' height='600' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E");
+  font-family: 'Lora', Georgia, serif;
+  color: var(--ink);
+}
+
+body::after {
+  content:''; position:fixed; inset:8px;
+  border:1.5px solid rgba(184,80,48,.18);
+  border-radius:6px; pointer-events:none; z-index:900;
+}
+.corner { position:fixed; pointer-events:none; z-index:901; opacity:.22; width:50px; height:50px; }
+.corner.tl { top:10px; left:10px; }
+.corner.tr { top:10px; right:10px; transform:scaleX(-1); }
+.corner.bl { bottom:10px; left:10px; transform:scaleY(-1); }
+.corner.br { bottom:10px; right:10px; transform:scale(-1); }
+
+.top-bar {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 48px;
+  height: 80px;
+  background: var(--cream);
+  border-bottom: 1.5px solid var(--ink);
+}
+
+.top-bar-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 26px;
+  font-weight: 700;
+  letter-spacing: -.01em;
+}
+.top-bar-title .acc { color:var(--terra); font-style:italic; }
+
+.top-bar-right {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  font-size: 10.5px;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+  color: var(--ink-dim);
+}
+
+.btn-home {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: 'Lora', serif;
+  font-size: 10px;
+  letter-spacing: .22em;
+  text-transform: uppercase;
+  color: var(--cream);
+  background: var(--ink);
+  text-decoration: none;
+  padding: 8px 18px;
+  border: 1.5px solid var(--ink);
+  transition: background .2s, color .2s, border-color .2s;
+}
+.btn-home:hover {
+  background: var(--terra);
+  border-color: var(--terra);
+}
+.btn-home svg {
+  width: 11px; height: 11px;
+  fill: none; stroke: currentColor;
+  stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round;
+  flex-shrink: 0;
+}
+
+.page-head {
+  padding: 64px clamp(20px, 5vw, 64px) 40px;
+  border-bottom: 1.5px solid var(--ink);
+  position: relative;
+}
+.page-eyebrow {
+  font-size: 10px;
+  letter-spacing: .28em;
+  text-transform: uppercase;
+  color: var(--terra);
+  margin-bottom: 18px;
+}
+.page-title {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(34px, 5vw, 58px);
+  font-weight: 700;
+  line-height: 1.05;
+  letter-spacing: -.015em;
+}
+.page-title .acc {
+  color: var(--terra);
+  font-style: italic;
+  font-weight: 400;
+}
+.page-sub {
+  margin-top: 18px;
+  font-style: italic;
+  font-size: 16px;
+  color: var(--ink-mid);
+}
+
+.content-wrap {
+  border-left: 1.5px solid var(--ink);
+  border-right: 1.5px solid var(--ink);
+  border-bottom: 1.5px solid var(--ink);
+}
+
+.content-main {
+  padding: 56px clamp(20px, 5vw, 64px) 80px;
+  width: 100%;
+}
+.example-card, .callout, .signature-block, .divider {
+  break-inside: avoid;
+}
+.content-main p {
+  break-inside: avoid;
+}
+
+.content-main p {
+  font-size: 16.5px;
+  line-height: 1.85;
+  color: var(--ink);
+  margin-bottom: 24px;
+  text-align: justify;
+  hyphens: auto;
+  orphans: 3;
+  widows: 3;
+}
+
+.content-main p.lead {
+  font-size: 19px;
+  color: var(--ink-mid);
+}
+
+.content-main ol, .content-main ul.variantes {
+  margin: 0 0 32px 0;
+  padding-left: 26px;
+}
+.content-main ol li, .content-main ul.variantes li {
+  font-size: 16.5px;
+  line-height: 1.85;
+  margin-bottom: 16px;
+  text-align: justify;
+  hyphens: auto;
+}
+.content-main ol li::marker {
+  color: var(--terra);
+  font-weight: 700;
+}
+.content-main ul.variantes li::marker {
+  color: var(--terra);
+}
+
+.divider {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin: 44px 0 32px;
+}
+.divider-line { flex:1; height:1px; background: rgba(184,80,48,.3); }
+.divider-mark {
+  font-family: 'Playfair Display', serif;
+  font-style: italic;
+  font-size: 14px;
+  color: var(--terra);
+  letter-spacing: .05em;
+}
+
+.example-card {
+  background: var(--paper);
+  border: 1.5px solid var(--ink);
+  border-left: 5px solid var(--terra);
+  padding: 28px 30px;
+  margin: 28px 0 32px;
+  position: relative;
+}
+.example-card .tag {
+  font-size: 9.5px;
+  letter-spacing: .22em;
+  text-transform: uppercase;
+  color: var(--terra);
+  margin-bottom: 14px;
+}
+.example-card p {
+  margin-bottom: 14px;
+  font-size: 15.5px;
+  text-align: justify;
+  hyphens: auto;
+}
+.example-card p:last-child { margin-bottom: 0; }
+.example-card ul {
+  margin: 0 0 14px 0;
+  padding-left: 22px;
+}
+.example-card li {
+  font-size: 15.5px;
+  line-height: 1.75;
+  margin-bottom: 10px;
+  text-align: justify;
+  hyphens: auto;
+}
+.example-card li::marker { color: var(--terra); }
+.example-card .card-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--ink);
+  margin-bottom: 12px;
+}
+.example-card .meta {
+  font-size: 14px;
+  color: var(--ink-mid);
+  margin-bottom: 6px;
+}
+.example-card .meta strong {
+  color: var(--terra);
+  font-weight: 700;
+}
+
+.callout {
+  background: var(--ink);
+  color: var(--cream);
+  padding: 30px 32px;
+  margin: 32px 0;
+  position: relative;
+}
+.callout .tag {
+  font-size: 9.5px;
+  letter-spacing: .22em;
+  text-transform: uppercase;
+  color: var(--terra-lt);
+  margin-bottom: 12px;
+}
+.callout p {
+  color: var(--cream);
+  font-size: 15px;
+  line-height: 1.7;
+  margin-bottom: 0;
+  font-style: italic;
+  text-align: justify;
+  hyphens: auto;
+}
+
+.signature-block {
+  margin-top: 48px;
+  padding-top: 28px;
+  border-top: 1px solid rgba(184,80,48,.25);
+}
+.signature-block p {
+  margin-bottom: 18px;
+}
+.signature-name {
+  font-family: 'Playfair Display', serif;
+  font-style: italic;
+  font-size: 24px;
+  color: var(--terra);
+  margin-top: 8px;
+}
+
+.contact-link {
+  color: var(--terra);
+  text-decoration: none;
+  border-bottom: 1px solid rgba(184,80,48,.4);
+  transition: color .2s, border-color .2s;
+}
+.contact-link:hover { color: var(--terra-lt); border-color: var(--terra-lt); }
+
+.footer-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 48px;
+  border-top: 1.5px solid var(--ink);
+  font-size: 11px;
+  letter-spacing: .14em;
+  color: var(--ink-ghost);
+}
+.footer-orn { color:var(--terra); font-size:14px; opacity:.45; }
+
+@keyframes fadeUp {
+  from { opacity:0; transform:translateY(12px); }
+  to   { opacity:1; transform:translateY(0); }
+}
+.content-main { animation: fadeUp .55s ease both; }
+
+@media (max-width:900px) {
+  .top-bar { padding:0 24px; }
+}
+</style>
+</head>
+<body>
+
+<svg class="corner tl" viewBox="0 0 50 50" fill="none">
+  <path d="M5 5L5 22M5 5L22 5" stroke="#b85030" stroke-width="1.6" stroke-linecap="round"/>
+  <path d="M5 5Q14 9 18 18" stroke="#b85030" stroke-width="1" stroke-linecap="round"/>
+  <circle cx="5" cy="5" r="2.2" fill="#b85030"/>
+</svg>
+<svg class="corner tr" viewBox="0 0 50 50" fill="none">
+  <path d="M5 5L5 22M5 5L22 5" stroke="#b85030" stroke-width="1.6" stroke-linecap="round"/>
+  <path d="M5 5Q14 9 18 18" stroke="#b85030" stroke-width="1" stroke-linecap="round"/>
+  <circle cx="5" cy="5" r="2.2" fill="#b85030"/>
+</svg>
+<svg class="corner bl" viewBox="0 0 50 50" fill="none">
+  <path d="M5 5L5 22M5 5L22 5" stroke="#b85030" stroke-width="1.6" stroke-linecap="round"/>
+  <path d="M5 5Q14 9 18 18" stroke="#b85030" stroke-width="1" stroke-linecap="round"/>
+  <circle cx="5" cy="5" r="2.2" fill="#b85030"/>
+</svg>
+<svg class="corner br" viewBox="0 0 50 50" fill="none">
+  <path d="M5 5L5 22M5 5L22 5" stroke="#b85030" stroke-width="1.6" stroke-linecap="round"/>
+  <path d="M5 5Q14 9 18 18" stroke="#b85030" stroke-width="1" stroke-linecap="round"/>
+  <circle cx="5" cy="5" r="2.2" fill="#b85030"/>
+</svg>
+
+<div class="top-bar">
+  <div class="top-bar-title">Jeux <span class="acc">FLE</span></div>
+  <div class="top-bar-right">
+    <span>— explications & conseils —</span>
+    <a class="btn-home" href="lanceur-des.html" title="Retour au jeu">
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M10 3L5 8l5 5"/>
+      </svg>
+      Retour aux jeux
+    </a>
+    <a class="btn-home" href="../index.html" title="Retour à l'accueil">
+      <svg viewBox="0 0 16 16">
+        <path d="M2 6.5L8 2l6 4.5V14H10v-3.5H6V14H2V6.5z"/>
+      </svg>
+      Accueil
+    </a>
+  </div>
+</div>
+
+<div class="page-head">
+  <div class="page-eyebrow">Mode d'emploi</div>
+  <h1 class="page-title">Explication de l'activité et <span class="acc">exemples</span> de règles possibles</h1>
+  <p class="page-sub">Quelques pistes pour comprendre le lanceur de dés et l'adapter à votre groupe.</p>
+</div>
+
+<div class="content-wrap">
+  <div class="content-main">
+
+    <div class="example-card">
+      <p class="lead" style="color: var(--terra); margin-bottom: 0;">Le concept de cette activité est de générer autant de dés que vous le souhaitez et de pouvoir générer leur résultat aléatoirement.</p>
+    </div>
+
+    <div class="divider">
+      <div class="divider-line"></div>
+      <div class="divider-mark">exemples de règles</div>
+      <div class="divider-line"></div>
+    </div>
+
+    <div class="example-card">
+      <div class="tag">Jeu n°1</div>
+      <div class="card-title">Le 5 000 (ou Farkle)</div>
+      <p class="meta"><strong>Matériel :</strong> 6 dés, une feuille de score.</p>
+      <p class="meta"><strong>But :</strong> Atteindre les 5 000 points.</p>
+      <p><strong>Règles :</strong> À son tour, on lance les 6 dés. Les 1 valent 100 points, les 5 valent 50 points. Les brelans (3 dés identiques) rapportent plus (ex : trois 4 = 400 points) et trois 1 = 1000 points. On peut mettre de côté les dés qui marquent des points et relancer les autres pour gonfler son score, ou s'arrêter et noter ses points. Si un lancer ne rapporte aucun point, on perd tout ce qui a été accumulé pendant le tour (« Farkle ») et on passe la main.</p>
+    </div>
+
+    <div class="example-card">
+      <div class="tag">Jeu n°2</div>
+      <div class="card-title">Le Zombie Dice (adaptation maison)</div>
+      <p class="meta"><strong>Matériel :</strong> 3 dés.</p>
+      <p class="meta"><strong>But :</strong> Être le premier à obtenir 13 « cerveaux ».</p>
+      <p><strong>Règles :</strong> Vous êtes un zombie. À votre tour, lancez 3 dés.</p>
+      <ul>
+        <li>Les 1 et 2 sont des Cerveaux (vous les gardez, +1 point).</li>
+        <li>Les 3 et 4 sont des Pas (la victime s'enfuit, vous pouvez relancer ces dés).</li>
+        <li>Les 5 et 6 sont des Coups de fusil (si vous en obtenez 3 au total dans votre tour, vous perdez tous les points de ce tour).</li>
+      </ul>
+      <p>Vous pouvez vous arrêter quand vous voulez pour valider vos points, ou continuer à lancer 3 dés au risque de prendre un 3ᵉ coup de fusil.</p>
+    </div>
+
+    <div class="example-card">
+      <div class="tag">Jeu n°3</div>
+      <div class="card-title">Le Yam's (ou Yahtzee)</div>
+      <p class="meta"><strong>Matériel :</strong> 5 dés, une grille de score.</p>
+      <p class="meta"><strong>But :</strong> Obtenir le plus haut score en remplissant une grille de combinaisons.</p>
+      <p><strong>Règles :</strong> À chaque tour, le joueur a jusqu'à 3 lancers pour réaliser une figure (un brelan, un carré, un « Full » [3 dés identiques + 2 autres identiques], une suite, ou le Yam's [5 dés identiques]). Chaque case de la grille ne peut être remplie qu'une seule fois.</p>
+    </div>
+
+    <div class="example-card">
+      <div class="tag">Jeu n°4</div>
+      <div class="card-title">Shut the Box (fermer la boîte)</div>
+      <p class="meta"><strong>Matériel :</strong> 2 dés, une feuille avec les chiffres de 1 à 9 écrits dessus.</p>
+      <p class="meta"><strong>But :</strong> « Fermer » (rayer) un maximum de chiffres pour obtenir le score le plus bas possible.</p>
+      <p><strong>Règles :</strong> À son tour, le joueur lance les 2 dés. Il additionne le résultat (ex : un 5 et un 3 font 8). Il peut alors rayer n'importe quelle combinaison de chiffres non rayés qui fait 8 (soit juste le 8, soit 7 et 1, soit 5 et 3, etc.). Le joueur continue à lancer les dés tant qu'il peut rayer des chiffres. Quand il est bloqué, on fait la somme des chiffres restants : c'est son score (le plus bas est le meilleur).</p>
+    </div>
+
+    <div class="example-card">
+      <div class="tag">Jeu n°5</div>
+      <div class="card-title">La Course aux Cochons (Pig)</div>
+      <p class="meta"><strong>Matériel :</strong> 1 dé, une feuille de score.</p>
+      <p class="meta"><strong>But :</strong> Atteindre 100 points.</p>
+      <p><strong>Règles :</strong> C'est le jeu de « Stop ou Encore » le plus pur. À votre tour, lancez le dé autant de fois que vous le souhaitez et additionnez les résultats.</p>
+      <ul>
+        <li>Si vous faites 2, 3, 4, 5 ou 6, vous ajoutez ce chiffre à votre total du tour.</li>
+        <li>Si vous faites un 1, votre tour s'arrête immédiatement et vous perdez tous les points accumulés durant ce tour.</li>
+      </ul>
+      <p>Vous pouvez décider de vous arrêter à tout moment pour sécuriser vos points.</p>
+    </div>
+
+    <div class="example-card">
+      <div class="tag">Jeu n°6</div>
+      <div class="card-title">Le Math Dice (opérations flash)</div>
+      <p class="meta"><strong>Matériel :</strong> 3 dés (ou plus).</p>
+      <p><strong>Le principe :</strong> Un jeu ultra-rapide pour stimuler les méninges.</p>
+      <p><strong>Comment jouer :</strong> On lance tous les dés d'un coup. Le premier dé lancé sert de « Cible ». Les autres dés sont les « Chiffres ressources ». Le but est d'utiliser les chiffres ressources avec n'importe quelle opération (+, −, ×, ÷) pour se rapprocher ou atteindre exactement le chiffre cible.</p>
+      <p><strong>Exemple :</strong> la cible est 6. Vos ressources sont 2, 4 et 1. Vous pouvez faire : 4 + 2 × 1 = 6. Le premier qui trouve l'équation crie « Stop ! » et marque un point.</p>
+    </div>
+
+    <div class="example-card">
+      <div class="tag">Jeu n°7</div>
+      <div class="card-title">Le Killer (le dé maudit)</div>
+      <p class="meta"><strong>Matériel :</strong> 1 dé, une feuille de score.</p>
+      <p><strong>Le principe :</strong> Un jeu d'élimination très simple basé sur l'évitement.</p>
+      <p><strong>Comment jouer :</strong> Au début de la partie, les joueurs choisissent ensemble un « Chiffre Killer » (par exemple le 4). À son tour, un joueur peut lancer le dé autant de fois qu'il le veut pour accumuler des points. Mais s'il fait le chiffre Killer, son tour s'arrête et son score retombe à zéro pour cette manche. La subtilité : à chaque fois qu'un joueur décide de s'arrêter volontairement, il peut choisir de changer le chiffre Killer pour le joueur suivant.</p>
+    </div>
+
+    <div class="callout">
+      <div class="tag">À retenir</div>
+      <p>Et comme je le dis pour chaque activité, ce ne sont que des exemples ; surtout, sentez-vous libres de vous servir de ce qui est proposé pour en faire ce qui vous convient le mieux.</p>
+    </div>
+
+  </div>
+</div>
+
+<div class="footer-bar">
+  <span>Jeux FLE</span>
+  <span class="footer-orn">✦</span>
+</div>
+
+</body>
+</html>
