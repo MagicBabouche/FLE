@@ -1,0 +1,559 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>3 phrases 3 éléments</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Lora:ital,wght@0,400;0,600;1,400&family=Montserrat:wght@700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --cream:    #f0e8d5;
+  --paper:    #faf5e8;
+  --ink:      #2a1f10;
+  --ink-mid:  #5a4830;
+  --ink-dim:  #9a8060;
+  --ink-ghost:#c8a870;
+  --terra:    #b85030;
+
+  --c1: #e8c49a; --c2: #a8c898; --c3: #b0a8d8;
+}
+
+*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+
+html, body { height: 100%; }
+
+body {
+  height: 100vh;
+  width: 100vw;
+  overflow: hidden;
+  background: var(--cream);
+  background-image:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='600' height='600'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.68' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='600' height='600' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E"),
+    radial-gradient(ellipse at 50% 0%, rgba(255,248,228,.6) 0%, transparent 60%);
+  font-family: 'Lora', Georgia, serif;
+  color: var(--ink);
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  padding: 14px 22px 16px;
+  gap: 8px;
+  position: relative;
+}
+
+body::after {
+  content: '';
+  position: fixed; inset: 8px;
+  border: 1.5px solid rgba(184,80,48,.2);
+  border-radius: 6px;
+  pointer-events: none; z-index: 900;
+}
+
+/* ── HEADER ── */
+.header { text-align: center; flex-shrink: 0; }
+h1 {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(18px, 2.2vw, 26px);
+  font-weight: 700;
+  color: var(--ink);
+  letter-spacing: -.01em;
+  line-height: 1;
+}
+h1 .acc { color: var(--terra); font-style: italic; }
+.h-rule { display: flex; align-items: center; gap: 10px; margin: 4px auto 0; width: 200px; }
+.h-rule-line { flex:1; height:1px; background:linear-gradient(to right, transparent, rgba(184,80,48,.35), transparent); }
+.h-rule-orn  { font-family:'Playfair Display',serif; font-size:11px; color:var(--terra); opacity:.55; }
+
+/* ── MAIN FRAME ── */
+.main-frame {
+  width: 100%; flex: 1;
+  min-height: 0;
+  position: relative;
+  display: flex; flex-direction: column;
+  gap: 8px; padding: 4px 10px;
+}
+
+/* ── ROW ── */
+.phrase-row {
+  position: relative; z-index: 2;
+  display: flex; align-items: stretch; gap: 10px;
+  flex-wrap: nowrap;
+  flex: 1;
+  min-height: 0;
+}
+.phrase-label {
+  font-family: 'Playfair Display', serif;
+  font-style: italic;
+  font-size: 14px;
+  color: var(--ink-dim);
+  width: 56px;
+  flex-shrink: 0;
+  text-align: right;
+  align-self: center;
+}
+.frames-group {
+  display: flex; gap: 10px; flex: 1;
+  min-width: 0;
+}
+
+/* ── CARD WRAPPER (card + "écrire moi-même" button) ── */
+.card-wrap {
+  flex: 1; min-width: 0;
+  display: flex; flex-direction: column;
+  align-items: stretch;
+  gap: 2px;
+  min-height: 0;
+}
+
+.gen-row-btn {
+  flex-shrink: 0;
+  align-self: center;
+  padding: 8px 16px;
+  border-radius: 50px; border: none; cursor: pointer;
+  font-family: 'Lora', serif; font-size: 12px; font-weight: 600;
+  background: var(--terra); color: #fff;
+  box-shadow: 0 3px 10px rgba(184,80,48,.32), 0 1px 3px rgba(42,31,16,.12);
+  transition: all .2s ease; letter-spacing: .01em;
+}
+.gen-row-btn:hover { background: #9a3c1c; transform: translateY(-1px); }
+.gen-row-btn:active { transform: scale(.96); }
+
+/* ── WRITE-IT-YOURSELF BUTTON (discreet) ── */
+.write-btn {
+  align-self: center;
+  flex-shrink: 0;
+  background: none;
+  border: none;
+  color: var(--ink-ghost);
+  font-family: 'Lora', serif;
+  font-style: italic;
+  font-size: 10px;
+  font-weight: 400;
+  letter-spacing: 0;
+  padding: 1px 4px;
+  cursor: pointer;
+  opacity: .65;
+  transition: opacity .15s ease, color .15s ease;
+  white-space: nowrap;
+  line-height: 1.2;
+}
+.write-btn:hover {
+  opacity: 1;
+  color: var(--terra);
+}
+.write-btn.active {
+  opacity: 1;
+  color: var(--terra);
+  font-weight: 600;
+  font-style: normal;
+}
+
+/* ── CARD ── */
+.card {
+  flex: 1; min-width: 0; min-height: 0;
+  border-radius: 22px;
+  display: flex; align-items: center; justify-content: center;
+  text-align: center;
+  padding: 10px 14px;
+  cursor: pointer; user-select: none;
+  position: relative;
+  font-family: 'Montserrat', Arial, sans-serif;
+  font-size: clamp(18px, 3vw, 46px); font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: .02em;
+  line-height: 1.15;
+  color: var(--ink);
+  transition: transform .12s, box-shadow .12s, filter .12s;
+  box-shadow:
+    5px 6px 0 rgba(42,31,16,.16),
+    1px 4px 10px rgba(42,31,16,.12),
+    inset 0 1px 0 rgba(255,255,255,.55);
+}
+.card-text {
+  display: inline-block;
+  max-width: 100%;
+  white-space: nowrap;
+}
+.card::after {
+  content: ''; position: absolute; inset: 0;
+  background: linear-gradient(135deg, rgba(255,255,255,.28) 0%, transparent 50%);
+  border-radius: inherit; pointer-events: none;
+}
+.card:hover { transform: translateY(-2px); box-shadow: 3px 6px 2px rgba(42,31,16,.2), 1px 3px 10px rgba(42,31,16,.16), inset 0 1px 0 rgba(255,255,255,.55); }
+.card.locked {
+  box-shadow:
+    3px 4px 0 rgba(42,31,16,.2),
+    0 0 0 2.5px rgba(184,80,48,.7),
+    inset 0 1px 0 rgba(255,255,255,.55);
+  filter: brightness(.96);
+}
+.card.empty { font-family: 'Playfair Display', serif; font-style: italic; text-transform: none; font-weight: 400; font-size: clamp(14px, 1.6vw, 22px); letter-spacing: 0; color: var(--ink-ghost); opacity: .7; }
+
+.lock-badge {
+  position: absolute; top: -9px; right: -9px;
+  width: 26px; height: 26px; background: var(--terra); border-radius: 50%;
+  display: none; align-items: center; justify-content: center; z-index: 3;
+  box-shadow: 0 1px 4px rgba(42,31,16,.3);
+}
+.lock-badge svg { width:13px; height:13px; }
+.card.locked .lock-badge { display: flex; }
+
+/* Manual-entry mode: hide the lock badge (redundant) and swap text for an editable input */
+.card.manual .lock-badge { display: none; }
+.card.manual { cursor: text; }
+.card.manual .card-text { display: none; }
+.card-input {
+  display: none;
+  width: 100%;
+  height: 100%;
+  background: transparent;
+  border: none;
+  outline: none;
+  text-align: center;
+  font: inherit;
+  color: inherit;
+  text-transform: uppercase;
+  word-break: break-word;
+  overflow: hidden;
+  cursor: text;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+.card-input:empty::before {
+  content: attr(data-placeholder);
+  font-family: 'Playfair Display', serif;
+  font-style: italic;
+  text-transform: none;
+  font-weight: 400;
+  letter-spacing: 0;
+  color: var(--ink-ghost);
+  opacity: .8;
+}
+.card.manual .card-input { display: flex; }
+
+.card.shuffle { animation: cardShuffle .32s cubic-bezier(.25,.46,.45,.94) both; }
+@keyframes cardShuffle {
+  0%   { transform: rotate(0deg)   scale(1);   opacity: 1; }
+  18%  { transform: rotate(-6deg)  scale(.9);  opacity: .6; }
+  45%  { transform: rotate(5deg)   scale(1.06); opacity: 1; }
+  70%  { transform: rotate(-2deg)  scale(.98); }
+  100% { transform: rotate(0deg)   scale(1); }
+}
+
+/* column colors */
+.frames-group .card-wrap:nth-child(1) .card { background: var(--c1); }
+.frames-group .card-wrap:nth-child(2) .card { background: var(--c2); }
+.frames-group .card-wrap:nth-child(3) .card { background: var(--c3); }
+
+/* ── BOTTOM CONTROLS ── */
+.controls {
+  width: 100%;
+  flex-shrink: 0;
+  display: flex; justify-content: center; align-items: center;
+  gap: 16px; flex-wrap: wrap;
+}
+.btn-launch {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 10px 28px; border-radius: 50px; border: none; cursor: pointer;
+  font-family: 'Lora', serif; font-size: 14px; font-weight: 600;
+  background: var(--terra); color: #fff;
+  box-shadow: 0 3px 12px rgba(184,80,48,.38), 0 1px 3px rgba(42,31,16,.15);
+  transition: all .22s ease; position: relative; overflow: hidden; letter-spacing: .02em;
+}
+.btn-launch::after {
+  content: ''; position: absolute; inset: 0;
+  background: linear-gradient(135deg, rgba(255,255,255,.15) 0%, transparent 55%);
+  pointer-events: none;
+}
+.btn-launch:hover { background: #9a3c1c; transform: translateY(-2px); box-shadow: 0 6px 18px rgba(184,80,48,.44); }
+.btn-launch:active { transform: scale(.97); }
+.btn-launch svg { width:17px; height:17px; }
+
+#btn-regles {
+  position: fixed; top: 20px; left: 20px;
+  font-family: 'Lora', serif; font-size: 13px; font-weight: 600;
+  color: var(--terra);
+  background: linear-gradient(to bottom, var(--paper) 60%, var(--cream));
+  border: 1.5px solid rgba(184,80,48,.28);
+  border-radius: 20px;
+  padding: .5rem 1.2rem;
+  cursor: pointer; opacity: .85;
+  transition: opacity .2s, background .2s, box-shadow .2s, transform .15s;
+  text-decoration: none; display: inline-flex; align-items: center; gap: .4em;
+  box-shadow: 0 2px 8px rgba(184,80,48,.08), 0 1px 3px rgba(42,31,16,.07);
+  z-index: 901;
+}
+#btn-regles:hover {
+  opacity: 1;
+  background: linear-gradient(to bottom, #fff9f0, #f0e4cc);
+  box-shadow: 0 4px 14px rgba(184,80,48,.14), 0 1px 4px rgba(42,31,16,.09);
+  transform: translateY(-1px);
+}
+
+@media (max-width: 720px) {
+  .phrase-label { width: auto; text-align: left; align-self: flex-start; }
+  .phrase-row { flex-direction: column; align-items: stretch; flex-wrap: wrap; flex: 1; }
+  .frames-group { width: 100%; }
+  .gen-row-btn { align-self: center; }
+}
+#btn-back {
+  position: fixed; bottom: 16px; left: 18px;
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-size: .72rem; font-style: italic; letter-spacing: .06em;
+  color: var(--ink-mid);
+  background: none; border: 1px solid rgba(61,50,40,.2);
+  border-radius: 3px; padding: .32rem .72rem;
+  cursor: pointer; opacity: .6;
+  transition: opacity .2s, background .2s;
+  text-decoration: none; display: inline-block;
+  z-index: 900;
+}
+#btn-back:hover { opacity: 1; background: rgba(232,220,200,.7); }
+</style>
+</head>
+<body>
+
+<a href="3phrases3elementsregles.html" id="btn-regles">✦ Exemples de règles</a>
+
+<div class="header">
+  <h1>3 phrases <span class="acc">3 éléments</span></h1>
+  <div class="h-rule">
+    <div class="h-rule-line"></div>
+    <span class="h-rule-orn">✦</span>
+    <div class="h-rule-line"></div>
+  </div>
+</div>
+
+<div class="main-frame" id="mainFrame">
+
+  <div class="phrase-row" data-row="0">
+    <div class="phrase-label">Phrase 1</div>
+    <div class="frames-group">
+      <div class="card-wrap">
+        <div class="card empty" data-idx="0" onclick="toggleLock(0)"><div class="lock-badge"><svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg></div><span class="card-text">—</span><div class="card-input" contenteditable="true" data-idx="0" data-placeholder="Écris ici…" oninput="onManualInput(0)" onclick="event.stopPropagation()"></div></div>
+        <button class="write-btn" data-idx="0" onclick="toggleManual(0)">écrire moi-même</button>
+      </div>
+      <div class="card-wrap">
+        <div class="card empty" data-idx="1" onclick="toggleLock(1)"><div class="lock-badge"><svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg></div><span class="card-text">—</span><div class="card-input" contenteditable="true" data-idx="1" data-placeholder="Écris ici…" oninput="onManualInput(1)" onclick="event.stopPropagation()"></div></div>
+        <button class="write-btn" data-idx="1" onclick="toggleManual(1)">écrire moi-même</button>
+      </div>
+      <div class="card-wrap">
+        <div class="card empty" data-idx="2" onclick="toggleLock(2)"><div class="lock-badge"><svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg></div><span class="card-text">—</span><div class="card-input" contenteditable="true" data-idx="2" data-placeholder="Écris ici…" oninput="onManualInput(2)" onclick="event.stopPropagation()"></div></div>
+        <button class="write-btn" data-idx="2" onclick="toggleManual(2)">écrire moi-même</button>
+      </div>
+    </div>
+    <button class="gen-row-btn" onclick="generateRow(0)">Générer</button>
+  </div>
+
+  <div class="phrase-row" data-row="1">
+    <div class="phrase-label">Phrase 2</div>
+    <div class="frames-group">
+      <div class="card-wrap">
+        <div class="card empty" data-idx="3" onclick="toggleLock(3)"><div class="lock-badge"><svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg></div><span class="card-text">—</span><div class="card-input" contenteditable="true" data-idx="3" data-placeholder="Écris ici…" oninput="onManualInput(3)" onclick="event.stopPropagation()"></div></div>
+        <button class="write-btn" data-idx="3" onclick="toggleManual(3)">écrire moi-même</button>
+      </div>
+      <div class="card-wrap">
+        <div class="card empty" data-idx="4" onclick="toggleLock(4)"><div class="lock-badge"><svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg></div><span class="card-text">—</span><div class="card-input" contenteditable="true" data-idx="4" data-placeholder="Écris ici…" oninput="onManualInput(4)" onclick="event.stopPropagation()"></div></div>
+        <button class="write-btn" data-idx="4" onclick="toggleManual(4)">écrire moi-même</button>
+      </div>
+      <div class="card-wrap">
+        <div class="card empty" data-idx="5" onclick="toggleLock(5)"><div class="lock-badge"><svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg></div><span class="card-text">—</span><div class="card-input" contenteditable="true" data-idx="5" data-placeholder="Écris ici…" oninput="onManualInput(5)" onclick="event.stopPropagation()"></div></div>
+        <button class="write-btn" data-idx="5" onclick="toggleManual(5)">écrire moi-même</button>
+      </div>
+    </div>
+    <button class="gen-row-btn" onclick="generateRow(1)">Générer</button>
+  </div>
+
+  <div class="phrase-row" data-row="2">
+    <div class="phrase-label">Phrase 3</div>
+    <div class="frames-group">
+      <div class="card-wrap">
+        <div class="card empty" data-idx="6" onclick="toggleLock(6)"><div class="lock-badge"><svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg></div><span class="card-text">—</span><div class="card-input" contenteditable="true" data-idx="6" data-placeholder="Écris ici…" oninput="onManualInput(6)" onclick="event.stopPropagation()"></div></div>
+        <button class="write-btn" data-idx="6" onclick="toggleManual(6)">écrire moi-même</button>
+      </div>
+      <div class="card-wrap">
+        <div class="card empty" data-idx="7" onclick="toggleLock(7)"><div class="lock-badge"><svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg></div><span class="card-text">—</span><div class="card-input" contenteditable="true" data-idx="7" data-placeholder="Écris ici…" oninput="onManualInput(7)" onclick="event.stopPropagation()"></div></div>
+        <button class="write-btn" data-idx="7" onclick="toggleManual(7)">écrire moi-même</button>
+      </div>
+      <div class="card-wrap">
+        <div class="card empty" data-idx="8" onclick="toggleLock(8)"><div class="lock-badge"><svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg></div><span class="card-text">—</span><div class="card-input" contenteditable="true" data-idx="8" data-placeholder="Écris ici…" oninput="onManualInput(8)" onclick="event.stopPropagation()"></div></div>
+        <button class="write-btn" data-idx="8" onclick="toggleManual(8)">écrire moi-même</button>
+      </div>
+    </div>
+    <button class="gen-row-btn" onclick="generateRow(2)">Générer</button>
+  </div>
+
+</div>
+
+<div class="controls">
+  <button class="btn-launch" onclick="generateAll()">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <rect x="2" y="2" width="20" height="20" rx="4"/>
+      <circle cx="8"  cy="8"  r="1.5" fill="currentColor" stroke="none"/>
+      <circle cx="16" cy="8"  r="1.5" fill="currentColor" stroke="none"/>
+      <circle cx="12" cy="12" r="1.5" fill="currentColor" stroke="none"/>
+      <circle cx="8"  cy="16" r="1.5" fill="currentColor" stroke="none"/>
+      <circle cx="16" cy="16" r="1.5" fill="currentColor" stroke="none"/>
+    </svg>
+    Générer tout
+  </button>
+</div>
+
+<script>
+/* Lists per column (0,1,2 = position within each row's 3 cards) */
+const WORD_LISTS = {
+  0: ["singulier","pluriel","je","tu","il","elle","nous","vous","ils","elles","féminin","masculin","un animal","un prénom","au choix"],
+  1: ["lieu","objet","transport","ville","pays","loisir","nourriture","nature","fruit","légume","activité","couleur","heure","chiffre","vêtement","partie du corps"],
+  2: ["adjectif","passé composé","durée","présent","comparatif","plus petit que","plus grand que","moins","plus","date","jour de la semaine","mois de l'année","dans","avec","sans","pour","mais"]
+};
+
+const values = new Array(9).fill(null);
+const locked = new Array(9).fill(false);
+const manualMode = new Array(9).fill(false);
+
+function colOf(idx) { return idx % 3; }
+function rowOf(idx) { return Math.floor(idx / 3); }
+
+function pickWordsForRow(row) {
+  // returns array of 3 words, one per column, no duplicates within the row
+  const chosen = [];
+  const usedWords = new Set();
+
+  for (let c = 0; c < 3; c++) {
+    const idx = row * 3 + c;
+    if (locked[idx] && values[idx] !== null) {
+      chosen[c] = values[idx];
+      usedWords.add(values[idx]);
+    } else {
+      chosen[c] = undefined;
+    }
+  }
+
+  for (let c = 0; c < 3; c++) {
+    if (chosen[c] !== undefined) continue;
+    const list = WORD_LISTS[c];
+    let candidates = list.filter(w => !usedWords.has(w));
+    if (candidates.length === 0) candidates = list; // fallback, shouldn't happen given list sizes
+    const word = candidates[Math.floor(Math.random() * candidates.length)];
+    chosen[c] = word;
+    usedWords.add(word);
+  }
+
+  return chosen;
+}
+
+function fitCardText(idx) {
+  const card = document.querySelector(`.card[data-idx="${idx}"]`);
+  const textEl = card.querySelector('.card-text');
+  if (!textEl.textContent || textEl.textContent === '—') return;
+
+  // Reset to the CSS-defined size, then shrink just enough to fit on one line.
+  textEl.style.fontSize = '';
+  const maxFont = parseFloat(getComputedStyle(textEl).fontSize);
+  const minFont = 11;
+  const available = card.clientWidth - 2 * parseFloat(getComputedStyle(card).paddingLeft || 0);
+
+  let fontSize = maxFont;
+  textEl.style.fontSize = fontSize + 'px';
+  while (textEl.scrollWidth > available && fontSize > minFont) {
+    fontSize -= 1;
+    textEl.style.fontSize = fontSize + 'px';
+  }
+}
+
+function renderCard(idx) {
+  const card = document.querySelector(`.card[data-idx="${idx}"]`);
+  const textEl = card.querySelector('.card-text');
+  card.classList.toggle('locked', locked[idx]);
+
+  if (manualMode[idx]) {
+    // In manual mode the input field itself carries the value; nothing to render on the text span.
+    card.classList.remove('empty');
+    return;
+  }
+
+  const val = values[idx];
+  if (val === null) {
+    card.classList.add('empty');
+    textEl.textContent = '—';
+    textEl.style.fontSize = '';
+  } else {
+    card.classList.remove('empty');
+    textEl.textContent = val;
+    fitCardText(idx);
+  }
+}
+
+function toggleLock(idx) {
+  if (manualMode[idx]) return; // manual entries are always "locked", nothing to toggle
+  if (values[idx] === null) return; // can't lock an empty card
+  locked[idx] = !locked[idx];
+  renderCard(idx);
+}
+
+function animateCard(idx) {
+  const card = document.querySelector(`.card[data-idx="${idx}"]`);
+  card.classList.remove('shuffle');
+  void card.offsetWidth;
+  card.classList.add('shuffle');
+}
+
+function generateRow(row) {
+  const words = pickWordsForRow(row);
+  for (let c = 0; c < 3; c++) {
+    const idx = row * 3 + c;
+    if (locked[idx]) continue; // covers both manually-locked and manually-written cards
+    values[idx] = words[c];
+    renderCard(idx);
+    animateCard(idx);
+  }
+}
+
+function generateAll() {
+  for (let row = 0; row < 3; row++) generateRow(row);
+}
+
+/* ── "Écrire moi-même" : manual entry mode ── */
+function toggleManual(idx) {
+  const card = document.querySelector(`.card[data-idx="${idx}"]`);
+  const btn = document.querySelector(`.write-btn[data-idx="${idx}"]`);
+  const input = card.querySelector('.card-input');
+
+  manualMode[idx] = !manualMode[idx];
+
+  if (manualMode[idx]) {
+    // Switch this card to manual entry: it stops being randomized on "Générer"
+    locked[idx] = true;
+    card.classList.add('manual');
+    btn.classList.add('active');
+    btn.textContent = 'mode aléatoire';
+    input.textContent = (values[idx] !== null) ? values[idx] : '';
+    renderCard(idx);
+    input.focus();
+  } else {
+    // Back to random mode: clear the card so the next "Générer" fills it
+    locked[idx] = false;
+    values[idx] = null;
+    card.classList.remove('manual');
+    btn.classList.remove('active');
+    btn.textContent = 'écrire moi-même';
+    input.textContent = '';
+    renderCard(idx);
+  }
+}
+
+function onManualInput(idx) {
+  const input = document.querySelector(`.card-input[data-idx="${idx}"]`);
+  const v = input.textContent.trim();
+  values[idx] = (v === '') ? null : v;
+}
+
+window.addEventListener('resize', () => {
+  for (let idx = 0; idx < 9; idx++) {
+    if (values[idx] !== null && !manualMode[idx]) fitCardText(idx);
+  }
+});
+</script>
+<a href="index.html" id="btn-back">← Retour aux jeux</a>
+</body>
+</html>

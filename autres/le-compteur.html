@@ -1,0 +1,803 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Le Compteur</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400;1,700&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400;1,600&family=Lora:ital@0;1&display=swap" rel="stylesheet">
+<style>
+/* ════════════════════════════════════════
+   TOKENS
+════════════════════════════════════════ */
+:root {
+  --parchment: #ede5cf;
+  --paper:     #faf4e4;
+  --ink:       #241a0c;
+  --ink-mid:   #58482e;
+  --ink-dim:   #9a8660;
+  --ink-ghost: #c8a878;
+  --terra:     #c07858;
+  --sage:      #8fb87a;
+  --sage-dk:   #6f9860;
+
+  /* palette de couleurs pastel pour les équipes */
+  --p1:#f0dcc0; --p1-tx:#5a4020;
+  --p2:#c8e0c2; --p2-tx:#2e5030;
+  --p3:#d0ccea; --p3-tx:#403a68;
+  --p4:#eee0ae; --p4-tx:#5a4e18;
+  --p5:#bfe0e6; --p5-tx:#2a4a52;
+  --p6:#f0cdd6; --p6-tx:#5a2e3a;
+  --p7:#e2d8c4; --p7-tx:#4a4028;
+  --p8:#c8e2d6; --p8-tx:#2c4a3e;
+  --p9:#e8c8e0; --p9-tx:#4e2a48;
+  --p10:#c4d8ec; --p10-tx:#243a54;
+  --p11:#eed8b8; --p11-tx:#5a4418;
+  --p12:#d2e6c8; --p12-tx:#2c4e26;
+  --p13:#e0c8c8; --p13-tx:#4e2828;
+  --p14:#c8d4e6; --p14-tx:#28344e;
+  --p15:#eedcc8; --p15-tx:#584a26;
+  --p16:#d8d0e0; --p16-tx:#38304e;
+}
+
+*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+html, body { width:100%; height:100%; }
+
+body {
+  background: var(--parchment);
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  color: var(--ink);
+  min-height: 100vh;
+  display: grid;
+  grid-template-rows: auto 1fr;
+  position: relative;
+}
+
+/* grain + vignette, comme l'inspiration */
+body::before {
+  content: '';
+  position: fixed; inset: 0;
+  background-image:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='700' height='700'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.72' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='700' height='700' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E"),
+    radial-gradient(ellipse at 50% 50%, transparent 52%, rgba(36,26,12,.10) 100%);
+  pointer-events: none; z-index: 900;
+}
+body::after {
+  content: '';
+  position: fixed; inset: 7px;
+  border: 1.5px solid rgba(184,80,48,.2);
+  border-radius: 5px;
+  box-shadow: inset 0 0 0 4px rgba(184,80,48,.05);
+  pointer-events: none; z-index: 901;
+}
+
+.orn { position:fixed; pointer-events:none; z-index:902; opacity:.2; width:38px; height:38px; }
+.orn.tl { top:9px;    left:9px; }
+.orn.tr { top:9px;    right:9px;  transform:scaleX(-1); }
+.orn.bl { bottom:9px; left:9px;   transform:scaleY(-1); }
+.orn.br { bottom:9px; right:9px;  transform:scale(-1); }
+
+/* ════════════════════════════════════════
+   HEADER
+════════════════════════════════════════ */
+.header {
+  text-align: center;
+  padding: 12px 60px 8px;
+  position: relative;
+  z-index: 10;
+}
+h1 {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(24px, 3.4vw, 40px);
+  font-weight: 700;
+  color: var(--ink);
+  letter-spacing: -.01em;
+}
+h1 .le { font-style: italic; font-weight: 400; color: var(--ink-mid); font-size: .78em; }
+.orn-rule {
+  display:flex; align-items:center; gap:10px;
+  margin:4px auto 0; padding:0 100px;
+}
+.orn-line { flex:1; height:1px; background:linear-gradient(to right, transparent, rgba(184,80,48,.38), transparent); }
+.orn-c { font-family:'Playfair Display',serif; font-size:10px; color:var(--terra); opacity:.55; letter-spacing:.2em; }
+
+/* Contrôle du nombre d'équipes */
+.team-count-ctrl {
+  display: inline-flex; align-items: center; gap: 10px;
+  margin-top: 8px;
+  background: var(--paper);
+  border: 1.5px solid rgba(184,80,48,.22);
+  border-radius: 20px;
+  padding: 5px 8px 5px 14px;
+  box-shadow: 0 2px 8px rgba(36,26,12,.06);
+}
+.team-count-ctrl label {
+  font-style: italic; font-size: .8rem; color: var(--ink-mid); letter-spacing: .03em;
+}
+.tc-btn {
+  width: 26px; height: 26px; border-radius: 50%;
+  border: 1.5px solid rgba(184,80,48,.3);
+  background: linear-gradient(to bottom, #fdfaf3, #f2e8d5);
+  color: var(--terra); font-size: 1rem; font-weight: 700;
+  cursor: pointer; display: flex; align-items: center; justify-content: center;
+  transition: transform .12s, background .15s;
+  line-height: 1;
+}
+.tc-btn:hover { background: #fff9f0; transform: translateY(-1px); }
+.tc-btn:active { transform: scale(.92); }
+#teamCountInput {
+  width: 40px; text-align: center;
+  font-family: 'Cormorant Garamond', serif; font-size: 1.1rem; font-weight: 600;
+  color: var(--ink); background: transparent; border: none; outline: none;
+}
+
+/* Toggle Chrono/Minuteur */
+.side-toggle-ctrl {
+  display: inline-flex; align-items: center; gap: 10px;
+  margin-top: 8px; margin-left: 10px;
+  background: var(--paper);
+  border: 1.5px solid rgba(184,80,48,.22);
+  border-radius: 20px;
+  padding: 5px 14px;
+  box-shadow: 0 2px 8px rgba(36,26,12,.06);
+}
+.side-toggle-ctrl label {
+  font-style: italic; font-size: .8rem; color: var(--ink-mid); letter-spacing: .03em;
+}
+.toggle-switch {
+  display: inline-flex; border-radius: 14px; overflow: hidden;
+  border: 1.3px solid rgba(184,80,48,.25);
+}
+.toggle-switch button {
+  font-family: 'Lora', Georgia, serif;
+  font-size: .68rem; font-style: italic; letter-spacing: .05em;
+  padding: 4px 10px; border: none; cursor: pointer;
+  background: transparent; color: var(--ink-mid);
+  transition: background .15s, color .15s;
+}
+.toggle-switch button.act {
+  background: linear-gradient(to bottom, var(--sage), var(--sage-dk));
+  color: #fff;
+}
+.toggle-switch button:not(.act):hover { background: rgba(184,80,48,.08); }
+
+/* Bouton palette visible */
+.color-trigger {
+  position: absolute; top: 6px; left: 8px;
+  font-size: .78rem; opacity: .55; cursor: pointer;
+  border: none; background: none; color: inherit;
+  transition: opacity .15s, transform .12s;
+  line-height: 1;
+}
+.color-trigger:hover { opacity: 1; transform: scale(1.1); }
+
+/* ════════════════════════════════════════
+   MAIN LAYOUT — teams | right column
+════════════════════════════════════════ */
+.main {
+  display: grid;
+  grid-template-columns: 1fr 220px;
+  gap: 14px;
+  padding: 6px 16px 16px;
+  min-height: 0;
+  position: relative;
+  z-index: 10;
+  transition: grid-template-columns .2s;
+}
+.main.side-hidden {
+  grid-template-columns: 1fr;
+}
+.main.side-hidden .side-col {
+  display: none;
+}
+
+/* ── TEAMS GRID ── */
+.teams-grid {
+  display: grid;
+  gap: 12px;
+  min-height: 200px;
+  grid-auto-rows: minmax(120px, 1fr);
+}
+
+.team-card {
+  background: var(--paper);
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  overflow: visible;
+  position: relative;
+  box-shadow:
+    0 1px 4px rgba(36,26,12,.08),
+    0 6px 20px rgba(36,26,12,.09),
+    inset 0 0 0 1.5px rgba(184,80,48,.12);
+  min-height: 0;
+}
+
+.team-header {
+  padding: 8px 12px 6px;
+  text-align: center;
+  cursor: pointer;
+  border-bottom: 1px solid rgba(36,26,12,.08);
+  position: relative;
+  flex-shrink: 0;
+  transition: filter .15s;
+}
+.team-header:hover { filter: brightness(1.03); }
+.team-name {
+  font-family: 'Playfair Display', serif;
+  font-weight: 700;
+  font-size: clamp(1rem, 1.6vw, 1.4rem);
+  letter-spacing: .01em;
+}
+.team-edit-hint {
+  font-size: .62rem; font-style: italic; opacity: .55; letter-spacing: .05em;
+  margin-top: 1px;
+}
+
+.score-frame {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 6px;
+  min-height: 0;
+}
+.score-value {
+  font-family: 'Playfair Display', serif;
+  font-weight: 700;
+  font-size: clamp(2.2rem, 6vw, 4.4rem);
+  line-height: 1;
+  color: var(--ink);
+  background: transparent;
+  border: none;
+  text-align: center;
+  width: 100%;
+  outline: none;
+  -moz-appearance: textfield;
+}
+.score-value::-webkit-outer-spin-button,
+.score-value::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+
+.score-ctrl {
+  display: flex; align-items: center; justify-content: center; gap: 14px;
+  padding: 6px 8px 10px;
+  flex-shrink: 0;
+}
+.sc-btn {
+  width: 34px; height: 34px; border-radius: 50%;
+  border: 1.5px solid rgba(36,26,12,.18);
+  background: rgba(255,255,255,.5);
+  color: var(--ink); font-size: 1.2rem; font-weight: 700;
+  cursor: pointer; display: flex; align-items: center; justify-content: center;
+  transition: transform .12s, background .15s; line-height: 1;
+}
+.sc-btn:hover { background: rgba(255,255,255,.85); }
+.sc-btn:active { transform: scale(.9); }
+
+.team-remove {
+  position: absolute; top: 6px; right: 8px;
+  font-size: .85rem; opacity: .45; cursor: pointer;
+  border: none; background: rgba(255,255,255,.4);
+  border-radius: 50%;
+  width: 22px; height: 22px;
+  display: flex; align-items: center; justify-content: center;
+  color: var(--ink);
+  transition: opacity .15s, background .15s;
+  z-index: 20;
+}
+.team-remove:hover { opacity: 1; background: rgba(255,255,255,.8); }
+
+/* Color picker popover */
+.color-pop {
+  position: absolute; top: 100%; left: 50%; transform: translateX(-50%);
+  margin-top: 4px;
+  background: var(--paper);
+  border: 1.5px solid rgba(184,80,48,.25);
+  border-radius: 10px;
+  padding: 10px;
+  display: none;
+  flex-direction: column;
+  gap: 8px;
+  z-index: 500;
+  min-width: 220px;
+  box-shadow: 0 6px 20px rgba(36,26,12,.18);
+}
+.color-pop.open { display: flex; }
+.color-pop .cp-label {
+  font-size: .65rem; font-style: italic; opacity: .6; letter-spacing: .05em;
+  color: var(--ink-mid); text-align: left;
+}
+.color-swatches {
+  display: grid; grid-template-columns: repeat(6, 1fr); gap: 6px;
+}
+.color-swatch {
+  width: 22px; height: 22px; border-radius: 50%;
+  cursor: pointer; border: 2px solid rgba(255,255,255,.7);
+  box-shadow: 0 1px 3px rgba(0,0,0,.2);
+  transition: transform .1s;
+}
+.color-swatch:hover { transform: scale(1.15); }
+.color-swatch.selected { border-color: var(--ink); box-shadow: 0 0 0 2px rgba(36,26,12,.35); }
+
+.name-edit-input {
+  font-family: 'Cormorant Garamond', serif;
+  font-weight: 600;
+  font-size: .95rem;
+  text-align: center;
+  background: rgba(255,255,255,.7);
+  border: 1px solid rgba(36,26,12,.2);
+  border-radius: 6px;
+  padding: 4px 6px;
+  outline: none;
+  color: var(--ink);
+  width: 100%;
+}
+
+/* ════════════════════════════════════════
+   RIGHT COLUMN — timer & chrono
+════════════════════════════════════════ */
+.side-col {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-height: 0;
+}
+
+.side-card {
+  background: var(--paper);
+  border-radius: 12px;
+  padding: 12px 10px;
+  box-shadow:
+    0 1px 4px rgba(36,26,12,.08),
+    0 6px 20px rgba(36,26,12,.09),
+    inset 0 0 0 1.5px rgba(184,80,48,.12);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+  min-height: 0;
+}
+
+.side-title {
+  font-family: 'Playfair Display', serif;
+  font-weight: 700; font-size: .95rem;
+  color: var(--terra);
+  letter-spacing: .04em;
+  text-transform: uppercase;
+}
+
+.time-display {
+  font-family: 'Playfair Display', serif;
+  font-weight: 700;
+  font-size: clamp(1.8rem, 2.6vw, 2.3rem);
+  color: var(--ink);
+  letter-spacing: .02em;
+}
+
+.timer-inputs {
+  display: flex; align-items: center; gap: 4px;
+}
+.time-field {
+  width: 42px; text-align: center;
+  font-family: 'Cormorant Garamond', serif; font-size: 1.1rem; font-weight: 600;
+  background: rgba(255,255,255,.6);
+  border: 1px solid rgba(36,26,12,.18);
+  border-radius: 6px; padding: 3px 2px;
+  color: var(--ink); outline: none;
+  -moz-appearance: textfield;
+}
+.time-field::-webkit-outer-spin-button,
+.time-field::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+.time-sep { font-weight: 700; opacity: .5; }
+
+.btn-row { display: flex; gap: 6px; flex-wrap: wrap; justify-content: center; }
+.mini-btn {
+  font-family: 'Lora', Georgia, serif;
+  font-size: .68rem; font-style: italic; letter-spacing: .04em;
+  color: var(--ink-mid);
+  background: linear-gradient(to bottom, #fdfaf3, #f2e8d5);
+  border: 1.3px solid rgba(184,80,48,.25);
+  border-radius: 14px;
+  padding: 5px 11px;
+  cursor: pointer;
+  transition: transform .1s, box-shadow .15s;
+}
+.mini-btn:hover { transform: translateY(-1px); box-shadow: 0 3px 8px rgba(36,26,12,.1); }
+.mini-btn:active { transform: scale(.96); }
+.mini-btn.primary { background: linear-gradient(to bottom, var(--sage), var(--sage-dk)); color: #fff; border-color: var(--sage-dk); }
+.mini-btn.stop { background: linear-gradient(to bottom, var(--terra), #a8623f); color: #fff; border-color: #a8623f; }
+
+.time-display.alert { color: var(--terra); animation: pulseTime .6s infinite; }
+@keyframes pulseTime { 0%,100%{opacity:1;} 50%{opacity:.4;} }
+
+#btn-back {
+  position: fixed; bottom: 16px; left: 18px;
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-size: .72rem; font-style: italic; letter-spacing: .06em;
+  color: var(--ink-mid);
+  background: none; border: 1px solid rgba(61,50,40,.2);
+  border-radius: 3px; padding: .32rem .72rem;
+  cursor: pointer; opacity: .6;
+  transition: opacity .2s, background .2s;
+  text-decoration: none; display: inline-block;
+  z-index: 900;
+}
+#btn-back:hover { opacity: 1; background: rgba(232,220,200,.7); }
+
+#btn-explications {
+  position: fixed; top: 14px; left: 22px;
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: .74rem; font-style: italic; letter-spacing: .09em;
+  color: var(--terra);
+  background: linear-gradient(to bottom, var(--paper) 60%, #f2e8d5);
+  border: 1.5px solid rgba(184,80,48,.28);
+  border-radius: 20px;
+  padding: .4rem 1.1rem;
+  cursor: pointer; opacity: .78;
+  transition: opacity .2s, background .2s, box-shadow .2s, transform .15s;
+  text-decoration: none; display: inline-flex; align-items: center; gap: .38em;
+  box-shadow: 0 2px 8px rgba(184,80,48,.08), 0 1px 3px rgba(36,26,12,.07);
+  z-index: 950;
+}
+#btn-explications:hover {
+  opacity: 1;
+  background: linear-gradient(to bottom, #fff9f0, #f0e4cc);
+  box-shadow: 0 4px 14px rgba(184,80,48,.14), 0 1px 4px rgba(36,26,12,.09);
+  transform: translateY(-1px);
+}
+</style>
+</head>
+<body>
+
+<svg class="orn tl" viewBox="0 0 46 46" fill="none"><path d="M5 5L5 21M5 5L21 5" stroke="#b85030" stroke-width="1.6" stroke-linecap="round"/><circle cx="5" cy="5" r="2.2" fill="#b85030"/></svg>
+<svg class="orn tr" viewBox="0 0 46 46" fill="none"><path d="M5 5L5 21M5 5L21 5" stroke="#b85030" stroke-width="1.6" stroke-linecap="round"/><circle cx="5" cy="5" r="2.2" fill="#b85030"/></svg>
+<svg class="orn bl" viewBox="0 0 46 46" fill="none"><path d="M5 5L5 21M5 5L21 5" stroke="#b85030" stroke-width="1.6" stroke-linecap="round"/><circle cx="5" cy="5" r="2.2" fill="#b85030"/></svg>
+<svg class="orn br" viewBox="0 0 46 46" fill="none"><path d="M5 5L5 21M5 5L21 5" stroke="#b85030" stroke-width="1.6" stroke-linecap="round"/><circle cx="5" cy="5" r="2.2" fill="#b85030"/></svg>
+
+<div class="header">
+  <h1><span class="le" style="color: var(--terra);">Le</span> Compteur</h1>
+  <div class="orn-rule">
+    <div class="orn-line"></div>
+    <span class="orn-c">✦ suivi des scores ✦</span>
+    <div class="orn-line"></div>
+  </div>
+
+  <div class="team-count-ctrl">
+    <button class="tc-btn" onclick="changeTeamCount(-1)">−</button>
+    <label>Nombre d'équipes</label>
+    <input type="number" id="teamCountInput" value="1" min="1" max="12" autocomplete="off" onchange="setTeamCount(this.value)">
+    <button class="tc-btn" onclick="changeTeamCount(1)">+</button>
+  </div>
+
+  <div class="side-toggle-ctrl">
+    <label>Chrono / Minuteur</label>
+    <div class="toggle-switch">
+      <button id="sideOnBtn" onclick="setSideVisible(true)">ON</button>
+      <button id="sideOffBtn" class="act" onclick="setSideVisible(false)">OFF</button>
+    </div>
+  </div>
+</div>
+
+<div class="main side-hidden" id="mainLayout">
+  <div class="teams-grid" id="teamsGrid"></div>
+
+  <div class="side-col" id="sideCol">
+    <!-- MINUTEUR -->
+    <div class="side-card">
+      <div class="side-title">Minuteur</div>
+      <div class="time-display" id="timerDisplay">00:00</div>
+      <div class="timer-inputs">
+        <input type="number" id="timerMin" class="time-field" value="1" min="0" max="99">
+        <span class="time-sep">:</span>
+        <input type="number" id="timerSec" class="time-field" value="0" min="0" max="59">
+      </div>
+      <div class="btn-row">
+        <button class="mini-btn primary" onclick="startTimer()">▶ Lancer</button>
+        <button class="mini-btn" onclick="pauseTimer()">⏸ Pause</button>
+        <button class="mini-btn stop" onclick="resetTimer()">↺ Reset</button>
+      </div>
+    </div>
+
+    <!-- CHRONOMETRE -->
+    <div class="side-card">
+      <div class="side-title">Chronomètre</div>
+      <div class="time-display" id="chronoDisplay">00:00</div>
+      <div class="btn-row">
+        <button class="mini-btn primary" id="chronoStartBtn" onclick="toggleChrono()">▶ Start</button>
+        <button class="mini-btn stop" onclick="resetChrono()">↺ Reset</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<a href="index.html" id="btn-back">← Retour aux outils</a>
+
+<!-- EXPLICATIONS BUTTON -->
+<a href="lecompteurregles.html" id="btn-explications">✦ Explications</a>
+
+<script>
+/* ══════════════════════════════════
+   PALETTE
+══════════════════════════════════ */
+const PALETTE = [
+  {bg:'var(--p1)', tx:'var(--p1-tx)'}, {bg:'var(--p2)', tx:'var(--p2-tx)'},
+  {bg:'var(--p3)', tx:'var(--p3-tx)'}, {bg:'var(--p4)', tx:'var(--p4-tx)'},
+  {bg:'var(--p5)', tx:'var(--p5-tx)'}, {bg:'var(--p6)', tx:'var(--p6-tx)'},
+  {bg:'var(--p7)', tx:'var(--p7-tx)'}, {bg:'var(--p8)', tx:'var(--p8-tx)'},
+  {bg:'var(--p9)', tx:'var(--p9-tx)'}, {bg:'var(--p10)', tx:'var(--p10-tx)'},
+  {bg:'var(--p11)', tx:'var(--p11-tx)'}, {bg:'var(--p12)', tx:'var(--p12-tx)'},
+  {bg:'var(--p13)', tx:'var(--p13-tx)'}, {bg:'var(--p14)', tx:'var(--p14-tx)'},
+  {bg:'var(--p15)', tx:'var(--p15-tx)'}, {bg:'var(--p16)', tx:'var(--p16-tx)'}
+];
+
+let teams = [];
+let teamIdCounter = 0;
+
+function createTeam(name) {
+  teamIdCounter++;
+  return {
+    id: teamIdCounter,
+    name: name || `Équipe ${teamIdCounter}`,
+    color: PALETTE[(teamIdCounter - 1) % PALETTE.length],
+    score: 0
+  };
+}
+
+function initTeams(n) {
+  teams = [];
+  teamIdCounter = 0;
+  for (let i = 0; i < n; i++) teams.push(createTeam());
+  renderTeams();
+}
+
+function setTeamCount(val) {
+  let n = parseInt(val, 10);
+  if (isNaN(n) || n < 1) n = 1;
+  if (n > 12) n = 12;
+  document.getElementById('teamCountInput').value = n;
+  if (n > teams.length) {
+    while (teams.length < n) teams.push(createTeam());
+  } else if (n < teams.length) {
+    teams = teams.slice(0, n);
+  }
+  renderTeams();
+}
+
+function changeTeamCount(delta) {
+  const input = document.getElementById('teamCountInput');
+  setTeamCount(parseInt(input.value, 10) + delta);
+}
+
+function gridColumns(n) {
+  if (n <= 1) return 1;
+  if (n <= 4) return 2;
+  if (n <= 9) return 3;
+  return 4;
+}
+function gridRows(n, cols) {
+  return Math.ceil(n / cols);
+}
+
+function renderTeams() {
+  const grid = document.getElementById('teamsGrid');
+  const n = teams.length;
+  const cols = gridColumns(n);
+  const rows = gridRows(n, cols);
+  grid.style.gridTemplateColumns = `repeat(${cols}, 1fr)`;
+  grid.style.gridTemplateRows = `repeat(${rows}, 1fr)`;
+  grid.innerHTML = '';
+
+  teams.forEach((team, idx) => {
+    const card = document.createElement('div');
+    card.className = 'team-card';
+    card.style.background = team.color.bg;
+    card.style.color = team.color.tx;
+
+    card.innerHTML = `
+      <button class="team-remove" onclick="event.stopPropagation(); removeTeam(${team.id})" title="Supprimer l'équipe">✕</button>
+      <div class="team-header" onclick="toggleColorPop(${team.id})">
+        <div class="team-name" id="tname-${team.id}">${escapeHtml(team.name)}</div>
+        <div class="team-edit-hint">toucher pour modifier</div>
+        <div class="color-pop" id="colorpop-${team.id}" onclick="event.stopPropagation()">
+          <input type="text" class="name-edit-input" id="nameinput-${team.id}" value="${escapeHtml(team.name)}"
+            onkeydown="if(event.key==='Enter'){ renameTeam(${team.id}, this.value); }">
+          <div class="cp-label">Couleur de l'équipe</div>
+          <div class="color-swatches">
+            ${PALETTE.map((c, i) => `<div class="color-swatch${team.color === PALETTE[i] ? ' selected' : ''}" style="background:${c.bg}" onclick="pickColor(${team.id}, ${i})"></div>`).join('')}
+          </div>
+        </div>
+      </div>
+      <div class="score-frame">
+        <input type="number" class="score-value" id="score-${team.id}" value="${team.score}"
+          style="color:${team.color.tx}" onchange="setScore(${team.id}, this.value)">
+      </div>
+      <div class="score-ctrl">
+        <button class="sc-btn" onclick="bumpScore(${team.id}, -1)">−</button>
+        <button class="sc-btn" onclick="bumpScore(${team.id}, 1)">+</button>
+      </div>
+    `;
+
+    grid.appendChild(card);
+  });
+}
+
+function escapeHtml(str) {
+  const div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML;
+}
+
+function renameTeam(id, value) {
+  const team = teams.find(t => t.id === id);
+  if (!team) return;
+  const val = value.trim();
+  if (val) team.name = val;
+  renderTeams();
+}
+
+function toggleColorPop(id) {
+  // close any other open popover first
+  document.querySelectorAll('.color-pop.open').forEach(p => {
+    if (p.id !== `colorpop-${id}`) p.classList.remove('open');
+  });
+  const pop = document.getElementById(`colorpop-${id}`);
+  if (!pop) return;
+  const wasOpen = pop.classList.contains('open');
+  pop.classList.toggle('open');
+  if (!wasOpen) {
+    const input = document.getElementById(`nameinput-${id}`);
+    setTimeout(() => { input.focus(); input.select(); }, 0);
+    const closeHandler = (e) => {
+      if (!pop.contains(e.target)) {
+        // commit rename on outside click
+        renameTeam(id, input.value);
+        document.removeEventListener('click', closeHandler);
+      }
+    };
+    setTimeout(() => document.addEventListener('click', closeHandler), 0);
+  }
+}
+
+function pickColor(id, colorIdx) {
+  const team = teams.find(t => t.id === id);
+  if (!team) return;
+  team.color = PALETTE[colorIdx];
+  const nameVal = document.getElementById(`nameinput-${id}`)?.value;
+  if (nameVal) team.name = nameVal.trim() || team.name;
+  renderTeams();
+}
+
+function removeTeam(id) {
+  teams = teams.filter(t => t.id !== id);
+  document.getElementById('teamCountInput').value = teams.length;
+  renderTeams();
+}
+
+function bumpScore(id, delta) {
+  const team = teams.find(t => t.id === id);
+  if (!team) return;
+  team.score += delta;
+  document.getElementById(`score-${id}`).value = team.score;
+}
+
+function setScore(id, val) {
+  const team = teams.find(t => t.id === id);
+  if (!team) return;
+  let n = parseInt(val, 10);
+  if (isNaN(n)) n = 0;
+  team.score = n;
+  document.getElementById(`score-${id}`).value = n;
+}
+
+/* ══════════════════════════════════
+   MINUTEUR
+══════════════════════════════════ */
+let timerInterval = null;
+let timerRemaining = 0; // secondes
+let timerRunning = false;
+
+function formatTime(totalSec) {
+  const m = Math.floor(totalSec / 60);
+  const s = totalSec % 60;
+  return `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+}
+
+function startTimer() {
+  if (timerRunning) return;
+  if (timerRemaining <= 0) {
+    const min = parseInt(document.getElementById('timerMin').value, 10) || 0;
+    const sec = parseInt(document.getElementById('timerSec').value, 10) || 0;
+    timerRemaining = min * 60 + sec;
+  }
+  if (timerRemaining <= 0) return;
+  timerRunning = true;
+  const display = document.getElementById('timerDisplay');
+  display.classList.remove('alert');
+  timerInterval = setInterval(() => {
+    timerRemaining--;
+    display.textContent = formatTime(Math.max(timerRemaining, 0));
+    if (timerRemaining <= 0) {
+      clearInterval(timerInterval);
+      timerRunning = false;
+      display.classList.add('alert');
+    }
+  }, 1000);
+}
+
+function pauseTimer() {
+  clearInterval(timerInterval);
+  timerRunning = false;
+}
+
+function resetTimer() {
+  clearInterval(timerInterval);
+  timerRunning = false;
+  timerRemaining = 0;
+  const display = document.getElementById('timerDisplay');
+  display.classList.remove('alert');
+  display.textContent = '00:00';
+}
+
+/* ══════════════════════════════════
+   CHRONOMETRE
+══════════════════════════════════ */
+let chronoInterval = null;
+let chronoElapsed = 0; // secondes
+let chronoRunning = false;
+
+function toggleChrono() {
+  const btn = document.getElementById('chronoStartBtn');
+  if (!chronoRunning) {
+    chronoRunning = true;
+    btn.textContent = '⏸ Pause';
+    chronoInterval = setInterval(() => {
+      chronoElapsed++;
+      document.getElementById('chronoDisplay').textContent = formatTime(chronoElapsed);
+    }, 1000);
+  } else {
+    chronoRunning = false;
+    btn.textContent = '▶ Start';
+    clearInterval(chronoInterval);
+  }
+}
+
+function resetChrono() {
+  clearInterval(chronoInterval);
+  chronoRunning = false;
+  chronoElapsed = 0;
+  document.getElementById('chronoDisplay').textContent = '00:00';
+  document.getElementById('chronoStartBtn').textContent = '▶ Start';
+}
+
+/* ══════════════════════════════════
+   TOGGLE COLONNE CHRONO/MINUTEUR
+══════════════════════════════════ */
+function setSideVisible(visible) {
+  const main = document.getElementById('mainLayout');
+  main.classList.toggle('side-hidden', !visible);
+  document.getElementById('sideOnBtn').classList.toggle('act', visible);
+  document.getElementById('sideOffBtn').classList.toggle('act', !visible);
+}
+
+/* ══════════════════════════════════
+   INIT
+══════════════════════════════════ */
+function forceInit() {
+  document.getElementById('teamCountInput').value = 1;
+  initTeams(1);
+}
+forceInit();
+document.addEventListener('DOMContentLoaded', forceInit);
+window.addEventListener('load', forceInit);
+// Contre le cache du navigateur (bfcache / restauration de formulaire) qui
+// peut réappliquer une ancienne valeur dans le champ nombre d'équipes après
+// un retour en arrière, un rechargement, ou même de façon différée après
+// le chargement de la page.
+window.addEventListener('pageshow', forceInit);
+setTimeout(forceInit, 50);
+setTimeout(forceInit, 300);
+</script>
+</body>
+</html>

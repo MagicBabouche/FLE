@@ -202,6 +202,8 @@ body::after {
   transition: color .3s;
 }
 .cat-item:hover .cat-title { color: var(--cream); }
+.cat-title .hl { color: var(--terra); }
+.cat-item:hover .cat-title .hl { color: var(--terra-lt); }
 
 .cat-desc {
   font-style: italic;
@@ -363,7 +365,7 @@ body::after {
     <div class="cat-num">01</div>
     <div class="cat-body">
       <div class="cat-tag">Vocabulaire</div>
-      <div class="cat-title">Le Bon Mot</div>
+      <div class="cat-title">Le <span class="hl">Bon</span> Mot</div>
       <div class="cat-desc">Le concept du "P'tit Bac" : On génère une lettre et on trouve jusqu'à 5 thèmes différents qui commencent par cette lettre.</div>
 
     </div>
@@ -379,7 +381,7 @@ body::after {
     <div class="cat-num">02</div>
     <div class="cat-body">
       <div class="cat-tag">Stratégie</div>
-      <div class="cat-title">Lanceur de Dés</div>
+      <div class="cat-title">Lanceur de <span class="hl">Dés</span></div>
       <div class="cat-desc">Lancez des dés colorés, bloquez vos favoris.</div>
 
     </div>
@@ -394,7 +396,7 @@ body::after {
     <div class="cat-num">03</div>
     <div class="cat-body">
       <div class="cat-tag">Langage</div>
-      <div class="cat-title">Les Mots</div>
+      <div class="cat-title">Les <span class="hl">Mots</span></div>
       <div class="cat-desc">Créez des mots en respectant différentes contraintes (rime, son, thème, nombre de lettres, etc.).</div>
 
     </div>
@@ -425,7 +427,7 @@ body::after {
     <div class="cat-num">05</div>
     <div class="cat-body">
       <div class="cat-tag">Créativité</div>
-      <div class="cat-title">Générateur de Mots</div>
+      <div class="cat-title">Générateur de <span class="hl">Mots</span></div>
       <div class="cat-desc">Générez des mots aléatoires.</div>
 
     </div>
@@ -441,7 +443,7 @@ body::after {
     <div class="cat-num">06</div>
     <div class="cat-body">
       <div class="cat-tag">Calcul</div>
-      <div class="cat-title">Générateur de Nombres</div>
+      <div class="cat-title">Générateur de <span class="hl">Nombres</span></div>
       <div class="cat-desc">Générez des nombres aléatoires (de 0 à 10 000).</div>
 
     </div>
@@ -456,7 +458,7 @@ body::after {
     <div class="cat-num">07</div>
     <div class="cat-body">
       <div class="cat-tag">Grille</div>
-      <div class="cat-title">Tableau de Lettres</div>
+      <div class="cat-title">Tableau de <span class="hl">Lettres</span></div>
       <div class="cat-desc">Générez des lignes et des colonnes de lettres, et essayez de trouver le maximum de mots.</div>
 
     </div>
