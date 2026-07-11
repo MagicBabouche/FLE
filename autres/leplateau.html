@@ -1,0 +1,1209 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Le Plateau</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400;1,700&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400;1,600&display=swap" rel="stylesheet">
+<style>
+/* ════════════════════════════════════════
+   TOKENS (palette pastel)
+════════════════════════════════════════ */
+:root {
+  --parchment: #f0e9da;
+  --paper:     #fbf6ea;
+  --ink:       #3a3226;
+  --ink-mid:   #6a5f4c;
+  --ink-dim:   #a89c82;
+  --ink-ghost: #d6c8a8;
+  --terra:     #cf9678;
+  --terra-dk:  #a86f54;
+  --sage:      #a3c79a;
+  --sage-dk:   #7ea474;
+  --blush:     #dcaea0;
+  --lav:       #b6ade0;
+  --lav-dk:    #8f84bf;
+  --butter:    #ddc978;
+  --butter-dk: #b8a153;
+  /* 5 couleurs de cases (pastel) */
+  --s1-bg:#f2ddc2; --s1-tx:#6a4a2a;
+  --s2-bg:#c9e4c1; --s2-tx:#2c5236;
+  --s3-bg:#cec7ea; --s3-tx:#3a3468;
+  --s4-bg:#ede4b0; --s4-tx:#5a4e18;
+  --s5-bg:#bfe3ea; --s5-tx:#204854;
+}
+
+*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+html, body { width:100%; height:100%; overflow:hidden; }
+
+body {
+  background: var(--parchment);
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  color: var(--ink);
+  height: 100vh;
+  display: grid;
+  grid-template-rows: auto 1fr;
+  grid-template-areas: "header" "main";
+  position: relative;
+}
+
+/* Grain + vignette */
+body::before {
+  content: '';
+  position: fixed; inset: 0;
+  background-image:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='700' height='700'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.72' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='700' height='700' filter='url(%23n)' opacity='0.068'/%3E%3C/svg%3E"),
+    radial-gradient(ellipse at 50% 50%, transparent 52%, rgba(58,50,38,.09) 100%);
+  pointer-events: none; z-index: 800;
+}
+body::after {
+  content: '';
+  position: fixed; inset: 7px;
+  border: 1.5px solid rgba(207,150,120,.25);
+  border-radius: 5px;
+  box-shadow: inset 0 0 0 4px rgba(207,150,120,.06);
+  pointer-events: none; z-index: 801;
+}
+
+.orn { position:fixed; pointer-events:none; z-index:802; opacity:.2; width:46px; height:46px; }
+.orn.tl { top:9px;    left:9px; }
+.orn.tr { top:9px;    right:9px;  transform:scaleX(-1); }
+.orn.bl { bottom:9px; left:9px;   transform:scaleY(-1); }
+.orn.br { bottom:9px; right:9px;  transform:scale(-1); }
+
+/* ════════════════════════════════════════
+   HEADER
+════════════════════════════════════════ */
+.header {
+  grid-area: header;
+  text-align: center;
+  padding: 10px 60px 16px;
+}
+
+h1 {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(18px, 2.4vw, 30px);
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: -.01em;
+  display: inline-flex; align-items: baseline; gap: .2em;
+}
+h1 .le      { font-style:italic; font-weight:400; color:var(--ink-mid); font-size:.8em; }
+h1 .plateau { color:#e08a2e; }
+
+.orn-rule {
+  display:flex; align-items:center; gap:10px;
+  margin:4px auto 0; padding:0 80px;
+}
+.orn-line { flex:1; height:1px; background:linear-gradient(to right, transparent, rgba(207,150,120,.4), transparent); }
+.orn-c { font-family:'Playfair Display',serif; font-size:11px; color:var(--terra-dk); opacity:.6; letter-spacing:.22em; }
+
+/* ════════════════════════════════════════
+   MAIN — plateau | colonne de contrôle
+════════════════════════════════════════ */
+.main {
+  grid-area: main;
+  display: grid;
+  grid-template-columns: 1fr 1px 224px;
+  padding: 0 18px 16px;
+  min-height: 0;
+  gap: 16px;
+}
+
+/* ── PLATEAU ── */
+.col-board {
+  display: flex;
+  min-height: 0;
+}
+.board-wrap {
+  flex: 1;
+  position: relative;
+  overflow: hidden;
+}
+#boardStage {
+  position: absolute; inset: 0;
+  z-index: 0;
+}
+#boardStage > svg.board-main-svg { display:block; position:absolute; inset:0; z-index: 1; }
+.pawns-overlay svg { display:block; position:static; flex-shrink:0; }
+.pawn-upright { display: inline-block; }
+.pawn-hop {
+  display: inline-block;
+  animation: pawnHop 0.23s ease-out;
+}
+@keyframes pawnHop {
+  0%   { transform: translateY(0) scale(1); }
+  45%  { transform: translateY(-9px) scale(1.18); }
+  100% { transform: translateY(0) scale(1); }
+}
+.pawn-ring {
+  fill: none;
+  pointer-events: none;
+  transform-box: fill-box;
+  transform-origin: 50% 50%;
+  animation: ringPulse 2s ease-out infinite;
+}
+.pawn-ring.ring-2 { animation-delay: 1s; }
+@keyframes ringPulse {
+  0%   { transform: scale(1);    opacity: .5; }
+  100% { transform: scale(1.55); opacity: 0; }
+}
+
+.board-cell-poly {
+  filter: drop-shadow(0 2px 4px rgba(58,50,38,.14));
+  transition: filter .15s;
+}
+.board-cell-poly:hover { filter: drop-shadow(0 3px 7px rgba(58,50,38,.2)) brightness(1.05); }
+.board-cell-poly.depart-poly { filter: drop-shadow(0 3px 10px rgba(207,150,120,.4)); }
+
+.cell-label-svg {
+  font-family: 'Playfair Display', serif;
+  font-weight: 700;
+  font-style: italic;
+  opacity: .5;
+  user-select: none;
+  pointer-events: none;
+}
+.depart-label-svg {
+  font-family: 'Playfair Display', serif;
+  font-weight: 700;
+  font-style: italic;
+  fill: var(--terra-dk);
+  user-select: none;
+  pointer-events: none;
+}
+
+.shape-handle {
+  fill: var(--terra);
+  stroke: #fff;
+  stroke-width: 1.6;
+  cursor: grab;
+  touch-action: none;
+  filter: drop-shadow(0 2px 4px rgba(58,50,38,.4));
+  transition: fill .15s, r .15s;
+}
+.shape-handle:hover { fill: var(--terra-dk); r: 7; }
+.shape-handle.dragging { fill: var(--lav-dk); cursor: grabbing; r: 7; }
+
+.shape-hint {
+  position: absolute; bottom: 8px; left: 50%;
+  transform: translateX(-50%);
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic; font-size: 11px;
+  color: var(--ink-mid); opacity: .65;
+  background: rgba(251,246,234,.75);
+  padding: 3px 10px; border-radius: 20px;
+  white-space: nowrap; pointer-events: none;
+  z-index: 7;
+}
+
+.pawns-overlay {
+  position: absolute;
+  display: flex; flex-wrap: wrap;
+  align-items: flex-start; justify-content: flex-start;
+  align-content: flex-start;
+  gap: 2px;
+  pointer-events: none;
+  z-index: 10;
+}
+
+/* ── DIVIDER ── */
+.col-div {
+  background: linear-gradient(to bottom,
+    transparent 0%, rgba(207,150,120,.28) 15%,
+    rgba(207,150,120,.28) 85%, transparent 100%);
+  margin: 8px 0;
+  position: relative;
+}
+.col-div::before {
+  content: '✦';
+  position: absolute; top:50%; left:50%;
+  transform: translate(-50%,-50%);
+  font-size: 8px; color: var(--terra-dk); opacity: .5;
+  background: var(--parchment);
+  padding: 5px 0; line-height: 1;
+}
+
+/* ════════════════════════════════════════
+   COLONNE DE CONTRÔLE (couleurs douces)
+════════════════════════════════════════ */
+.col-panel {
+  display: flex; flex-direction: column;
+  gap: 12px;
+  min-height: 0;
+  overflow-y: auto;
+  padding-right: 2px;
+}
+
+.panel-block {
+  background: rgba(224,214,196,.32);
+  border: 1px solid rgba(214,200,176,.4);
+  border-radius: 12px;
+  padding: 12px 14px 14px;
+  position: relative;
+  box-shadow: 0 2px 10px rgba(58,50,38,.06);
+}
+.panel-block::after {
+  content: '';
+  position: absolute; inset: 3px;
+  border: 1px solid rgba(255,255,255,.25);
+  border-radius: 9px; pointer-events: none;
+}
+
+.panel-label-row {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 8px;
+}
+.mini-toggle {
+  background: none; border: none; padding: 0; cursor: pointer;
+  line-height: 0; flex-shrink: 0;
+}
+.toggle-track {
+  display: block;
+  width: 32px; height: 17px;
+  border-radius: 20px;
+  background: var(--ink-ghost);
+  position: relative;
+  transition: background .2s;
+}
+.toggle-thumb {
+  position: absolute; top: 2px; left: 2px;
+  width: 13px; height: 13px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 1px 3px rgba(58,50,38,.35);
+  transition: transform .2s;
+}
+.mini-toggle.on .toggle-track { background: var(--sage); }
+.mini-toggle.on .toggle-thumb { transform: translateX(15px); }
+#diceCollapsible { overflow: hidden; }
+
+.panel-label {
+  font-family: 'Playfair Display', serif;
+  font-style: italic; font-size: 12px;
+  color: var(--ink-mid); letter-spacing: .06em;
+  margin-bottom: 8px;
+  text-align: center;
+}
+
+.stepper {
+  display: flex; align-items: center; justify-content: center;
+  gap: 8px;
+}
+.step-btn {
+  width: 30px; height: 30px; flex-shrink: 0;
+  border-radius: 50%; border: none; cursor: pointer;
+  background: var(--sage); color: #fff;
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 18px; font-weight: 700;
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 2px 8px rgba(163,199,154,.4);
+  transition: all .18s;
+}
+.step-btn:hover { background: var(--sage-dk); transform: translateY(-1px); }
+.step-btn:active { transform: scale(.92); }
+.step-btn.minus { background: var(--terra); box-shadow: 0 2px 8px rgba(207,150,120,.4); }
+.step-btn.minus:hover { background: var(--terra-dk); }
+
+.panel-block input[type="number"] {
+  width: 56px; text-align: center;
+  font-family: 'Playfair Display', serif;
+  font-size: 20px; font-weight: 700; color: var(--ink);
+  background: var(--paper);
+  border: 1.5px solid rgba(207,150,120,.3);
+  border-radius: 8px; padding: 4px 2px;
+  -moz-appearance: textfield;
+}
+.panel-block input[type="number"]::-webkit-inner-spin-button,
+.panel-block input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; margin:0; }
+
+.teams-list {
+  display: flex; flex-direction: column; gap: 6px;
+  max-height: 210px; overflow-y: auto;
+}
+.team-item {
+  display: flex; align-items: center; gap: 8px;
+  background: var(--paper);
+  border: 1.5px solid rgba(214,200,176,.5);
+  border-radius: 8px;
+  padding: 5px 9px;
+  cursor: pointer;
+  transition: all .16s;
+}
+.team-item:hover { border-color: rgba(207,150,120,.55); transform: translateX(1px); }
+.team-item.selected {
+  border-color: var(--terra-dk);
+  background: rgba(207,150,120,.14);
+  box-shadow: 0 0 0 2px rgba(207,150,120,.22);
+}
+.team-item span {
+  font-size: 13px; color: var(--ink-mid);
+  font-style: italic;
+  flex: 1;
+}
+.team-item .team-pos {
+  font-size: 10.5px; color: var(--ink-dim); font-style: normal;
+  white-space: nowrap;
+}
+.team-item .team-move {
+  display: flex; gap: 3px; flex: 0 0 auto;
+  font-style: normal;
+}
+.mini-step {
+  width: 17px; height: 17px; flex-shrink: 0;
+  border-radius: 50%; border: none; cursor: pointer;
+  background: var(--sage); color: #fff;
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 12px; font-weight: 700; line-height: 1;
+  display: flex; align-items: center; justify-content: center;
+  transition: all .15s;
+}
+.mini-step:hover { background: var(--sage-dk); transform: translateY(-1px); }
+.mini-step:active { transform: scale(.9); }
+.mini-step.minus { background: var(--terra); }
+.mini-step.minus:hover { background: var(--terra-dk); }
+.team-item svg { flex-shrink: 0; }
+.select-hint {
+  font-size: 10.5px; color: var(--ink-dim); font-style: italic;
+  text-align: center; margin-top: 6px; opacity: .8;
+}
+
+.reset-btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  width: 100%;
+  padding: 8px 10px;
+  border-radius: 50px; border: none; cursor: pointer;
+  background: var(--terra); color: #fff;
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 13px; font-weight: 600; letter-spacing: .04em;
+  box-shadow: 0 2px 10px rgba(207,150,120,.4);
+  transition: all .2s;
+}
+.reset-btn:hover { background: var(--terra-dk); transform: translateY(-1px); }
+.reset-btn:active { transform: scale(.96); }
+.reset-btn.dice-btn { background: var(--lav); box-shadow: 0 2px 10px rgba(182,173,224,.45); }
+.reset-btn.dice-btn:hover { background: var(--lav-dk); }
+.reset-btn:disabled { opacity: .6; cursor: default; transform: none; }
+
+/* ── DÉ ── */
+.die-wrap {
+  display: flex; justify-content: center;
+  padding: 4px 0 10px;
+}
+.die-wrap svg { display:block; }
+@keyframes diceShake {
+  0%   { transform: rotate(0deg) scale(1); }
+  20%  { transform: rotate(-16deg) scale(1.06); }
+  40%  { transform: rotate(13deg) scale(.94); }
+  60%  { transform: rotate(-9deg) scale(1.05); }
+  80%  { transform: rotate(6deg) scale(.97); }
+  100% { transform: rotate(0deg) scale(1); }
+}
+.die-wrap.rolling { animation: diceShake .55s ease-in-out infinite; }
+
+#btn-back {
+  position: fixed; bottom: 16px; left: 18px;
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-size: .67rem; font-style: italic; letter-spacing: .06em;
+  color: var(--ink-dim);
+  background: none; border: 1px solid rgba(90,76,58,.24);
+  border-radius: 3px; padding: .32rem .72rem;
+  cursor: pointer; opacity: .6;
+  transition: opacity .2s, background .2s;
+  text-decoration: none; display: inline-block;
+  z-index: 803;
+}
+#btn-back:hover { opacity: 1; background: rgba(240,232,214,.7); }
+
+#btn-regles {
+  position: fixed; top: 14px; left: 22px;
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-size: .74rem; font-style: italic; letter-spacing: .09em;
+  color: var(--terra-dk);
+  background: linear-gradient(to bottom, rgba(251,246,234,.95) 60%, rgba(240,232,214,.95));
+  border: 1.5px solid rgba(207,150,120,.38);
+  border-radius: 20px;
+  padding: .4rem 1.1rem;
+  cursor: pointer; opacity: .82;
+  transition: opacity .2s, background .2s, box-shadow .2s, transform .15s;
+  text-decoration: none; display: inline-flex; align-items: center; gap: .38em;
+  box-shadow: 0 2px 8px rgba(207,150,120,.12), 0 1px 3px rgba(58,50,38,.08);
+  z-index: 803;
+}
+#btn-regles:hover {
+  opacity: 1;
+  background: linear-gradient(to bottom, #fffaf2, var(--paper));
+  box-shadow: 0 4px 14px rgba(207,150,120,.2), 0 1px 4px rgba(58,50,38,.1);
+  transform: translateY(-1px);
+}
+</style>
+</head>
+<body>
+
+<a href="leplateauregles.html" id="btn-regles">✦ Exemples de règles</a>
+
+<!-- Corners -->
+<svg class="orn tl" viewBox="0 0 46 46" fill="none"><path d="M5 5L5 21M5 5L21 5" stroke="#cf9678" stroke-width="1.6" stroke-linecap="round"/><path d="M5 5Q13 9 17 17" stroke="#cf9678" stroke-width="1" stroke-linecap="round"/><circle cx="5" cy="5" r="2.2" fill="#cf9678"/><path d="M11 5L11 8M5 11L8 11" stroke="#cf9678" stroke-width=".9" stroke-linecap="round" opacity=".55"/><path d="M16 5L16 7M5 16L7 16" stroke="#cf9678" stroke-width=".7" stroke-linecap="round" opacity=".3"/></svg>
+<svg class="orn tr" viewBox="0 0 46 46" fill="none"><path d="M5 5L5 21M5 5L21 5" stroke="#cf9678" stroke-width="1.6" stroke-linecap="round"/><path d="M5 5Q13 9 17 17" stroke="#cf9678" stroke-width="1" stroke-linecap="round"/><circle cx="5" cy="5" r="2.2" fill="#cf9678"/><path d="M11 5L11 8M5 11L8 11" stroke="#cf9678" stroke-width=".9" stroke-linecap="round" opacity=".55"/><path d="M16 5L16 7M5 16L7 16" stroke="#cf9678" stroke-width=".7" stroke-linecap="round" opacity=".3"/></svg>
+<svg class="orn bl" viewBox="0 0 46 46" fill="none"><path d="M5 5L5 21M5 5L21 5" stroke="#cf9678" stroke-width="1.6" stroke-linecap="round"/><path d="M5 5Q13 9 17 17" stroke="#cf9678" stroke-width="1" stroke-linecap="round"/><circle cx="5" cy="5" r="2.2" fill="#cf9678"/><path d="M11 5L11 8M5 11L8 11" stroke="#cf9678" stroke-width=".9" stroke-linecap="round" opacity=".55"/><path d="M16 5L16 7M5 16L7 16" stroke="#cf9678" stroke-width=".7" stroke-linecap="round" opacity=".3"/></svg>
+<svg class="orn br" viewBox="0 0 46 46" fill="none"><path d="M5 5L5 21M5 5L21 5" stroke="#cf9678" stroke-width="1.6" stroke-linecap="round"/><path d="M5 5Q13 9 17 17" stroke="#cf9678" stroke-width="1" stroke-linecap="round"/><circle cx="5" cy="5" r="2.2" fill="#cf9678"/><path d="M11 5L11 8M5 11L8 11" stroke="#cf9678" stroke-width=".9" stroke-linecap="round" opacity=".55"/><path d="M16 5L16 7M5 16L7 16" stroke="#cf9678" stroke-width=".7" stroke-linecap="round" opacity=".3"/></svg>
+
+<!-- ══ HEADER ══ -->
+<div class="header">
+  <h1>
+    <span class="le">Le</span>
+    <span class="plateau">plateau</span>
+  </h1>
+  <div class="orn-rule">
+    <div class="orn-line"></div>
+    <span class="orn-c">— ✦ plateau de jeu personnalisable ✦ —</span>
+    <div class="orn-line"></div>
+  </div>
+</div>
+
+<!-- ══ MAIN ══ -->
+<div class="main">
+
+  <div class="col-board">
+    <div class="board-wrap" id="boardWrap">
+      <div id="boardStage"></div>
+      <div class="shape-hint">✦ glissez un point pour changer la forme du plateau ✦</div>
+    </div>
+  </div>
+
+  <div class="col-div"></div>
+
+  <div class="col-panel">
+
+    <div class="panel-block">
+      <div class="panel-label">Nombre de cases</div>
+      <div class="stepper">
+        <button class="step-btn minus" onclick="stepCases(-1)">−</button>
+        <input type="number" id="caseInput" value="24" min="4" max="150" onchange="onCaseInputChange()">
+        <button class="step-btn" onclick="stepCases(1)">+</button>
+      </div>
+    </div>
+
+    <div class="panel-block">
+      <div class="panel-label">Nombre d'équipes</div>
+      <div class="stepper">
+        <button class="step-btn minus" onclick="stepTeams(-1)">−</button>
+        <input type="number" id="teamInput" value="3" min="0" max="40" onchange="onTeamInputChange()">
+        <button class="step-btn" onclick="stepTeams(1)">+</button>
+      </div>
+    </div>
+
+    <div class="panel-block">
+      <div class="panel-label-row">
+        <div class="panel-label" style="margin-bottom:0;">Lancer le dé</div>
+        <button class="mini-toggle on" id="diceToggle" onclick="toggleDicePanel()" aria-pressed="true" title="Afficher / réduire le dé">
+          <span class="toggle-track"><span class="toggle-thumb"></span></span>
+        </button>
+      </div>
+      <div id="diceCollapsible">
+        <div class="die-wrap" id="dieWrap"><div id="dieFace"></div></div>
+        <button class="reset-btn dice-btn" id="diceBtn" onclick="rollDice()">⚂ Lancer le dé</button>
+      </div>
+    </div>
+
+    <div class="panel-block" style="flex:1; display:flex; flex-direction:column; min-height:0;">
+      <div class="panel-label">Équipes</div>
+      <div class="teams-list" id="teamsList"></div>
+      <div class="select-hint">Cliquez une équipe pour la sélectionner, puis lancez le dé.</div>
+    </div>
+
+    <button class="reset-btn" onclick="resetBoard()">✦ Réinitialiser</button>
+
+  </div>
+
+</div>
+
+<a href="index.html" id="btn-back">← Retour aux jeux</a>
+
+<script>
+/* ══════════════════════════════════
+   ÉTAT
+══════════════════════════════════ */
+let caseCount = 24;
+let teamCount = 3;
+let teamPositions = [0, 0, 0];   // case actuelle de chaque équipe (0 = Départ)
+let selectedTeamIndex = null;    // équipe active pour le lancer de dé
+
+const CELL_COLORS_BG = ['var(--s1-bg)','var(--s2-bg)','var(--s3-bg)','var(--s4-bg)','var(--s5-bg)'];
+const CELL_COLORS_TX = ['var(--s1-tx)','var(--s2-tx)','var(--s3-tx)','var(--s4-tx)','var(--s5-tx)'];
+
+const TEAM_SHAPES = ['circle','square','triangle','diamond','star','hexagon','pentagon','cross'];
+function teamShape(i) { return TEAM_SHAPES[i % TEAM_SHAPES.length]; }
+// Chaque équipe reçoit sa PROPRE couleur (indépendante de sa forme), en
+// répartissant les teintes autour du cercle chromatique (angle d'or) pour
+// que deux équipes voisines soient toujours bien distinguables.
+function hslToHex(h, s, l) {
+  s /= 100; l /= 100;
+  const k = n => (n + h / 30) % 12;
+  const a = s * Math.min(l, 1 - l);
+  const f = n => l - a * Math.max(-1, Math.min(k(n) - 3, Math.min(9 - k(n), 1)));
+  const toHex = n => Math.round(255 * n).toString(16).padStart(2, '0');
+  return '#' + toHex(f(0)) + toHex(f(8)) + toHex(f(4));
+}
+function teamColor(i) {
+  const hue = (i * 137.508) % 360;
+  const sat = 44 + (i % 3) * 7;    // 44–58%, doux et pastel
+  const light = 72 + (i % 2) * 6;  // 72–78%, clair sans être délavé
+  return hslToHex(hue, sat, light);
+}
+
+/* ══════════════════════════════════
+   FORMES DU PARCOURS — plusieurs gabarits
+   (coordonnées normalisées 0..1, avec virages)
+══════════════════════════════════ */
+const SHAPE_TEMPLATES = [
+  // Rectangle arrondi
+  [{x:0,y:0},{x:1,y:0},{x:1,y:1},{x:0,y:1}],
+  // Forme en L
+  [{x:0,y:0},{x:1,y:0},{x:1,y:0.55},{x:0.45,y:0.55},{x:0.45,y:1},{x:0,y:1}],
+  // Forme en Z (zigzag)
+  [{x:0,y:0},{x:0.6,y:0},{x:0.6,y:0.4},{x:1,y:0.4},{x:1,y:1},{x:0.4,y:1},{x:0.4,y:0.6},{x:0,y:0.6}],
+  // Forme en T
+  [{x:0,y:0},{x:1,y:0},{x:1,y:0.35},{x:0.68,y:0.35},{x:0.68,y:1},{x:0.32,y:1},{x:0.32,y:0.35},{x:0,y:0.35}],
+  // Forme en croix
+  [{x:0.33,y:0},{x:0.67,y:0},{x:0.67,y:0.33},{x:1,y:0.33},{x:1,y:0.67},{x:0.67,y:0.67},{x:0.67,y:1},{x:0.33,y:1},{x:0.33,y:0.67},{x:0,y:0.67},{x:0,y:0.33},{x:0.33,y:0.33}]
+];
+let currentShapeIndex = Math.floor(Math.random() * SHAPE_TEMPLATES.length);
+
+// Points d'angle ACTUELS du parcours (coordonnées normalisées 0..1).
+// Ce sont ces points — déplaçables à la souris/au doigt — qui définissent
+// la forme générale du plateau. Quand on en déplace un, tout le tracé
+// (et donc toutes les cases) se recalcule autour de la nouvelle position.
+let currentPoints = null;
+function initPointsFromTemplate() {
+  currentPoints = SHAPE_TEMPLATES[currentShapeIndex].map(p => ({ x: p.x, y: p.y }));
+}
+let draggingPointIndex = null;
+
+/* ══════════════════════════════════
+   COULEURS — utilitaires (relief)
+══════════════════════════════════ */
+function shadeColor(hex, percent) {
+  hex = hex.replace('#','');
+  let r = parseInt(hex.substring(0,2),16), g = parseInt(hex.substring(2,4),16), b = parseInt(hex.substring(4,6),16);
+  const adjust = (c) => Math.round(percent > 0 ? c + (255 - c) * percent : c + c * percent);
+  r = Math.max(0, Math.min(255, adjust(r)));
+  g = Math.max(0, Math.min(255, adjust(g)));
+  b = Math.max(0, Math.min(255, adjust(b)));
+  return '#' + [r,g,b].map(x => x.toString(16).padStart(2,'0')).join('');
+}
+let gradCounter = 0;
+
+/* ══════════════════════════════════
+   FORMES DES PIONS (stylisées, relief)
+══════════════════════════════════ */
+// Géométrie de base de chaque forme de pion (réutilisée pour le remplissage
+// ET pour le contour animé, afin que les deux restent parfaitement alignés).
+function shapeGeometry(shape) {
+  switch (shape) {
+    case 'circle':   return { tag: 'circle',  attrs: 'cx="10" cy="10" r="8"' };
+    case 'square':    return { tag: 'rect',    attrs: 'x="2" y="2" width="16" height="16" rx="4"' };
+    case 'triangle':  return { tag: 'polygon', attrs: 'points="10,2 18,18 2,18"' };
+    case 'diamond':   return { tag: 'polygon', attrs: 'points="10,1 19,10 10,19 1,10"' };
+    case 'star':      return { tag: 'polygon', attrs: 'points="10,1 12.6,7.2 19.5,7.6 14,11.8 15.8,18.5 10,14.8 4.2,18.5 6,11.8 0.5,7.6 7.4,7.2"' };
+    case 'hexagon':   return { tag: 'polygon', attrs: 'points="10,1 18,5.5 18,14.5 10,19 2,14.5 2,5.5"' };
+    case 'pentagon':  return { tag: 'polygon', attrs: 'points="10,1 19,7.6 15.5,18 4.5,18 1,7.6"' };
+    case 'cross':     return { tag: 'path',    attrs: 'd="M7 2h6v5h5v6h-5v5H7v-5H2V7h5z"' };
+    default:          return { tag: 'circle',  attrs: 'cx="10" cy="10" r="8"' };
+  }
+}
+
+function pawnSVG(shape, color, size, animateContour) {
+  if (animateContour === undefined) animateContour = true;
+  const s = size;
+  const gid = 'pg' + (gradCounter++);
+  const light = shadeColor(color, 0.55);
+  const dark = shadeColor(color, -0.38);
+  const geo = shapeGeometry(shape);
+  const needsJoin = geo.tag === 'polygon' || geo.tag === 'path';
+  const joinAttr = needsJoin ? ' stroke-linejoin="round"' : '';
+  const common = `width="${s}" height="${s}" viewBox="0 0 20 20" overflow="visible"`;
+  const defs = `<defs>
+    <radialGradient id="${gid}" cx="35%" cy="28%" r="80%">
+      <stop offset="0%" stop-color="${light}"/>
+      <stop offset="55%" stop-color="${color}"/>
+      <stop offset="100%" stop-color="${dark}"/>
+    </radialGradient>
+    <filter id="${gid}f" x="-70%" y="-70%" width="240%" height="240%">
+      <feDropShadow dx="0" dy="0.7" stdDeviation="0.9" flood-color="#000" flood-opacity="0.42"/>
+    </filter>
+  </defs>`;
+  // Forme principale : remplissage dégradé, sans contour blanc (plus discret)
+  const mainAttrs = `fill="url(#${gid})" filter="url(#${gid}f)"`;
+  const mainShape = `<${geo.tag} ${geo.attrs} ${mainAttrs}/>`;
+  // Contour animé : 2 traits fins qui s'élargissent et s'estompent en boucle,
+  // décalés dans le temps, pour un effet discret et continu autour de la forme.
+  let contourShape = '';
+  if (animateContour) {
+    const ringAttrs = `fill="none" stroke="${dark}" stroke-width="1"${joinAttr}`;
+    contourShape =
+      `<${geo.tag} ${geo.attrs} class="pawn-ring ring-1" ${ringAttrs}/>` +
+      `<${geo.tag} ${geo.attrs} class="pawn-ring ring-2" ${ringAttrs}/>`;
+  }
+  return `<svg ${common}>${defs}${mainShape}${contourShape}</svg>`;
+}
+
+/* ══════════════════════════════════
+   DÉ — pips comme un vrai dé
+══════════════════════════════════ */
+const DIE_PATTERNS = {
+  1: [[1,1]],
+  2: [[0,0],[2,2]],
+  3: [[0,0],[1,1],[2,2]],
+  4: [[0,0],[2,0],[0,2],[2,2]],
+  5: [[0,0],[2,0],[1,1],[0,2],[2,2]],
+  6: [[0,0],[2,0],[0,1],[2,1],[0,2],[2,2]]
+};
+function dieFaceSVG(n, size) {
+  const gid = 'dg' + (gradCounter++);
+  const pts = DIE_PATTERNS[n] || DIE_PATTERNS[1];
+  const r = size * 0.075;
+  const coord = (idx) => size * 0.2 + idx * size * 0.3;
+  let pips = '';
+  pts.forEach(([col, row]) => {
+    pips += `<circle cx="${coord(col)}" cy="${coord(row)}" r="${r}" fill="var(--ink)" opacity="0.8"/>`;
+  });
+  return `<svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}">
+    <defs>
+      <linearGradient id="${gid}" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0%" stop-color="#fffdf5"/>
+        <stop offset="100%" stop-color="#f0e6ce"/>
+      </linearGradient>
+    </defs>
+    <rect x="2" y="2" width="${size-4}" height="${size-4}" rx="${size*0.16}" fill="url(#${gid})" stroke="var(--terra)" stroke-width="2"/>
+    ${pips}
+  </svg>`;
+}
+let dieRolling = false;
+function rollDice() {
+  if (dieRolling) return;
+  dieRolling = true;
+  const btn = document.getElementById('diceBtn');
+  const wrap = document.getElementById('dieWrap');
+  const face = document.getElementById('dieFace');
+  btn.disabled = true;
+  wrap.classList.add('rolling');
+  let ticks = 0;
+  const maxTicks = 9;
+  let finalValue = 1;
+  const timer = setInterval(() => {
+    finalValue = 1 + Math.floor(Math.random() * 6);
+    face.innerHTML = dieFaceSVG(finalValue, 64);
+    ticks++;
+    if (ticks >= maxTicks) {
+      clearInterval(timer);
+      wrap.classList.remove('rolling');
+      dieRolling = false;
+      animateTeamMove(finalValue, () => { btn.disabled = false; });
+    }
+  }, 85);
+}
+
+/* ══════════════════════════════════
+   AVANCÉE ANIMÉE D'UNE ÉQUIPE SUR LE DÉ
+   (saute case par case jusqu'à la case finale)
+══════════════════════════════════ */
+let animatingTeamIndex = null;
+function animateTeamMove(n, onDone) {
+  if (selectedTeamIndex === null || selectedTeamIndex >= teamCount || caseCount <= 0) {
+    if (onDone) onDone();
+    return;
+  }
+  const teamIndex = selectedTeamIndex;
+  animatingTeamIndex = teamIndex;
+  let remaining = n;
+
+  function hop() {
+    if (remaining <= 0) {
+      animatingTeamIndex = null;
+      renderPawns();
+      if (onDone) onDone();
+      return;
+    }
+    teamPositions[teamIndex] = (teamPositions[teamIndex] + 1) % caseCount;
+    remaining--;
+    renderPawns();
+    setTimeout(hop, 230);
+  }
+  hop();
+}
+
+/* ══════════════════════════════════
+   GÉOMÉTRIE GÉNÉRIQUE DU PARCOURS
+   (polygone à coins arrondis, N sommets,
+   permet virages convexes ET concaves)
+══════════════════════════════════ */
+function buildRoundedPath(points, r) {
+  const n = points.length;
+  const tIn = [], tOut = [], centers = [], radii = [];
+
+  for (let i = 0; i < n; i++) {
+    const P = points[i], A = points[(i - 1 + n) % n], B = points[(i + 1) % n];
+    const uLen = Math.max(1e-3, Math.hypot(A.x - P.x, A.y - P.y));
+    const vLen = Math.max(1e-3, Math.hypot(B.x - P.x, B.y - P.y));
+    const u = { x: (A.x - P.x) / uLen, y: (A.y - P.y) / uLen };
+    const v = { x: (B.x - P.x) / vLen, y: (B.y - P.y) / vLen };
+    const dot = Math.max(-1, Math.min(1, u.x * v.x + u.y * v.y));
+    const phi = Math.acos(dot);
+    let rr = r;
+    let tl = phi > 1e-6 ? rr / Math.tan(phi / 2) : 0;
+    const maxLen = 0.45 * Math.min(uLen, vLen);
+    if (tl > maxLen) { tl = maxLen; rr = phi > 1e-6 ? tl * Math.tan(phi / 2) : 0; }
+    tIn[i] = { x: P.x + u.x * tl, y: P.y + u.y * tl };
+    tOut[i] = { x: P.x + v.x * tl, y: P.y + v.y * tl };
+    if (phi > 1e-6 && tl > 1e-6) {
+      let bx = u.x + v.x, by = u.y + v.y;
+      const blen = Math.hypot(bx, by);
+      bx /= blen; by /= blen;
+      const dist = rr / Math.sin(phi / 2);
+      centers[i] = { x: P.x + bx * dist, y: P.y + by * dist };
+      radii[i] = rr;
+    } else {
+      centers[i] = null; radii[i] = 0;
+    }
+  }
+
+  const segments = [];
+  for (let i = 0; i < n; i++) {
+    const j = (i + 1) % n;
+    const lx1 = tOut[i].x, ly1 = tOut[i].y, lx2 = tIn[j].x, ly2 = tIn[j].y;
+    const llen = Math.hypot(lx2 - lx1, ly2 - ly1);
+    if (llen > 1e-6) segments.push({ type: 'line', x1: lx1, y1: ly1, x2: lx2, y2: ly2, len: llen });
+
+    if (centers[j]) {
+      const c = centers[j];
+      const a1 = Math.atan2(tIn[j].y - c.y, tIn[j].x - c.x) * 180 / Math.PI;
+      let a2 = Math.atan2(tOut[j].y - c.y, tOut[j].x - c.x) * 180 / Math.PI;
+      let diff = a2 - a1;
+      while (diff <= -180) diff += 360;
+      while (diff > 180) diff -= 360;
+      a2 = a1 + diff;
+      const alen = radii[j] * Math.abs(diff * Math.PI / 180);
+      if (alen > 1e-6) segments.push({ type: 'arc', cx: c.x, cy: c.y, r: radii[j], a1, a2, len: alen });
+    }
+  }
+  return segments;
+}
+
+function pointOnSegment(seg, s) {
+  if (seg.type === 'line') {
+    const t = seg.len === 0 ? 0 : s / seg.len;
+    const x = seg.x1 + (seg.x2 - seg.x1) * t;
+    const y = seg.y1 + (seg.y2 - seg.y1) * t;
+    const angle = Math.atan2(seg.y2 - seg.y1, seg.x2 - seg.x1) * 180 / Math.PI;
+    return { x, y, angle };
+  } else {
+    const sweep = seg.a2 - seg.a1;
+    const theta = seg.a1 + (seg.len === 0 ? 0 : (s / seg.len) * sweep);
+    const rad = theta * Math.PI / 180;
+    const x = seg.cx + seg.r * Math.cos(rad);
+    const y = seg.cy + seg.r * Math.sin(rad);
+    const dir = sweep >= 0 ? 1 : -1;
+    const angle = theta + 90 * dir;
+    return { x, y, angle };
+  }
+}
+
+function pointAtDistance(segments, totalLen, d) {
+  d = ((d % totalLen) + totalLen) % totalLen;
+  let acc = 0;
+  for (let k = 0; k < segments.length; k++) {
+    const seg = segments[k];
+    if (d <= acc + seg.len || k === segments.length - 1) {
+      return pointOnSegment(seg, Math.max(0, Math.min(seg.len, d - acc)));
+    }
+    acc += seg.len;
+  }
+}
+
+/* ══════════════════════════════════
+   CONSTRUCTION DU PLATEAU
+   (cases = polygones qui partagent
+   exactement leurs points de bord :
+   aucun espace, même dans les virages)
+══════════════════════════════════ */
+let lastCellCenters = [];
+let lastCellAngles = [];
+let lastThickness = 40;
+let lastStep = 40;
+let lastPad = 0, lastW = 0, lastH = 0;
+
+function buildBoard() {
+  const wrap = document.getElementById('boardWrap');
+  const W0 = wrap.clientWidth;
+  const H0 = wrap.clientHeight;
+  if (W0 < 40 || H0 < 40) return;
+
+  const svgNS = 'http://www.w3.org/2000/svg';
+  const thickness = Math.max(30, Math.min(80, Math.min(W0, H0) * 0.14));
+  const pad = thickness / 2 + 6;
+  const W = W0 - pad * 2;
+  const H = H0 - pad * 2;
+  lastPad = pad; lastW = W; lastH = H;
+
+  if (!currentPoints) initPointsFromTemplate();
+  const points = currentPoints.map(p => ({ x: p.x * W, y: p.y * H }));
+  const rBase = Math.min(W, H) * 0.16;
+
+  const segments = buildRoundedPath(points, rBase);
+  const totalLen = segments.reduce((a, s) => a + s.len, 0);
+  const step = totalLen / caseCount;
+  const half = thickness / 2;
+
+  // Points le long de la courbe, avec sous-échantillonnage pour que le
+  // bord intérieur/extérieur de chaque case suive vraiment l'arrondi
+  // (et non une simple corde droite qui créerait des angles sur les virages)
+  function boundaryAt(d) {
+    const p = pointAtDistance(segments, totalLen, d);
+    const rad = p.angle * Math.PI / 180;
+    const nx = -Math.sin(rad), ny = Math.cos(rad);
+    return {
+      inner: { x: p.x + pad - nx * half, y: p.y + pad - ny * half },
+      outer: { x: p.x + pad + nx * half, y: p.y + pad + ny * half }
+    };
+  }
+  const subCount = Math.max(1, Math.min(10, Math.round(step / 7)));
+
+  const stage = document.getElementById('boardStage');
+  stage.innerHTML = '';
+
+  const svg = document.createElementNS(svgNS, 'svg');
+  svg.setAttribute('viewBox', `0 0 ${W0} ${H0}`);
+  svg.setAttribute('class', 'board-main-svg');
+  const g = document.createElementNS(svgNS, 'g');
+
+  const cellCenters = [];
+  const cellAngles = [];
+
+  for (let i = 0; i < caseCount; i++) {
+    const outerPts = [], innerPts = [];
+    for (let s = 0; s <= subCount; s++) {
+      const d = i * step + (s / subCount) * step;
+      const b = boundaryAt(d);
+      outerPts.push(b.outer);
+      innerPts.push(b.inner);
+    }
+    const poly = document.createElementNS(svgNS, 'polygon');
+    const ptsStr = outerPts.map(p => `${p.x},${p.y}`).join(' ') + ' ' +
+                   innerPts.slice().reverse().map(p => `${p.x},${p.y}`).join(' ');
+    poly.setAttribute('points', ptsStr);
+    const isDepart = i === 0;
+    const colorIdx = i % 5;
+    poly.setAttribute('fill', isDepart ? 'var(--paper)' : CELL_COLORS_BG[colorIdx]);
+    poly.setAttribute('stroke', isDepart ? 'var(--terra)' : 'rgba(255,255,255,.6)');
+    poly.setAttribute('stroke-width', isDepart ? '2.2' : '1.4');
+    poly.setAttribute('class', 'board-cell-poly' + (isDepart ? ' depart-poly' : ''));
+    g.appendChild(poly);
+
+    const mid = pointAtDistance(segments, totalLen, (i + 0.5) * step);
+    const mx = mid.x + pad, my = mid.y + pad;
+    cellCenters[i] = { x: mx, y: my };
+    cellAngles[i] = mid.angle;
+
+    if (!isDepart) {
+      const text = document.createElementNS(svgNS, 'text');
+      text.setAttribute('x', mx);
+      text.setAttribute('y', my - thickness * 0.28);
+      text.setAttribute('text-anchor', 'middle');
+      text.setAttribute('dominant-baseline', 'central');
+      text.setAttribute('class', 'cell-label-svg');
+      text.setAttribute('fill', CELL_COLORS_TX[colorIdx]);
+      text.setAttribute('font-size', Math.max(9, thickness * 0.32));
+      text.textContent = i + 1;
+      g.appendChild(text);
+    } else {
+      const dtext = document.createElementNS(svgNS, 'text');
+      dtext.setAttribute('x', mx);
+      dtext.setAttribute('y', my - thickness * 0.34);
+      dtext.setAttribute('text-anchor', 'middle');
+      dtext.setAttribute('class', 'depart-label-svg');
+      dtext.setAttribute('font-size', Math.max(10, thickness * 0.22));
+      dtext.textContent = 'Départ';
+      g.appendChild(dtext);
+    }
+  }
+
+  svg.appendChild(g);
+
+  // Poignées aux angles du parcours : on peut les attraper et les déplacer
+  // pour redessiner la forme générale du plateau (toutes les cases suivent).
+  // Chaque poignée est repoussée le long de la normale RÉELLE du tracé
+  // (au point de la courbe le plus proche du coin), et non depuis le centre
+  // du plateau — cela évite qu'elle reste collée aux cases dans les virages
+  // arrondis, où la courbe s'écarte du coin brut.
+  const HANDLE_R = 6;
+  const HANDLE_OFFSET = half + HANDLE_R + 8;
+  const centroidNP = currentPoints.reduce((acc, p) => ({
+    x: acc.x + (p.x * W) / currentPoints.length,
+    y: acc.y + (p.y * H) / currentPoints.length
+  }), { x: 0, y: 0 });
+
+  function nearestPathSample(px, py) {
+    const N = Math.max(200, caseCount * 24);
+    let best = null, bestD = Infinity;
+    for (let k = 0; k <= N; k++) {
+      const d = (k / N) * totalLen;
+      const p = pointAtDistance(segments, totalLen, d);
+      const dd = (p.x - px) * (p.x - px) + (p.y - py) * (p.y - py);
+      if (dd < bestD) { bestD = dd; best = p; }
+    }
+    return best;
+  }
+
+  const handlesGroup = document.createElementNS(svgNS, 'g');
+  handlesGroup.setAttribute('class', 'shape-handles');
+  currentPoints.forEach((cp, idx) => {
+    const rawX = cp.x * W, rawY = cp.y * H;
+    const sample = nearestPathSample(rawX, rawY);
+    const rad = sample.angle * Math.PI / 180;
+    let nx = -Math.sin(rad), ny = Math.cos(rad);
+    const d1 = (sample.x + nx - centroidNP.x) ** 2 + (sample.y + ny - centroidNP.y) ** 2;
+    const d2 = (sample.x - nx - centroidNP.x) ** 2 + (sample.y - ny - centroidNP.y) ** 2;
+    if (d2 > d1) { nx = -nx; ny = -ny; }
+    const hx = sample.x + nx * HANDLE_OFFSET + pad;
+    const hy = sample.y + ny * HANDLE_OFFSET + pad;
+    const handle = document.createElementNS(svgNS, 'circle');
+    handle.setAttribute('cx', hx);
+    handle.setAttribute('cy', hy);
+    handle.setAttribute('r', HANDLE_R);
+    handle.setAttribute('class', 'shape-handle' + (draggingPointIndex === idx ? ' dragging' : ''));
+    handle.addEventListener('pointerdown', (e) => {
+      e.preventDefault();
+      draggingPointIndex = idx;
+      buildBoard();
+    });
+    handlesGroup.appendChild(handle);
+  });
+  svg.appendChild(handlesGroup);
+
+  stage.appendChild(svg);
+
+  lastCellCenters = cellCenters;
+  lastCellAngles = cellAngles;
+  lastThickness = thickness;
+  lastStep = step;
+
+  // Les positions d'équipes restent cohérentes (bornées au nouveau nombre de cases)
+  teamPositions = teamPositions.map(p => ((p % caseCount) + caseCount) % caseCount);
+
+  renderPawns();
+}
+
+/* ══════════════════════════════════
+   ÉQUIPES / PIONS SUR LE PLATEAU
+   (les pions d'une même case se
+   regroupent côte à côte pour que
+   toutes les équipes restent visibles)
+══════════════════════════════════ */
+function renderPawns() {
+  const stage = document.getElementById('boardStage');
+  const list = document.getElementById('teamsList');
+  if (!stage || !list) return;
+
+  // Retire les anciens groupes de pions (on garde le SVG du plateau)
+  stage.querySelectorAll('.pawns-overlay').forEach(el => el.remove());
+
+  // Regroupe les équipes par case occupée
+  const groups = new Map();
+  for (let i = 0; i < teamCount; i++) {
+    const pos = teamPositions[i] ?? 0;
+    if (!groups.has(pos)) groups.set(pos, []);
+    groups.get(pos).push(i);
+  }
+
+  groups.forEach((teamIndices, pos) => {
+    const center = lastCellCenters[pos];
+    if (!center) return;
+
+    // Zone disponible réellement à l'intérieur de la case (ne doit pas déborder)
+    const boxW = Math.max(50, Math.min(lastStep * 0.9, lastThickness * 2.3));
+    const boxH = Math.max(32, lastThickness * 0.56);
+    const gap = 3;
+
+    // Taille de pion "confortable", réduite seulement si nécessaire pour que
+    // toutes les équipes de la case tiennent dans la zone disponible
+    const comfortSize = Math.max(13, Math.min(25, lastThickness * 0.48));
+    let size = comfortSize;
+    const n = teamIndices.length;
+    while (size > 9) {
+      const cols = Math.max(1, Math.floor((boxW + gap) / (size + gap)));
+      const rows = Math.max(1, Math.floor((boxH + gap) / (size + gap)));
+      if (cols * rows >= n) break;
+      size -= 1;
+    }
+
+    const overlay = document.createElement('div');
+    overlay.className = 'pawns-overlay';
+    const angle = lastCellAngles[pos] || 0;
+    overlay.style.left = (center.x - boxW / 2) + 'px';
+    overlay.style.top = (center.y - boxH / 2 + lastThickness * 0.16) + 'px';
+    overlay.style.width = boxW + 'px';
+    overlay.style.height = boxH + 'px';
+    overlay.style.overflow = 'visible';
+    overlay.style.transform = `rotate(${angle}deg)`;
+    overlay.style.transformOrigin = '50% 50%';
+
+    teamIndices.forEach(i => {
+      const shape = teamShape(i);
+      const color = teamColor(i);
+      const svgStr = pawnSVG(shape, color, size);
+      const inner = (i === animatingTeamIndex) ? `<span class="pawn-hop">${svgStr}</span>` : svgStr;
+      overlay.insertAdjacentHTML('beforeend',
+        `<span class="pawn-upright" style="transform:rotate(${-angle}deg);">${inner}</span>`);
+    });
+
+    stage.appendChild(overlay);
+  });
+
+  renderTeamsList();
+}
+
+function renderTeamsList() {
+  const list = document.getElementById('teamsList');
+  if (!list) return;
+  list.innerHTML = '';
+
+  if (teamCount === 0) {
+    list.innerHTML = '<div class="team-item" style="cursor:default;"><span style="opacity:.5;">Aucune équipe</span></div>';
+    return;
+  }
+
+  for (let i = 0; i < teamCount; i++) {
+    const shape = teamShape(i);
+    const color = teamColor(i);
+    const pos = teamPositions[i] ?? 0;
+    const posLabel = pos === 0 ? 'Départ' : `case ${pos}`;
+
+    const item = document.createElement('div');
+    item.className = 'team-item' + (selectedTeamIndex === i ? ' selected' : '');
+    item.onclick = () => selectTeam(i);
+    item.innerHTML = pawnSVG(shape, color, 18, false) +
+      `<span>Équipe ${i + 1}</span><span class="team-pos">${posLabel}</span>` +
+      `<span class="team-move">
+        <button class="mini-step minus" title="Reculer d'une case" onclick="event.stopPropagation(); moveTeamBy(${i}, -1)">−</button>
+        <button class="mini-step plus" title="Avancer d'une case" onclick="event.stopPropagation(); moveTeamBy(${i}, 1)">+</button>
+      </span>`;
+    list.appendChild(item);
+  }
+}
+
+function moveTeamBy(i, delta) {
+  if (caseCount <= 0 || i < 0 || i >= teamCount) return;
+  teamPositions[i] = ((teamPositions[i] + delta) % caseCount + caseCount) % caseCount;
+  animatingTeamIndex = i;
+  renderPawns();
+  setTimeout(() => { animatingTeamIndex = null; }, 230);
+}
+
+function selectTeam(i) {
+  selectedTeamIndex = (selectedTeamIndex === i) ? null : i;
+  renderTeamsList();
+}
+
+/* ══════════════════════════════════
+   AFFICHAGE / RÉDUCTION DE LA CASE DU DÉ
+══════════════════════════════════ */
+let diceVisible = true;
+function toggleDicePanel() {
+  diceVisible = !diceVisible;
+  const collapsible = document.getElementById('diceCollapsible');
+  const toggle = document.getElementById('diceToggle');
+  collapsible.style.display = diceVisible ? '' : 'none';
+  toggle.classList.toggle('on', diceVisible);
+  toggle.setAttribute('aria-pressed', String(diceVisible));
+}
+
+/* ══════════════════════════════════
+   CONTRÔLES
+══════════════════════════════════ */
+function stepCases(delta) {
+  caseCount = Math.max(4, Math.min(150, caseCount + delta));
+  document.getElementById('caseInput').value = caseCount;
+  buildBoard();
+}
+function onCaseInputChange() {
+  const input = document.getElementById('caseInput');
+  let v = parseInt(input.value, 10);
+  if (isNaN(v)) v = caseCount;
+  caseCount = Math.max(4, Math.min(150, v));
+  input.value = caseCount;
+  buildBoard();
+}
+
+function syncTeamPositions() {
+  // Les nouvelles équipes démarrent sur "Départ" (case 0), sans toucher aux autres
+  while (teamPositions.length < teamCount) teamPositions.push(0);
+  teamPositions.length = teamCount;
+  if (selectedTeamIndex !== null && selectedTeamIndex >= teamCount) selectedTeamIndex = null;
+}
+
+function stepTeams(delta) {
+  teamCount = Math.max(0, Math.min(40, teamCount + delta));
+  document.getElementById('teamInput').value = teamCount;
+  syncTeamPositions();
+  renderPawns();
+}
+function onTeamInputChange() {
+  const input = document.getElementById('teamInput');
+  let v = parseInt(input.value, 10);
+  if (isNaN(v)) v = teamCount;
+  teamCount = Math.max(0, Math.min(40, v));
+  input.value = teamCount;
+  syncTeamPositions();
+  renderPawns();
+}
+
+function resetBoard() {
+  caseCount = 24; teamCount = 3;
+  teamPositions = [0, 0, 0];
+  selectedTeamIndex = null;
+  currentShapeIndex = Math.floor(Math.random() * SHAPE_TEMPLATES.length);
+  initPointsFromTemplate();
+  document.getElementById('caseInput').value = caseCount;
+  document.getElementById('teamInput').value = teamCount;
+  buildBoard();
+}
+
+/* ══════════════════════════════════
+   GLISSER-DÉPOSER DES ANGLES DU PLATEAU
+   (déplace un point de la forme générale ;
+   tout le tracé et toutes les cases suivent)
+══════════════════════════════════ */
+document.addEventListener('pointermove', (e) => {
+  if (draggingPointIndex === null || !currentPoints) return;
+  const wrap = document.getElementById('boardWrap');
+  const rect = wrap.getBoundingClientRect();
+  const x = e.clientX - rect.left;
+  const y = e.clientY - rect.top;
+  let nx = lastW ? (x - lastPad) / lastW : 0;
+  let ny = lastH ? (y - lastPad) / lastH : 0;
+  nx = Math.max(-0.15, Math.min(1.15, nx));
+  ny = Math.max(-0.15, Math.min(1.15, ny));
+  currentPoints[draggingPointIndex] = { x: nx, y: ny };
+  buildBoard();
+});
+function stopDraggingPoint() { draggingPointIndex = null; }
+document.addEventListener('pointerup', stopDraggingPoint);
+document.addEventListener('pointercancel', stopDraggingPoint);
+
+/* ══════════════════════════════════
+   INIT
+══════════════════════════════════ */
+window.addEventListener('load', () => {
+  const face = document.getElementById('dieFace');
+  if (face) face.innerHTML = dieFaceSVG(1, 64);
+  buildBoard();
+});
+let resizeTimer;
+window.addEventListener('resize', () => {
+  clearTimeout(resizeTimer);
+  resizeTimer = setTimeout(buildBoard, 120);
+});
+</script>
+</body>
+</html>
