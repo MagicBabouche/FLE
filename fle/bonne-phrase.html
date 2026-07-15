@@ -370,6 +370,87 @@ svg.ico { width:13px; height:13px; flex-shrink:0; }
   box-shadow: 0 4px 14px rgba(184,80,48,.14), 0 1px 4px rgba(36,26,12,.09);
   transform: translateY(-1px);
 }
+
+/* ============================================================
+   RESPONSIVE — la mise en page "1 écran fixe" ci-dessus reste
+   intacte sur PC (> 900px). En dessous, on adapte progressivement.
+   ============================================================ */
+
+/* ---- Tablettes (≤ 900px) : on autorise le défilement,
+   les cartes peuvent passer à la ligne si besoin ---- */
+@media (max-width: 900px) {
+  html, body {
+    height: auto;
+    min-height: 100vh;
+    overflow: visible;
+  }
+
+  .header { padding: 18px 20px 8px; }
+  .orn-rule { padding: 0 20px; }
+
+  .cards-row {
+    flex-wrap: wrap;
+    row-gap: 18px;
+    padding: 12px 18px 8px;
+  }
+  .card-col {
+    flex: 1 1 160px;
+    min-width: 150px;
+  }
+  .card { min-height: 120px; padding: 14px 0; }
+
+  .adj-bar {
+    flex-wrap: wrap;
+    row-gap: 10px;
+    justify-content: center;
+    padding: 10px 18px;
+  }
+
+  .bottom { padding: 10px 18px 20px; }
+
+  /* Les boutons flottants rejoignent le flux normal :
+     plus aucun risque de chevauchement avec le titre ou entre eux */
+  #btn-regles, #btn-back {
+    position: static;
+    align-self: center;
+    margin: 8px 0;
+  }
+}
+
+/* ---- Téléphones (≤ 600px) : les cartes s'empilent verticalement ---- */
+@media (max-width: 600px) {
+  .cards-row {
+    flex-direction: column;
+    align-items: stretch;
+    row-gap: 12px;
+    padding: 10px 16px 4px;
+  }
+  .card-col { width: 100%; min-width: 0; }
+  .card { min-height: 84px; padding: 12px 0; }
+
+  h1 { flex-wrap: wrap; justify-content: center; row-gap: 2px; }
+  .header { padding: 16px 12px 6px; }
+
+  .btn-change, .btn-side, .btn-main {
+    padding: 10px 22px;
+    font-size: 14px;
+  }
+
+  .adj-bar {
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .orn { width: 32px; height: 32px; opacity: .14; }
+}
+
+/* ---- Très petits téléphones (≤ 380px) ---- */
+@media (max-width: 380px) {
+  h1 { font-size: 26px; }
+  .card-label { font-size: 10px; }
+  .orn { display: none; }
+}
 </style>
 </head>
 <body>

@@ -31,6 +31,7 @@
   --frame-6: #d8b0c0; --frame-6-tx: #3a0e1e;
 
   --sidebar-w: 200px;
+  --sidebar-w-mobile: min(84vw, 300px);
 }
 
 *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
@@ -44,6 +45,7 @@ body {
   font-family: 'Cormorant Garamond', Georgia, serif;
   color: var(--ink);
   height: 100vh;
+  height: 100dvh;
   display: grid;
   grid-template-rows: auto 1fr auto;
   grid-template-columns: 1fr var(--sidebar-w);
@@ -51,6 +53,37 @@ body {
     "header sidebar"
     "canvas sidebar"
     "bar    sidebar";
+}
+
+/* ════════════════════════════
+   SIDEBAR TOGGLE (mobile/tablet only)
+════════════════════════════ */
+#btn-sidebar-toggle {
+  display: none;
+  position: fixed;
+  top: 14px; right: 18px;
+  z-index: 960;
+  width: 40px; height: 40px;
+  align-items: center; justify-content: center;
+  background: linear-gradient(to bottom, var(--paper) 60%, #f2e8d5);
+  border: 1.5px solid rgba(184,80,48,.28);
+  border-radius: 50%;
+  color: var(--terra);
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(184,80,48,.08), 0 1px 3px rgba(36,26,12,.07);
+  transition: opacity .2s, background .2s, transform .15s;
+}
+#btn-sidebar-toggle svg { width: 18px; height: 18px; }
+#btn-sidebar-toggle:hover { background: linear-gradient(to bottom, #fff9f0, #f0e4cc); }
+#btn-sidebar-toggle:active { transform: scale(.94); }
+
+#sidebar-backdrop {
+  display: none;
+  position: fixed; inset: 0;
+  background: rgba(36,26,12,.32);
+  z-index: 55;
+  opacity: 0;
+  transition: opacity .25s;
 }
 
 /* Grain overlay */
@@ -88,6 +121,7 @@ body::after {
   padding: 10px 60px 10px;
   flex-shrink: 0;
 }
+.header h1 { flex-wrap: wrap; justify-content: center; row-gap: 2px; }
 
 h1 {
   font-family: 'Playfair Display', serif;
@@ -133,6 +167,7 @@ h1 .lib   { color:var(--ink); }
   overflow: hidden;
   z-index: 50;
   backdrop-filter: blur(4px);
+  transition: transform .3s ease;
 }
 
 .sidebar-header {
@@ -685,6 +720,7 @@ h1 .lib   { color:var(--ink); }
   display: flex;
   align-items: center;
   justify-content: center;
+  flex-wrap: wrap;
   gap: 12px;
   flex-shrink: 0;
 }
@@ -785,6 +821,87 @@ h1 .lib   { color:var(--ink); }
   box-shadow: 0 4px 14px rgba(184,80,48,.14), 0 1px 4px rgba(36,26,12,.09);
   transform: translateY(-1px);
 }
+
+/* ════════════════════════════
+   RESPONSIVE — TABLETTE (≤ 900px)
+   La sidebar quitte la grille et devient un panneau
+   coulissant superposé, ouvert via le bouton toggle.
+════════════════════════════ */
+@media (max-width: 900px) {
+  :root { --sidebar-w: var(--sidebar-w-mobile); }
+
+  body {
+    grid-template-columns: 1fr;
+    grid-template-areas:
+      "header"
+      "canvas"
+      "bar";
+  }
+
+  #btn-sidebar-toggle { display: flex; }
+  #sidebar-backdrop { display: block; }
+
+  #sidebar {
+    position: fixed;
+    top: 0; right: 0; bottom: 0;
+    width: var(--sidebar-w-mobile);
+    border-left: 1.5px solid rgba(184,80,48,.28);
+    box-shadow: -8px 0 28px rgba(36,26,12,.18);
+    transform: translateX(100%);
+  }
+  body.sidebar-open #sidebar { transform: translateX(0); }
+  body.sidebar-open #sidebar-backdrop { opacity: 1; pointer-events: auto; }
+  #sidebar-backdrop { pointer-events: none; }
+
+  .header { padding: 10px 68px 8px 22px; }
+  #btn-explications {
+    font-size: .68rem;
+    padding: .34rem .85rem;
+  }
+}
+
+/* ════════════════════════════
+   RESPONSIVE — MOBILE (≤ 560px)
+════════════════════════════ */
+@media (max-width: 560px) {
+  .header { padding: 8px 56px 6px 14px; }
+  h1 { font-size: clamp(18px, 6vw, 30px); }
+  .orn-rule { padding: 0 14px; margin-top: 2px; }
+  .orn-c { font-size: 8px; letter-spacing: .12em; }
+
+  #btn-sidebar-toggle { top: 10px; right: 10px; width: 36px; height: 36px; }
+  #btn-explications {
+    top: 10px; left: 10px;
+    font-size: .62rem;
+    padding: .3rem .7rem;
+    gap: .28em;
+  }
+  #btn-back {
+    bottom: 10px; left: 10px;
+    font-size: .6rem;
+    padding: .28rem .6rem;
+  }
+
+  .bottom-bar { padding: 6px 10px 10px; gap: 8px; }
+  .ctrl-label { font-size: 11.5px; }
+  .ctrl-btn { padding: 7px 14px; font-size: 16px; }
+  .count-input { width: 42px; font-size: 14px; }
+
+  #sidebar { width: min(88vw, 280px); }
+
+  .frame textarea { padding: 10px; }
+  .frame .close-btn { width: 22px; height: 22px; opacity: 1; }
+  .frame .rh { width: 32px; height: 32px; opacity: .55; }
+  .frame .bar-font-ctrl { opacity: 1; }
+  .sidebar-item-close { opacity: 1; }
+}
+
+/* Très petits écrans en paysage : éviter que le bouton retour ne
+   chevauche la barre de contrôle */
+@media (max-width: 560px) and (orientation: landscape) {
+  #btn-back { bottom: 8px; }
+  .bottom-bar { padding-bottom: 8px; }
+}
 </style>
 </head>
 <body>
@@ -811,6 +928,17 @@ h1 .lib   { color:var(--ink); }
 
 <!-- CANVAS -->
 <div id="canvas"></div>
+
+<!-- SIDEBAR TOGGLE (mobile/tablette) -->
+<button id="btn-sidebar-toggle" title="Afficher les réglages">
+  <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round">
+    <rect x="1" y="1" width="5" height="5" rx="1"/>
+    <rect x="8" y="1" width="5" height="5" rx="1"/>
+    <rect x="1" y="8" width="5" height="5" rx="1"/>
+    <rect x="8" y="8" width="5" height="5" rx="1"/>
+  </svg>
+</button>
+<div id="sidebar-backdrop"></div>
 
 <!-- BOTTOM BAR -->
 <div class="bottom-bar">
@@ -897,6 +1025,19 @@ h1 .lib   { color:var(--ink); }
 <a href="cadresinteractifsregles.html" id="btn-explications">✦ Explications</a>
 
 <script>
+/* ─── sidebar mobile toggle ─── */
+const btnSidebarToggle = document.getElementById('btn-sidebar-toggle');
+const sidebarBackdrop  = document.getElementById('sidebar-backdrop');
+function openSidebarMobile()  { document.body.classList.add('sidebar-open'); }
+function closeSidebarMobile() { document.body.classList.remove('sidebar-open'); }
+btnSidebarToggle.addEventListener('click', () => {
+  document.body.classList.toggle('sidebar-open');
+});
+sidebarBackdrop.addEventListener('click', closeSidebarMobile);
+window.addEventListener('resize', () => {
+  if (window.innerWidth > 900) closeSidebarMobile();
+});
+
 const canvas = document.getElementById('canvas');
 const countInput = document.getElementById('count-input');
 const btnPlus = document.getElementById('btn-plus');

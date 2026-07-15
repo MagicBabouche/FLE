@@ -38,6 +38,7 @@ body {
   font-family: 'Cormorant Garamond', Georgia, serif;
   color: var(--ink);
   height: 100vh;
+  height: 100dvh;
   display: grid;
   grid-template-rows: auto 1fr auto;
   grid-template-areas: "header" "main" "bottom";
@@ -353,6 +354,108 @@ svg.ico { width:13px; height:13px; flex-shrink:0; }
   background: linear-gradient(to bottom, #fff9f0, #f0e4cc);
   box-shadow: 0 4px 14px rgba(184,80,48,.14), 0 1px 4px rgba(36,26,12,.09);
   transform: translateY(-1px);
+}
+
+/* ════════════════════════════════════════
+   RESPONSIVE — TABLETTES (≤ 900px)
+════════════════════════════════════════ */
+@media (max-width: 900px) {
+  .header { padding: 8px 40px 8px; }
+  .orn-rule { padding: 0 40px; }
+
+  #btn-regles {
+    top: 8px; left: 8px;
+    font-size: .66rem;
+    padding: .32rem .8rem;
+  }
+  #btn-back {
+    bottom: 8px; left: 8px;
+    font-size: .62rem;
+    padding: .28rem .6rem;
+  }
+
+  .orn { width: 32px; height: 32px; }
+
+  .btn-variante { padding: 9px 34px; }
+
+  .slot-rule { padding: 0 30px; }
+}
+
+/* ════════════════════════════════════════
+   RESPONSIVE — TÉLÉPHONES / TABLETTES PORTRAIT (≤ 640px)
+════════════════════════════════════════ */
+@media (max-width: 640px) {
+  /* On autorise le défilement vertical plutôt que de tout écraser dans 100vh */
+  html, body { height: auto; min-height: 100dvh; overflow-y: auto; overflow-x: hidden; }
+  body { height: auto; min-height: 100dvh; }
+
+  body::after { inset: 4px; }
+
+  .orn { display: none; } /* les ornements d'angle gênent plus qu'ils n'embellissent sur petit écran */
+
+  .header { padding: 46px 16px 6px; }
+  h1 { font-size: clamp(22px, 7vw, 34px); }
+  .orn-rule { padding: 0 16px; margin-top: 3px; }
+  .orn-c { font-size: 9px; letter-spacing: .14em; }
+
+  .main {
+    padding: 0 10px 6px;
+    gap: 8px;
+    min-height: auto;
+    flex: 1 1 auto;
+  }
+
+  .phrase-wrap { margin: 6px 0; }
+  #phrase-input { padding: 12px 16px; min-height: 54px; font-size: clamp(16px, 4.6vw, 22px); }
+
+  /* Grille de slots : hauteur libre pour ne pas écraser le texte des règles */
+  .slots-grid { flex: 1 1 auto; gap: 8px; min-height: auto; }
+  .slot-row { flex: 0 0 auto; min-height: 58px; gap: 7px; }
+
+  .stog { width: 36px; }
+  .stbtn { font-size: 8px; }
+
+  .slot-rule { font-size: clamp(13px, 4.6vw, 18px); padding: 0 30px; }
+  .slot-empty { font-size: 12px; }
+  .lock-icon { right: 8px; font-size: 14px; }
+
+  /* Boutons flottants haut/bas : on les repasse dans le flux, empilés, sans chevauchement */
+  #btn-regles {
+    position: static;
+    display: inline-flex;
+    margin: 0 auto 4px;
+    font-size: .64rem;
+  }
+  .header { display: flex; flex-direction: column; align-items: center; padding-top: 10px; }
+
+  .bottom {
+    flex-direction: column;
+    gap: 8px;
+    padding: 6px 14px 14px;
+  }
+  #btn-back {
+    position: static;
+    opacity: .75;
+    font-size: .68rem;
+    padding: .3rem .8rem;
+    order: 2;
+  }
+  .btn-variante {
+    order: 1;
+    width: 100%;
+    justify-content: center;
+    padding: 11px 24px;
+  }
+}
+
+/* ════════════════════════════════════════
+   RESPONSIVE — TRÈS PETITS ÉCRANS (≤ 380px)
+════════════════════════════════════════ */
+@media (max-width: 380px) {
+  h1 { font-size: clamp(20px, 7.5vw, 28px); }
+  .stog { width: 32px; }
+  .slot-row { min-height: 52px; }
+  #phrase-input { font-size: 15px; padding: 10px 12px; }
 }
 </style>
 </head>
