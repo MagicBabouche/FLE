@@ -413,6 +413,99 @@ svg.ico { width:13px; height:13px; flex-shrink:0; }
   box-shadow: 0 4px 14px rgba(184,80,48,.14), 0 1px 4px rgba(36,26,12,.09);
   transform: translateY(-1px);
 }
+
+/* ════════════════════════════════════════
+   RESPONSIVE — TABLETTES (≤ 900px)
+   La mise en page desktop reste inchangée
+   au-dessus de ce seuil.
+════════════════════════════════════════ */
+@media (max-width: 900px) {
+  html, body { height: auto; min-height: 100vh; overflow-y: auto; overflow-x: hidden; }
+
+  body {
+    display: flex;
+    flex-direction: column;
+    height: auto;
+    min-height: 100vh;
+  }
+
+  .header { padding: 56px 40px 14px; }
+
+  /* Boutons fixes replacés pour ne jamais chevaucher le titre ou les contrôles */
+  #btn-regles {
+    top: 10px; left: 50%;
+    transform: translateX(-50%);
+    font-size: .68rem;
+    padding: .34rem .9rem;
+  }
+  #btn-regles:hover { transform: translateX(-50%) translateY(-1px); }
+
+  #btn-back {
+    position: static;
+    display: inline-block;
+    margin: 10px auto 4px;
+    order: 3;
+  }
+
+  /* Lettre au-dessus, thèmes en dessous, colonne unique */
+  .main {
+    grid-template-columns: 1fr;
+    grid-template-rows: minmax(180px, 34vh) auto;
+    grid-template-areas: none;
+    padding: 4px 16px;
+    gap: 10px;
+    min-height: 0;
+  }
+
+  .col-letter { padding-right: 0; }
+
+  /* La barre verticale devient horizontale entre les deux blocs */
+  .col-div {
+    background: linear-gradient(to right,
+      transparent 0%, rgba(184,80,48,.22) 15%,
+      rgba(184,80,48,.22) 85%, transparent 100%);
+    width: auto; height: 1px; margin: 0 8px;
+  }
+  .col-div::before { padding: 0 5px; }
+
+  .col-slots { padding: 0; gap: 8px; }
+
+  /* Les 5 lignes de thème ont besoin d'une hauteur propre, plus de flex:1 sur viewport */
+  .slot-row { flex: none; min-height: 58px; }
+
+  .bottom { padding: 6px 16px 20px; order: 2; }
+}
+
+/* ════════════════════════════════════════
+   RESPONSIVE — TÉLÉPHONES (≤ 560px)
+════════════════════════════════════════ */
+@media (max-width: 560px) {
+  .header { padding: 52px 16px 10px; }
+  .orn-rule { padding: 0 20px; }
+
+  .main { padding: 4px 10px; grid-template-rows: minmax(150px, 28vh) auto; }
+
+  .slot-row { min-height: 54px; gap: 6px; }
+
+  .stog { flex-direction: column; border-radius: 10px; }
+  .stbtn { padding: 5px 8px; font-size: 9px; }
+
+  .slot-theme { padding: 0 30px 0 20px; font-size: clamp(13px, 4.5vw, 20px); }
+  .slot-n { left: 6px; font-size: 10px; }
+  .lock-icon { right: 6px; font-size: 12px; }
+
+  .ctrl-bar { flex-wrap: wrap; gap: 8px; }
+  .btn { padding: 9px 16px; font-size: 13px; flex: 1 1 auto; justify-content: center; }
+
+  .orn { width: 30px; height: 30px; }
+
+  #btn-regles { font-size: .62rem; padding: .3rem .75rem; }
+}
+
+/* Très petits écrans : lettre géante un peu réduite pour ne pas déborder */
+@media (max-width: 400px) {
+  #bigLetter { font-size: clamp(60px, 22vw, 100px); }
+}
 </style>
 </head>
 <body>
