@@ -274,6 +274,71 @@ body::after {
 @media (max-width:900px) {
   .top-bar { padding:0 24px; }
 }
+
+/* ===== RESPONSIVE (tablette / mobile) ===== */
+@media (max-width: 780px) {
+  body::after { inset:5px; }
+  .corner { width:34px; height:34px; }
+
+  .top-bar {
+    height: auto;
+    min-height: 64px;
+    padding: 12px 20px;
+    flex-wrap: wrap;
+    row-gap: 10px;
+  }
+  .top-bar-title { font-size: 21px; }
+  .top-bar-right {
+    width: 100%;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  .top-bar-right > span { display:none; }
+  .btn-home {
+    font-size: 9.5px;
+    letter-spacing: .16em;
+    padding: 7px 12px;
+  }
+
+  .page-head {
+    padding: 40px 20px 28px;
+  }
+  .page-title { font-size: clamp(28px, 8vw, 40px); }
+  .page-sub { font-size: 14.5px; }
+
+  .content-main {
+    padding: 36px 20px 56px;
+  }
+  .content-main p,
+  .content-main ol li,
+  .content-main ul.variantes li {
+    font-size: 15.5px;
+  }
+  .content-main p.lead { font-size: 17px; }
+
+  .example-card, .callout {
+    padding: 22px 20px;
+    margin: 22px 0 26px;
+  }
+
+  .footer-bar {
+    padding: 16px 20px;
+    font-size: 10px;
+  }
+}
+
+@media (max-width: 420px) {
+  .top-bar-title { font-size: 18px; }
+  .btn-home {
+    font-size: 8.5px;
+    letter-spacing: .12em;
+    padding: 6px 10px;
+    gap: 5px;
+  }
+  .btn-home svg { width: 9px; height: 9px; }
+  .page-title { font-size: clamp(24px, 9vw, 32px); }
+}
 </style>
 </head>
 <body>

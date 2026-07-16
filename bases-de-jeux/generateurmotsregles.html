@@ -298,6 +298,109 @@ body::after {
 @media (max-width:900px) {
   .top-bar { padding:0 24px; }
 }
+
+/* ===== RESPONSIVE : tablettes ===== */
+@media (max-width: 800px) {
+  .top-bar {
+    height: auto;
+    flex-wrap: wrap;
+    row-gap: 14px;
+    padding: 16px 24px;
+  }
+  .top-bar-title { font-size: 22px; }
+  .top-bar-right {
+    width: 100%;
+    justify-content: flex-start;
+    flex-wrap: wrap;
+    gap: 12px 16px;
+  }
+  .top-bar-right > span {
+    width: 100%;
+    order: -1;
+  }
+  .btn-home {
+    font-size: 9.5px;
+    padding: 8px 14px;
+  }
+
+  .page-head { padding: 48px 24px 32px; }
+  .page-title { font-size: clamp(28px, 7vw, 42px); }
+  .page-sub { font-size: 15px; }
+
+  .content-main { padding: 40px 24px 60px; }
+
+  .example-card, .callout { padding: 22px 20px; }
+
+  .footer-bar { padding: 16px 24px; }
+}
+
+/* ===== RESPONSIVE : téléphones ===== */
+@media (max-width: 480px) {
+  body::after { inset: 5px; }
+  .corner { width: 34px; height: 34px; }
+
+  .top-bar { padding: 14px 16px; }
+  .top-bar-title { font-size: 19px; }
+  .top-bar-right {
+    font-size: 9px;
+    gap: 10px 12px;
+  }
+  .btn-home {
+    font-size: 9px;
+    letter-spacing: .14em;
+    padding: 7px 12px;
+    gap: 6px;
+    flex: 1 1 auto;
+    justify-content: center;
+  }
+  .btn-home svg { width: 10px; height: 10px; }
+
+  .page-head { padding: 36px 16px 26px; }
+  .page-eyebrow { font-size: 9px; margin-bottom: 12px; }
+  .page-title { font-size: clamp(24px, 8vw, 32px); }
+  .page-sub { font-size: 14px; margin-top: 14px; }
+
+  .content-main { padding: 32px 16px 48px; }
+  .content-main p,
+  .content-main ol li,
+  .content-main ul.variantes li {
+    font-size: 15px;
+    text-align: left;
+    hyphens: none;
+  }
+  .content-main p.lead { font-size: 17px; }
+
+  .example-card {
+    padding: 18px 16px;
+    border-left-width: 4px;
+    margin: 22px 0 26px;
+  }
+  .example-card p, .example-card li {
+    font-size: 14.5px;
+    text-align: left;
+    hyphens: none;
+  }
+
+  .callout { padding: 22px 18px; }
+  .callout p { font-size: 14px; text-align: left; }
+
+  .divider { margin: 34px 0 24px; gap: 10px; }
+  .divider-mark { font-size: 12px; }
+
+  .signature-name { font-size: 20px; }
+
+  .footer-bar {
+    padding: 16px 20px;
+    font-size: 10px;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+}
+
+@media (max-width: 360px) {
+  .top-bar-right > span { display: none; }
+  .btn-home { font-size: 8.5px; padding: 7px 10px; }
+}
 </style>
 </head>
 <body>

@@ -450,6 +450,80 @@ h1 .le { font-style: italic; font-weight: 400; color: var(--ink-mid); font-size:
   box-shadow: 0 4px 14px rgba(184,80,48,.14), 0 1px 4px rgba(36,26,12,.09);
   transform: translateY(-1px);
 }
+
+/* ════════════════════════════════════════
+   RESPONSIVE — tablettes
+   (la mise en page "pc" reste inchangée
+   au-dessus de 900px)
+════════════════════════════════════════ */
+@media (max-width: 900px) {
+  .header { padding: 52px 20px 8px; }
+  .orn-rule { padding: 0 24px; }
+
+  .main {
+    grid-template-columns: 1fr !important;
+    padding: 6px 12px 64px;
+  }
+  .main.side-hidden { padding-bottom: 16px; }
+
+  .side-col {
+    flex-direction: row;
+    flex-wrap: wrap;
+  }
+  .side-card { min-width: 220px; flex: 1 1 220px; }
+
+  .teams-grid { grid-auto-rows: minmax(110px, 1fr); }
+}
+
+/* ════════════════════════════════════════
+   RESPONSIVE — téléphones
+════════════════════════════════════════ */
+@media (max-width: 560px) {
+  body::after { inset: 4px; }
+  .orn { width: 26px; height: 26px; }
+
+  .header { padding: 48px 12px 6px; }
+  h1 { font-size: clamp(20px, 7vw, 30px); }
+  .orn-rule { padding: 0 8px; margin-top: 6px; }
+  .orn-c { font-size: 8px; letter-spacing: .12em; }
+
+  .team-count-ctrl,
+  .side-toggle-ctrl {
+    margin-left: 0;
+    margin-top: 6px;
+    padding: 5px 10px;
+  }
+  .side-toggle-ctrl { margin-left: 0; }
+
+  #btn-explications {
+    top: 8px; left: 8px;
+    font-size: .6rem;
+    padding: .3rem .7rem;
+  }
+  #btn-back {
+    bottom: 8px; left: 8px;
+    font-size: .62rem;
+    padding: .28rem .6rem;
+  }
+
+  .main { padding: 6px 8px 58px; gap: 10px; }
+
+  .teams-grid { gap: 8px; grid-auto-rows: minmax(96px, 1fr); }
+  .team-name { font-size: clamp(.9rem, 4.5vw, 1.2rem); }
+  .score-value { font-size: clamp(1.8rem, 11vw, 3rem); }
+  .sc-btn { width: 30px; height: 30px; }
+
+  .side-col { flex-direction: column; }
+  .side-card { min-width: 0; }
+  .time-display { font-size: clamp(1.6rem, 7vw, 2rem); }
+
+  .color-pop { min-width: 190px; }
+}
+
+@media (max-width: 380px) {
+  .team-count-ctrl label,
+  .side-toggle-ctrl label { display: none; }
+}
 </style>
 </head>
 <body>
@@ -574,6 +648,18 @@ function changeTeamCount(delta) {
 }
 
 function gridColumns(n) {
+  const w = window.innerWidth;
+  // Sur petit écran, on limite le nombre de colonnes pour que
+  // chaque carte reste lisible et que les boutons ne se chevauchent pas.
+  if (w <= 560) {
+    if (n <= 1) return 1;
+    return 2;
+  }
+  if (w <= 900) {
+    if (n <= 1) return 1;
+    if (n <= 6) return 2;
+    return 3;
+  }
   if (n <= 1) return 1;
   if (n <= 4) return 2;
   if (n <= 9) return 3;
@@ -801,6 +887,14 @@ window.addEventListener('load', forceInit);
 window.addEventListener('pageshow', forceInit);
 setTimeout(forceInit, 50);
 setTimeout(forceInit, 300);
+
+// Recalcule la disposition de la grille (colonnes) quand l'écran
+// change de taille (rotation tablette, redimensionnement, etc.)
+let resizeTimeout;
+window.addEventListener('resize', () => {
+  clearTimeout(resizeTimeout);
+  resizeTimeout = setTimeout(renderTeams, 150);
+});
 </script>
 </body>
 </html>

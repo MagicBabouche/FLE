@@ -436,6 +436,106 @@ h1 .plateau { color:#e08a2e; }
   box-shadow: 0 4px 14px rgba(207,150,120,.2), 0 1px 4px rgba(58,50,38,.1);
   transform: translateY(-1px);
 }
+
+/* ════════════════════════════════════════
+   RESPONSIVE — tablettes & mobiles
+   (la mise en page "bureau" ci-dessus reste
+   inchangée au-delà de 900px de large)
+════════════════════════════════════════ */
+@media (max-width: 900px) {
+  html, body {
+    height: auto;
+    min-height: 100vh;
+    overflow: visible;
+    overflow-x: hidden;
+  }
+
+  body {
+    display: block;
+  }
+
+  body::after { position: absolute; }
+
+  .header {
+    padding: 54px 16px 10px;
+  }
+
+  .orn { width: 32px; height: 32px; opacity: .15; }
+
+  #btn-regles {
+    top: 10px; left: 50%;
+    transform: translateX(-50%);
+    font-size: .68rem;
+    padding: .34rem .85rem;
+  }
+  #btn-regles:hover { transform: translateX(-50%) translateY(-1px); }
+
+  .main {
+    display: flex;
+    flex-direction: column;
+    padding: 0 14px 76px;
+    gap: 14px;
+  }
+
+  .col-board {
+    width: 100%;
+    height: min(88vw, 520px);
+    min-height: 280px;
+    flex: none;
+  }
+
+  .col-div {
+    display: none;
+  }
+
+  .col-panel {
+    width: 100%;
+    overflow-y: visible;
+    max-height: none;
+    padding-right: 0;
+  }
+
+  .teams-list {
+    max-height: 260px;
+  }
+
+  #btn-back {
+    left: 50%;
+    transform: translateX(-50%);
+    bottom: 10px;
+    font-size: .64rem;
+    background: rgba(240,232,214,.88);
+  }
+}
+
+@media (max-width: 480px) {
+  .header { padding: 48px 10px 8px; }
+  .orn { width: 24px; height: 24px; opacity: .12; }
+  .orn-rule { padding: 0 20px; }
+  .orn-c { font-size: 9px; letter-spacing: .14em; }
+
+  .main { padding: 0 8px 70px; gap: 10px; }
+
+  .col-board { height: min(94vw, 420px); min-height: 240px; }
+
+  .panel-block { padding: 10px 10px 12px; }
+
+  .stepper { gap: 6px; }
+  .step-btn { width: 34px; height: 34px; font-size: 20px; }
+  .panel-block input[type="number"] { width: 50px; font-size: 18px; }
+
+  .team-item span { font-size: 12.5px; }
+  .mini-step { width: 20px; height: 20px; }
+
+  #btn-regles { font-size: .62rem; padding: .3rem .7rem; }
+  #btn-back { font-size: .6rem; padding: .28rem .6rem; }
+}
+
+/* Très petits écrans en paysage (hauteur réduite) : on autorise
+   le défilement plutôt que d'écraser le plateau */
+@media (max-width: 900px) and (max-height: 480px) and (orientation: landscape) {
+  .col-board { height: min(70vh, 420px); min-height: 220px; }
+}
 </style>
 </head>
 <body>
@@ -1203,6 +1303,10 @@ let resizeTimer;
 window.addEventListener('resize', () => {
   clearTimeout(resizeTimer);
   resizeTimer = setTimeout(buildBoard, 120);
+});
+window.addEventListener('orientationchange', () => {
+  clearTimeout(resizeTimer);
+  resizeTimer = setTimeout(buildBoard, 200);
 });
 </script>
 </body>

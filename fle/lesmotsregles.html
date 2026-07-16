@@ -298,6 +298,102 @@ body::after {
 @media (max-width:900px) {
   .top-bar { padding:0 24px; }
 }
+
+/* ===== TABLETTE ===== */
+@media (max-width: 780px) {
+  .top-bar {
+    height: auto;
+    flex-wrap: wrap;
+    gap: 14px;
+    padding: 16px 24px;
+  }
+  .top-bar-title { font-size: 22px; }
+  .top-bar-right {
+    width: 100%;
+    justify-content: flex-start;
+    flex-wrap: wrap;
+    gap: 14px;
+    font-size: 9.5px;
+  }
+  .top-bar-right > span { width: 100%; }
+
+  .page-head { padding: 44px 24px 32px; }
+  .content-main { padding: 40px 24px 60px; }
+
+  .example-card { padding: 22px 20px; }
+  .callout { padding: 24px 22px; }
+}
+
+/* ===== MOBILE ===== */
+@media (max-width: 520px) {
+  body::after { inset: 5px; }
+  .corner { width: 32px; height: 32px; }
+
+  .top-bar {
+    padding: 14px 16px;
+    gap: 12px;
+  }
+  .top-bar-title { font-size: 19px; }
+  .top-bar-right {
+    gap: 10px;
+  }
+  .top-bar-right > span {
+    order: -1;
+    font-size: 9px;
+    letter-spacing: .12em;
+    margin-bottom: 2px;
+  }
+  .btn-home {
+    flex: 1 1 auto;
+    justify-content: center;
+    padding: 9px 12px;
+    font-size: 9px;
+    letter-spacing: .15em;
+  }
+
+  .page-head { padding: 32px 16px 26px; }
+  .page-title { font-size: clamp(26px, 8vw, 36px); }
+  .page-sub { font-size: 14.5px; }
+
+  .content-main { padding: 32px 16px 48px; }
+  .content-main p,
+  .content-main ol li,
+  .content-main ul.variantes li {
+    font-size: 15px;
+    line-height: 1.7;
+    text-align: left;
+    hyphens: none;
+  }
+  .content-main p.lead { font-size: 17px; }
+
+  .example-card {
+    padding: 18px 16px;
+    margin: 22px 0 26px;
+    border-left-width: 4px;
+  }
+  .example-card p,
+  .example-card li {
+    font-size: 14.5px;
+    text-align: left;
+    hyphens: none;
+  }
+
+  .callout { padding: 20px 18px; margin: 26px 0; }
+  .callout p { font-size: 14px; text-align: left; }
+
+  .divider { margin: 32px 0 24px; gap: 10px; }
+  .divider-mark { font-size: 12.5px; }
+
+  .footer-bar {
+    padding: 16px 20px;
+    font-size: 10px;
+  }
+}
+
+@media (max-width: 360px) {
+  .top-bar-title { font-size: 17px; }
+  .btn-home { font-size: 8.5px; padding: 8px 10px; }
+}
 </style>
 </head>
 <body>

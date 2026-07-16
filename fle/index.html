@@ -46,10 +46,12 @@ body::after {
   top: 0;
   z-index: 100;
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
-  padding: 0 48px;
-  height: 80px;
+  gap: 12px 20px;
+  padding: 14px 48px;
+  min-height: 80px;
   background: var(--cream);
   border-bottom: 1.5px solid var(--ink);
 }
@@ -59,13 +61,15 @@ body::after {
   font-size: 26px;
   font-weight: 700;
   letter-spacing: -.01em;
+  flex-shrink: 0;
 }
 .top-bar-title .acc { color:var(--terra); font-style:italic; }
 
 .top-bar-right {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
-  gap: 24px;
+  gap: 14px 24px;
   font-size: 10.5px;
   letter-spacing: .18em;
   text-transform: uppercase;
@@ -77,6 +81,7 @@ body::after {
   border-radius: 2px;
   color: var(--terra);
   font-size: 10px;
+  white-space: nowrap;
 }
 
 /* Bouton Accueil */
@@ -105,6 +110,7 @@ body::after {
   stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round;
   flex-shrink: 0;
 }
+.btn-home { flex-shrink: 0; white-space: nowrap; }
 
 /* ══ GRILLE CATALOGUE ══ */
 .catalogue {
@@ -318,17 +324,80 @@ body::after {
 .cat-item:nth-child(3) { animation-delay:.12s; }
 .cat-item:nth-child(4) { animation-delay:.16s; }
 
-/* Responsive */
+/* ══ RESPONSIVE ══ */
+
+/* Tablettes larges / petits écrans PC */
+@media (max-width:1080px) {
+  .top-bar { padding:14px 28px; }
+  .catalogue { grid-template-columns:repeat(3,1fr); }
+  .cat-item.featured { grid-column:span 3; grid-row:span 1; min-height:340px; }
+}
+
+/* Tablettes */
 @media (max-width:900px) {
   .catalogue { grid-template-columns:repeat(2,1fr); }
   .cat-item.featured { grid-column:span 2; min-height:320px; }
-  .top-bar { padding:0 24px; }
+  .top-bar { padding:12px 24px; }
+  .top-bar-title { font-size:22px; }
   .bottom-banner { grid-template-columns:1fr; }
-  .banner-text { border-right:none; border-bottom:1.5px solid var(--ink); }
+  .banner-text { border-right:none; border-bottom:1.5px solid var(--ink); padding:36px 28px; }
+  .footer-bar { padding:16px 28px; flex-wrap:wrap; gap:8px; }
 }
-@media (max-width:560px) {
-  .catalogue { grid-template-columns:1fr; }
-  .cat-item.featured { grid-column:span 1; }
+
+/* Mobiles (portrait/paysage) */
+@media (max-width:640px) {
+  body::after { inset:4px; }
+  .corner { width:32px; height:32px; }
+
+  .top-bar {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 16px 20px;
+    gap: 12px;
+  }
+  .top-bar-right {
+    width: 100%;
+    justify-content: space-between;
+    gap: 10px 16px;
+  }
+  .top-bar-right > span:first-child { display:none; } /* "choisissez votre jeu" trop long en mobile */
+
+  .catalogue { grid-template-columns:1fr; border-left:1.5px solid var(--ink); }
+  .cat-item, .cat-item.featured {
+    grid-column: span 1 !important;
+    grid-row: auto !important;
+    min-height: 220px;
+  }
+  .cat-item.featured .cat-title { font-size:clamp(24px,7vw,32px); }
+  .cat-item.featured .cat-body { padding:26px 22px 22px; }
+
+  /* Sur tactile, pas de hover fiable : on affiche titre/desc toujours lisibles */
+  .cat-bg img { opacity:.32; }
+  .cat-item::before { opacity:.55; }
+  .cat-title { color: var(--cream); }
+  .cat-desc {
+    max-height: 100px;
+    opacity: 1;
+    color: var(--cream);
+  }
+  .cat-arrow { opacity:1; transform:translateY(0); }
+
+  .banner-text { padding:28px 20px; }
+  .banner-quote { font-size:clamp(24px,7vw,34px); }
+  .footer-bar {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+    padding: 16px 20px;
+    font-size: 10px;
+  }
+}
+
+/* Très petits écrans */
+@media (max-width:380px) {
+  .top-bar-title { font-size:19px; }
+  .btn-home { padding:7px 14px; font-size:9px; }
+  .top-bar-count { font-size:9px; padding:3px 9px; }
 }
 </style>
 </head>

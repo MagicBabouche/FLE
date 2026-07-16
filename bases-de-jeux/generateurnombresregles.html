@@ -298,6 +298,58 @@ body::after {
 @media (max-width:900px) {
   .top-bar { padding:0 24px; }
 }
+
+@media (max-width:760px) {
+  body::after { inset:5px; }
+  .corner { width:34px; height:34px; }
+
+  .top-bar {
+    flex-wrap: wrap;
+    height: auto;
+    padding: 14px 20px;
+    row-gap: 12px;
+  }
+  .top-bar-title { font-size: 22px; }
+  .top-bar-right {
+    width: 100%;
+    justify-content: space-between;
+    gap: 10px;
+    order: 3;
+  }
+  .top-bar-right span { display:none; }
+  .btn-home {
+    flex: 1 1 0;
+    justify-content: center;
+    padding: 9px 10px;
+    font-size: 9px;
+    letter-spacing: .14em;
+  }
+
+  .page-head { padding: 40px 20px 28px; }
+  .page-sub { font-size: 14.5px; }
+
+  .content-main { padding: 40px 20px 56px; }
+  .content-main p, .content-main ol li, .content-main ul.variantes li {
+    font-size: 15.5px;
+    text-align: left;
+  }
+  .content-main p.lead { font-size: 17px; }
+
+  .example-card { padding: 22px 20px; }
+  .example-card p, .example-card li { text-align:left; }
+
+  .callout { padding: 24px 20px; }
+  .callout p { text-align:left; }
+
+  .footer-bar { padding: 16px 20px; }
+}
+
+@media (max-width:420px) {
+  .top-bar-title { font-size: 19px; }
+  .btn-home { font-size: 8.3px; padding: 9px 6px; gap:5px; }
+  .btn-home svg { width:10px; height:10px; }
+  .page-title { font-size: 30px; }
+}
 </style>
 </head>
 <body>
