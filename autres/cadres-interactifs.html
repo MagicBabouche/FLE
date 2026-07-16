@@ -551,6 +551,7 @@ h1 .lib   { color:var(--ink); }
   top: 0; left: 0; right: 0;
   height: 28px;
   cursor: grab;
+  touch-action: none;
   z-index: 5;
   display: flex;
   align-items: center;
@@ -683,6 +684,7 @@ h1 .lib   { color:var(--ink); }
   position: absolute;
   width: 28px; height: 28px;
   z-index: 10;
+  touch-action: none;
   opacity: .22;
   transition: opacity .18s;
   display: flex; align-items: center; justify-content: center;
@@ -828,8 +830,6 @@ h1 .lib   { color:var(--ink); }
    coulissant superposé, ouvert via le bouton toggle.
 ════════════════════════════ */
 @media (max-width: 900px) {
-  :root { --sidebar-w: var(--sidebar-w-mobile); }
-
   body {
     grid-template-columns: 1fr;
     grid-template-areas:
@@ -841,19 +841,38 @@ h1 .lib   { color:var(--ink); }
   #btn-sidebar-toggle { display: flex; }
   #sidebar-backdrop { display: block; }
 
+  /* Le panneau devient un tiroir qui remonte du bas de l'écran :
+     plus fiable au tactile qu'un panneau latéral (pas de largeur
+     fixe à gérer, pas de conflit avec les barres d'UI mobiles). */
   #sidebar {
     position: fixed;
-    top: 0; right: 0; bottom: 0;
-    width: var(--sidebar-w-mobile);
-    border-left: 1.5px solid rgba(184,80,48,.28);
-    box-shadow: -8px 0 28px rgba(36,26,12,.18);
-    transform: translateX(100%);
+    left: 0; right: 0; bottom: 0; top: auto;
+    width: 100%;
+    max-height: min(78vh, 560px);
+    border-left: none;
+    border-top: 1.5px solid rgba(184,80,48,.28);
+    border-radius: 18px 18px 0 0;
+    box-shadow: 0 -10px 32px rgba(36,26,12,.22);
+    transform: translateY(100%);
+    padding-bottom: env(safe-area-inset-bottom, 0);
   }
-  body.sidebar-open #sidebar { transform: translateX(0); }
+  body.sidebar-open #sidebar { transform: translateY(0); }
   body.sidebar-open #sidebar-backdrop { opacity: 1; pointer-events: auto; }
   #sidebar-backdrop { pointer-events: none; }
 
-  .header { padding: 10px 68px 8px 22px; }
+  /* Petite poignée visuelle en haut du tiroir */
+  .sidebar-header { position: relative; padding-top: 18px; }
+  .sidebar-header::before {
+    content: '';
+    position: absolute;
+    top: 6px; left: 50%;
+    transform: translateX(-50%);
+    width: 36px; height: 4px;
+    border-radius: 2px;
+    background: rgba(184,80,48,.28);
+  }
+
+  .header { padding: 10px 62px 8px 62px; }
   #btn-explications {
     font-size: .68rem;
     padding: .34rem .85rem;
@@ -864,43 +883,44 @@ h1 .lib   { color:var(--ink); }
    RESPONSIVE — MOBILE (≤ 560px)
 ════════════════════════════ */
 @media (max-width: 560px) {
-  .header { padding: 8px 56px 6px 14px; }
-  h1 { font-size: clamp(18px, 6vw, 30px); }
-  .orn-rule { padding: 0 14px; margin-top: 2px; }
-  .orn-c { font-size: 8px; letter-spacing: .12em; }
+  .header { padding: 8px 50px 6px 50px; }
+  h1 { font-size: clamp(16px, 6.4vw, 26px); }
+  .orn-rule { padding: 0 10px; margin-top: 2px; }
+  .orn-c { font-size: 7.5px; letter-spacing: .1em; }
 
-  #btn-sidebar-toggle { top: 10px; right: 10px; width: 36px; height: 36px; }
+  #btn-sidebar-toggle { top: 8px; right: 8px; width: 34px; height: 34px; }
   #btn-explications {
-    top: 10px; left: 10px;
-    font-size: .62rem;
-    padding: .3rem .7rem;
-    gap: .28em;
+    top: 8px; left: 8px;
+    font-size: .58rem;
+    padding: .28rem .6rem;
+    gap: .24em;
   }
   #btn-back {
-    bottom: 10px; left: 10px;
-    font-size: .6rem;
-    padding: .28rem .6rem;
+    bottom: 8px; left: 8px;
+    font-size: .56rem;
+    padding: .26rem .55rem;
   }
 
-  .bottom-bar { padding: 6px 10px 10px; gap: 8px; }
+  .bottom-bar { padding: 6px 10px 34px; gap: 8px; }
   .ctrl-label { font-size: 11.5px; }
   .ctrl-btn { padding: 7px 14px; font-size: 16px; }
   .count-input { width: 42px; font-size: 14px; }
 
-  #sidebar { width: min(88vw, 280px); }
+  #sidebar { max-height: 85vh; border-radius: 16px 16px 0 0; }
 
   .frame textarea { padding: 10px; }
-  .frame .close-btn { width: 22px; height: 22px; opacity: 1; }
-  .frame .rh { width: 32px; height: 32px; opacity: .55; }
+  .frame .close-btn { width: 24px; height: 24px; opacity: 1; }
+  .frame .rh { width: 34px; height: 34px; opacity: .55; }
   .frame .bar-font-ctrl { opacity: 1; }
   .sidebar-item-close { opacity: 1; }
 }
 
-/* Très petits écrans en paysage : éviter que le bouton retour ne
-   chevauche la barre de contrôle */
+/* Très petits écrans en paysage : le bouton retour passe sous la
+   barre de contrôle plutôt que de la chevaucher */
 @media (max-width: 560px) and (orientation: landscape) {
-  #btn-back { bottom: 8px; }
-  .bottom-bar { padding-bottom: 8px; }
+  #btn-back { position: static; margin: 4px auto 0; display: block; width: fit-content; }
+  .bottom-bar { padding-bottom: 6px; flex-direction: column; }
+  #sidebar { max-height: 90vh; }
 }
 </style>
 </head>
@@ -1431,10 +1451,16 @@ function createFrame(index, animated = true) {
   return frameObj;
 }
 
-/* ─── drag logic ─── */
+/* ─── drag logic (souris + tactile) ─── */
 function makeDraggable(el, textarea, handles, dragBar) {
   let dragging = false;
   let startX, startY, origLeft, origTop;
+
+  function pointerXY(e) {
+    if (e.touches && e.touches.length) return { x: e.touches[0].clientX, y: e.touches[0].clientY };
+    if (e.changedTouches && e.changedTouches.length) return { x: e.changedTouches[0].clientX, y: e.changedTouches[0].clientY };
+    return { x: e.clientX, y: e.clientY };
+  }
 
   function startDrag(e) {
     if (
@@ -1445,66 +1471,83 @@ function makeDraggable(el, textarea, handles, dragBar) {
     ) return;
 
     dragging = true;
-    startX = e.clientX;
-    startY = e.clientY;
+    const p = pointerXY(e);
+    startX = p.x;
+    startY = p.y;
     const rect = el.getBoundingClientRect();
     const cr = canvas.getBoundingClientRect();
     origLeft = rect.left - cr.left;
     origTop  = rect.top  - cr.top;
 
     el.classList.add('active');
-    e.preventDefault();
+    if (e.cancelable) e.preventDefault();
   }
 
-  dragBar.addEventListener('mousedown', (e) => {
-    e.stopPropagation();
-    startDrag(e);
-  });
-
-  document.addEventListener('mousemove', (e) => {
+  function moveDrag(e) {
     if (!dragging) return;
-    const dx = e.clientX - startX;
-    const dy = e.clientY - startY;
+    const p = pointerXY(e);
+    const dx = p.x - startX;
+    const dy = p.y - startY;
     const cr = canvas.getBoundingClientRect();
     const newLeft = Math.max(0, Math.min(origLeft + dx, cr.width  - el.offsetWidth));
     const newTop  = Math.max(0, Math.min(origTop  + dy, cr.height - el.offsetHeight));
     el.style.left = newLeft + 'px';
     el.style.top  = newTop  + 'px';
-  });
+    if (e.cancelable) e.preventDefault();
+  }
 
-  document.addEventListener('mouseup', () => {
+  function endDrag() {
     if (!dragging) return;
     dragging = false;
     el.classList.remove('active');
-  });
+  }
+
+  dragBar.addEventListener('mousedown', (e) => { e.stopPropagation(); startDrag(e); });
+  dragBar.addEventListener('touchstart', (e) => { e.stopPropagation(); startDrag(e); }, { passive: false });
+
+  document.addEventListener('mousemove', moveDrag);
+  document.addEventListener('touchmove', moveDrag, { passive: false });
+
+  document.addEventListener('mouseup', endDrag);
+  document.addEventListener('touchend', endDrag);
+  document.addEventListener('touchcancel', endDrag);
 }
 
-/* ─── resize logic (drag from any corner) ─── */
+/* ─── resize logic (drag from any corner, souris + tactile) ─── */
 function makeResizable(el, handles) {
   const dirs = ['se','sw','ne','nw'];
+
+  function pointerXY(e) {
+    if (e.touches && e.touches.length) return { x: e.touches[0].clientX, y: e.touches[0].clientY };
+    if (e.changedTouches && e.changedTouches.length) return { x: e.changedTouches[0].clientX, y: e.changedTouches[0].clientY };
+    return { x: e.clientX, y: e.clientY };
+  }
+
   dirs.forEach(dir => {
     const handle = handles[dir];
     let resizing = false;
     let startX, startY, startW, startH, startLeft, startTop;
 
-    handle.addEventListener('mousedown', (e) => {
+    function startResize(e) {
       resizing = true;
       bringToFront(el);
-      startX    = e.clientX;
-      startY    = e.clientY;
+      const p = pointerXY(e);
+      startX    = p.x;
+      startY    = p.y;
       startW    = el.offsetWidth;
       startH    = el.offsetHeight;
       startLeft = parseInt(el.style.left, 10) || 0;
       startTop  = parseInt(el.style.top,  10) || 0;
       el.classList.add('active');
-      e.preventDefault();
+      if (e.cancelable) e.preventDefault();
       e.stopPropagation();
-    });
+    }
 
-    document.addEventListener('mousemove', (e) => {
+    function moveResize(e) {
       if (!resizing) return;
-      const dx = e.clientX - startX;
-      const dy = e.clientY - startY;
+      const p = pointerXY(e);
+      const dx = p.x - startX;
+      const dy = p.y - startY;
       const minW = 40, minH = 30;
 
       if (dir === 'se') {
@@ -1528,13 +1571,24 @@ function makeResizable(el, handles) {
         el.style.height = newH + 'px';
         el.style.top    = (startTop + startH - newH) + 'px';
       }
-    });
+      if (e.cancelable) e.preventDefault();
+    }
 
-    document.addEventListener('mouseup', () => {
+    function endResize() {
       if (!resizing) return;
       resizing = false;
       el.classList.remove('active');
-    });
+    }
+
+    handle.addEventListener('mousedown', startResize);
+    handle.addEventListener('touchstart', startResize, { passive: false });
+
+    document.addEventListener('mousemove', moveResize);
+    document.addEventListener('touchmove', moveResize, { passive: false });
+
+    document.addEventListener('mouseup', endResize);
+    document.addEventListener('touchend', endResize);
+    document.addEventListener('touchcancel', endResize);
   });
 }
 
