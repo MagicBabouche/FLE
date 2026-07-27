@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Variante</title>
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400;1,700&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400;1,600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400;1,700&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400;1,600&family=Jost:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
 /* ════════════════════════════════════════
    TOKENS
@@ -132,16 +132,16 @@ h1 em {
     0 6px 22px rgba(36,26,12,.08),
     inset 0 0 0 1.5px rgba(184,80,48,.12),
     inset 0 0 0 6px rgba(240,232,208,.7);
-  padding: 18px 28px;
+  padding: 26px 32px;
   font-family: 'Playfair Display', serif;
-  font-size: clamp(18px, 2.8vw, 34px);
+  font-size: clamp(22px, 3.4vw, 40px);
   font-weight: 700;
   color: var(--ink);
   text-align: center;
   outline: none;
   resize: none;
   line-height: 1.35;
-  min-height: 70px;
+  min-height: 96px;
   transition: box-shadow .2s;
   display: block;
 }
@@ -285,6 +285,39 @@ h1 em {
   z-index: 2; position: relative;
 }
 
+/* Bouton crayon — écrire soi-même dans le cadre */
+.slot-edit-btn {
+  flex-shrink: 0;
+  width: 30px;
+  border: none;
+  border-radius: 50%;
+  background: rgba(250,244,228,.85);
+  box-shadow: 0 1px 4px rgba(36,26,12,.15), inset 0 0 0 1px rgba(184,80,48,.18);
+  color: var(--terra);
+  font-size: 13px;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  align-self: center;
+  transition: background .18s, transform .15s, opacity .2s;
+}
+.slot-edit-btn:hover { background: var(--terra); color: #fff; transform: translateY(-1px); }
+.slot-edit-btn.disabled { opacity: .25; pointer-events: none; }
+
+.slot-input {
+  width: 100%;
+  z-index: 2; position: relative;
+  background: transparent;
+  border: none;
+  outline: none;
+  border-bottom: 1.5px dashed rgba(255,255,255,.55);
+  text-align: center;
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(16px, 2.8vw, 36px);
+  font-weight: 700;
+  padding: 0 44px 2px;
+}
+.slot-input::placeholder { opacity: .55; font-style: italic; font-weight: 400; }
+
 /* ════════════════════════════════════════
    BOTTOM — Variante button
 ════════════════════════════════════════ */
@@ -356,6 +389,104 @@ svg.ico { width:13px; height:13px; flex-shrink:0; }
   transform: translateY(-1px);
 }
 
+/* Bouton bascule police (Aa) */
+#btn-font-toggle {
+  position: fixed; top: 14px; right: 22px;
+  font-family: 'Jost', Arial, sans-serif;
+  font-size: .74rem; font-weight: 500; letter-spacing: .06em;
+  color: var(--terra);
+  background: linear-gradient(to bottom, #fdfaf3 60%, #f2e8d5);
+  border: 1.5px solid rgba(184,80,48,.28);
+  border-radius: 20px;
+  padding: .4rem 1rem;
+  cursor: pointer; opacity: .78;
+  transition: opacity .2s, background .2s, box-shadow .2s, transform .15s;
+  display: inline-flex; align-items: center; gap: .38em;
+  box-shadow: 0 2px 8px rgba(184,80,48,.08), 0 1px 3px rgba(36,26,12,.07);
+  z-index: 803;
+}
+#btn-font-toggle:hover {
+  opacity: 1;
+  background: linear-gradient(to bottom, #fff9f0, #f0e4cc);
+  box-shadow: 0 4px 14px rgba(184,80,48,.14), 0 1px 4px rgba(36,26,12,.09);
+  transform: translateY(-1px);
+}
+#btn-font-toggle.act {
+  background: var(--terra);
+  color: #fff;
+  opacity: 1;
+}
+
+/* ── MODE SANS-SERIF / MAJUSCULES ── */
+body.sans-caps,
+body.sans-caps h1,
+body.sans-caps h1 em,
+body.sans-caps .orn-c,
+body.sans-caps #phrase-input,
+body.sans-caps .slot-rule,
+body.sans-caps .slot-empty,
+body.sans-caps .slot-input,
+body.sans-caps .stbtn,
+body.sans-caps .btn-variante,
+body.sans-caps #btn-regles,
+body.sans-caps #btn-back,
+body.sans-caps #btn-font-toggle {
+  font-family: 'Jost', Arial, sans-serif !important;
+}
+body.sans-caps h1 {
+  font-weight: 500 !important;
+}
+body.sans-caps h1 em {
+  font-weight: 400 !important;
+  font-style: normal !important;
+}
+body.sans-caps .orn-c {
+  font-weight: 500 !important;
+}
+body.sans-caps #phrase-input {
+  font-weight: 500 !important;
+}
+body.sans-caps #phrase-input::placeholder {
+  font-style: normal !important;
+  font-weight: 400 !important;
+}
+body.sans-caps .slot-rule {
+  font-weight: 600 !important;
+}
+body.sans-caps .slot-input {
+  font-weight: 600 !important;
+}
+body.sans-caps .slot-input::placeholder {
+  font-style: normal !important;
+}
+body.sans-caps .stbtn,
+body.sans-caps .btn-variante,
+body.sans-caps #btn-font-toggle {
+  -webkit-appearance: none;
+  appearance: none;
+}
+body.sans-caps .stbtn,
+body.sans-caps .btn-variante,
+body.sans-caps #btn-regles,
+body.sans-caps #btn-back {
+  font-weight: 500 !important;
+}
+body.sans-caps h1,
+body.sans-caps .orn-c,
+body.sans-caps #phrase-input,
+body.sans-caps #phrase-input::placeholder,
+body.sans-caps .slot-rule,
+body.sans-caps .slot-empty,
+body.sans-caps .slot-input,
+body.sans-caps .slot-input::placeholder,
+body.sans-caps .stbtn,
+body.sans-caps .btn-variante,
+body.sans-caps #btn-regles,
+body.sans-caps #btn-back {
+  text-transform: uppercase !important;
+  letter-spacing: .05em !important;
+}
+
 /* ════════════════════════════════════════
    RESPONSIVE — TABLETTES (≤ 900px)
 ════════════════════════════════════════ */
@@ -365,6 +496,11 @@ svg.ico { width:13px; height:13px; flex-shrink:0; }
 
   #btn-regles {
     top: 8px; left: 8px;
+    font-size: .66rem;
+    padding: .32rem .8rem;
+  }
+  #btn-font-toggle {
+    top: 8px; right: 8px;
     font-size: .66rem;
     padding: .32rem .8rem;
   }
@@ -406,7 +542,7 @@ svg.ico { width:13px; height:13px; flex-shrink:0; }
   }
 
   .phrase-wrap { margin: 6px 0; }
-  #phrase-input { padding: 12px 16px; min-height: 54px; font-size: clamp(16px, 4.6vw, 22px); }
+  #phrase-input { padding: 14px 18px; min-height: 64px; font-size: clamp(17px, 5vw, 24px); }
 
   /* Grille de slots : hauteur libre pour ne pas écraser le texte des règles */
   .slots-grid { flex: 1 1 auto; gap: 8px; min-height: auto; }
@@ -414,6 +550,7 @@ svg.ico { width:13px; height:13px; flex-shrink:0; }
 
   .stog { width: 36px; }
   .stbtn { font-size: 8px; }
+  .slot-edit-btn { width: 26px; font-size: 11px; }
 
   .slot-rule { font-size: clamp(13px, 4.6vw, 18px); padding: 0 30px; }
   .slot-empty { font-size: 12px; }
@@ -421,6 +558,12 @@ svg.ico { width:13px; height:13px; flex-shrink:0; }
 
   /* Boutons flottants haut/bas : on les repasse dans le flux, empilés, sans chevauchement */
   #btn-regles {
+    position: static;
+    display: inline-flex;
+    margin: 0 auto 4px;
+    font-size: .64rem;
+  }
+  #btn-font-toggle {
     position: static;
     display: inline-flex;
     margin: 0 auto 4px;
@@ -462,6 +605,7 @@ svg.ico { width:13px; height:13px; flex-shrink:0; }
 <body>
 
 <a href="varianteregles.html" id="btn-regles">✦ Exemples de règles</a>
+<button type="button" id="btn-font-toggle" onclick="toggleFontMode()">Aa</button>
 
 <!-- Corners -->
 <svg class="orn tl" viewBox="0 0 46 46" fill="none"><path d="M5 5L5 21M5 5L21 5" stroke="#b85030" stroke-width="1.6" stroke-linecap="round"/><path d="M5 5Q13 9 17 17" stroke="#b85030" stroke-width="1" stroke-linecap="round"/><circle cx="5" cy="5" r="2.2" fill="#b85030"/><path d="M11 5L11 8M5 11L8 11" stroke="#b85030" stroke-width=".9" stroke-linecap="round" opacity=".55"/><path d="M16 5L16 7M5 16L7 16" stroke="#b85030" stroke-width=".7" stroke-linecap="round" opacity=".3"/></svg>
@@ -544,7 +688,8 @@ function buildSlots() {
       <div class="slot-card act" id="slot-${i}" style="background:${SLOT_BG[i]}" onclick="toggleLock(${i})">
         <span class="slot-empty">—</span>
         <span class="lock-icon">🔒</span>
-      </div>`;
+      </div>
+      <button type="button" class="slot-edit-btn" id="edit-${i}" onclick="editSlot(${i})" title="Écrire moi-même">✎</button>`;
     grid.appendChild(row);
   }
 }
@@ -554,6 +699,7 @@ function setSlot(i, on) {
   slotEnabled[i] = on;
   document.getElementById(`son-${i}`).classList.toggle('act', on);
   document.getElementById(`soff-${i}`).classList.toggle('act', !on);
+  document.getElementById(`edit-${i}`).classList.toggle('disabled', !on);
   const card = document.getElementById(`slot-${i}`);
   if (on) {
     card.classList.remove('disabled');
@@ -590,6 +736,36 @@ function renderSlot(i, animate) {
   }
   // Restore lock state
   card.classList.toggle('locked', slotLocked[i]);
+  if (document.body.classList.contains('sans-caps')) applyFontMode(true);
+}
+
+/* ── ÉCRIRE SOI-MÊME DANS LE CADRE ── */
+function editSlot(i) {
+  if (!slotEnabled[i]) return;
+  const card = document.getElementById(`slot-${i}`);
+  const current = slotRules[i] || '';
+  const tmp = document.createElement('div');
+  tmp.textContent = current;
+  const safeValue = tmp.innerHTML;
+
+  card.innerHTML = `<input type="text" class="slot-input" id="input-${i}" value="${safeValue}" placeholder="Écrivez ici…" style="color:${SLOT_TX[i]}" onclick="event.stopPropagation()"><span class="lock-icon">🔒</span>`;
+  card.classList.toggle('locked', slotLocked[i]);
+  if (document.body.classList.contains('sans-caps')) applyFontMode(true);
+
+  const inp = document.getElementById(`input-${i}`);
+  inp.focus();
+  inp.select();
+  inp.addEventListener('blur', () => saveSlotEdit(i));
+  inp.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') { e.preventDefault(); inp.blur(); }
+  });
+}
+
+function saveSlotEdit(i) {
+  const inp = document.getElementById(`input-${i}`);
+  if (!inp) return;
+  slotRules[i] = inp.value.trim();
+  renderSlot(i);
 }
 
 /* ── GENERATE ── */
@@ -606,6 +782,31 @@ function generateVariantes() {
   targets.forEach((si, j) => {
     slotRules[si] = shuffled[j % shuffled.length];
     setTimeout(() => renderSlot(si, true), j * 60);
+  });
+}
+
+/* ── BASCULE POLICE SANS-SERIF / MAJUSCULES ── */
+const SANS_CAPS_TARGETS = () => document.querySelectorAll(
+  'h1, h1 em, .orn-c, #phrase-input, .slot-rule, .slot-empty, .slot-input, .stbtn, .btn-variante, #btn-regles, #btn-back, #btn-font-toggle'
+);
+
+function toggleFontMode() {
+  const on = document.body.classList.toggle('sans-caps');
+  document.getElementById('btn-font-toggle').classList.toggle('act', on);
+  applyFontMode(on);
+}
+
+function applyFontMode(on) {
+  SANS_CAPS_TARGETS().forEach(el => {
+    if (on) {
+      el.style.setProperty('font-family', "'Jost', Arial, sans-serif", 'important');
+      el.style.setProperty('text-transform', 'uppercase', 'important');
+      el.style.setProperty('letter-spacing', '.05em', 'important');
+    } else {
+      el.style.removeProperty('font-family');
+      el.style.removeProperty('text-transform');
+      el.style.removeProperty('letter-spacing');
+    }
   });
 }
 
