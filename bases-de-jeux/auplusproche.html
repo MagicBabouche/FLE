@@ -1,0 +1,900 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Au plus proche</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400;1,700&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400;1,600&family=Montserrat:wght@500;600;700;800&display=swap" rel="stylesheet">
+<style>
+/* ════════════════════════════════════════
+   TOKENS
+════════════════════════════════════════ */
+:root {
+  --parchment: #ede5cf;
+  --paper:     #faf4e4;
+  --ink:       #241a0c;
+  --ink-mid:   #58482e;
+  --ink-dim:   #9a8660;
+  --ink-ghost: #c8a878;
+  --terra:     #b85030;
+  --sage:      #6c9e56;
+  --sage-dk:   #4c7838;
+  --orange:    #d9822b;
+  --orange-dk: #b3661a;
+}
+
+/* ════════════════════════════════════════
+   RESET
+════════════════════════════════════════ */
+*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+html, body { width:100%; height:100%; }
+
+body {
+  background: var(--parchment);
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  color: var(--ink);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  padding: 24px 16px 40px;
+}
+
+.page-main {
+  flex: 1;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Grain + vignette */
+body::before {
+  content: '';
+  position: fixed; inset: 0;
+  background-image:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='700' height='700'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.72' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='700' height='700' filter='url(%23n)' opacity='0.068'/%3E%3C/svg%3E"),
+    radial-gradient(ellipse at 50% 50%, transparent 52%, rgba(36,26,12,.11) 100%);
+  pointer-events: none; z-index: 800;
+}
+/* Outer frame */
+body::after {
+  content: '';
+  position: fixed; inset: 7px;
+  border: 1.5px solid rgba(184,80,48,.2);
+  border-radius: 5px;
+  box-shadow: inset 0 0 0 4px rgba(184,80,48,.05);
+  pointer-events: none; z-index: 801;
+}
+
+/* Corner ornaments */
+.orn { position:fixed; pointer-events:none; z-index:802; opacity:.2; width:46px; height:46px; }
+.orn.tl { top:9px;    left:9px; }
+.orn.tr { top:9px;    right:9px;  transform:scaleX(-1); }
+.orn.bl { bottom:9px; left:9px;   transform:scaleY(-1); }
+.orn.br { bottom:9px; right:9px;  transform:scale(-1); }
+
+/* ════════════════════════════════════════
+   HEADER
+════════════════════════════════════════ */
+.header {
+  text-align: center;
+  padding: 10px 20px 22px;
+}
+
+h1 {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(30px, 6vw, 58px);
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: -.01em;
+  display: inline-flex; align-items: baseline; gap: .22em;
+  flex-wrap: wrap; justify-content: center;
+}
+h1 .au    { color: var(--ink); }
+h1 .plus  { color: var(--orange); }
+h1 .proche{ color: var(--ink); }
+
+.orn-rule {
+  display:flex; align-items:center; gap:10px;
+  margin:10px auto 0; padding:0 40px;
+  max-width: 480px;
+}
+.orn-line { flex:1; height:1px; background:linear-gradient(to right, transparent, rgba(184,80,48,.38), transparent); }
+.orn-c { font-family:'Playfair Display',serif; font-size:11px; color:var(--terra); opacity:.55; letter-spacing:.22em; white-space:nowrap; }
+
+/* ════════════════════════════════════════
+   CADRE CENTRAL
+════════════════════════════════════════ */
+.main {
+  width: 100%;
+  max-width: 1080px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.frame {
+  width: 100%;
+  min-height: 380px;
+  background: var(--paper);
+  border-radius: 14px;
+  display: flex; align-items: center; justify-content: center;
+  position: relative; overflow: hidden;
+  padding: 56px 48px;
+  box-shadow:
+    0 1px 4px rgba(36,26,12,.07),
+    0 8px 28px rgba(36,26,12,.08),
+    inset 0 0 0 1.5px rgba(184,80,48,.12),
+    inset 0 0 0 6px rgba(240,232,208,.7);
+}
+.frame::before {
+  content: '';
+  position: absolute; inset: 11px;
+  border: 1px solid rgba(184,80,48,.12);
+  border-radius: 8px;
+  pointer-events: none; z-index: 2;
+}
+.frame::after {
+  content: '';
+  position: absolute; inset: 0;
+  background:
+    radial-gradient(ellipse at 22% 18%, rgba(255,248,220,.55) 0%, transparent 48%),
+    radial-gradient(ellipse at 80% 82%, rgba(184,80,48,.055) 0%, transparent 50%);
+  pointer-events: none;
+}
+
+.frame-content {
+  position: relative; z-index: 3;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  width: 100%;
+  text-align: center;
+}
+
+#question {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(18px, 3vw, 28px);
+  font-weight: 700;
+  color: var(--ink);
+  line-height: 1.4;
+  opacity: 0;
+  transition: font-family .2s, font-size .2s, letter-spacing .2s;
+}
+#question.pop {
+  animation: qPop .5s cubic-bezier(.34,1.56,.64,1) forwards;
+}
+
+/* Mode "sobre" — sans-serif Montserrat, capitales, agrandi, élégant */
+body.zen-mode #question {
+  font-family: 'Montserrat', Arial, sans-serif;
+  font-weight: 700;
+  font-size: clamp(20px, 3.4vw, 32px);
+  letter-spacing: .01em;
+  text-transform: uppercase;
+  color: var(--ink);
+}
+body.zen-mode #answer {
+  font-family: 'Montserrat', Arial, sans-serif;
+  font-weight: 600;
+  font-size: clamp(17px, 2.5vw, 24px);
+  letter-spacing: .01em;
+  text-transform: uppercase;
+  color: var(--ink-mid);
+}
+body.zen-mode .answer-label {
+  font-family: 'Montserrat', Arial, sans-serif;
+  font-style: normal;
+  font-weight: 700;
+  letter-spacing: .16em;
+}
+@keyframes qPop {
+  0%   { opacity:0; transform: translateY(10px) scale(.96); filter:blur(4px); }
+  100% { opacity:1; transform: translateY(0) scale(1); filter:blur(0); }
+}
+
+#question-ph {
+  font-style: italic; font-size: 14px;
+  color: var(--ink-ghost); text-align: center;
+  line-height: 1.6;
+  display: flex; flex-direction: column; align-items: center; gap: 6px;
+}
+#question-ph .ph-glyph {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(26px, 4vw, 40px);
+  color: rgba(184,80,48,.22);
+  line-height: 1;
+}
+
+.answer-wrap {
+  width: 100%;
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height .4s ease, opacity .3s ease, margin-top .4s ease;
+  opacity: 0;
+}
+.answer-wrap.show {
+  max-height: 300px;
+  opacity: 1;
+  margin-top: 4px;
+}
+.answer-inner {
+  border-top: 1px solid rgba(184,80,48,.25);
+  padding-top: 16px;
+}
+.answer-label {
+  font-family: 'Playfair Display', serif;
+  font-style: italic;
+  font-size: 12px;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+  color: var(--terra);
+  opacity: .7;
+  margin-bottom: 6px;
+}
+#answer {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(16px, 2.4vw, 21px);
+  font-weight: 600;
+  color: var(--ink-mid);
+  line-height: 1.5;
+  transition: font-family .2s, font-size .2s;
+}
+
+/* Bouton bascule taille/police — petit, coin haut-droit du cadre */
+.btn-zen {
+  position: absolute;
+  top: 14px; right: 14px;
+  z-index: 5;
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 5px 11px;
+  border-radius: 20px;
+  border: 1.5px solid rgba(184,80,48,.28);
+  background: rgba(255,255,255,.55);
+  color: var(--ink-mid);
+  font-family: 'Montserrat', Arial, sans-serif;
+  font-size: 10px; font-weight: 700;
+  letter-spacing: .08em; text-transform: uppercase;
+  cursor: pointer;
+  transition: all .2s;
+  box-shadow: 0 1px 4px rgba(36,26,12,.06);
+}
+.btn-zen svg.ico { width: 11px; height: 11px; }
+.btn-zen:hover { background: rgba(255,255,255,.85); transform: translateY(-1px); }
+.btn-zen.act {
+  background: var(--ink);
+  color: #fff;
+  border-color: var(--ink);
+}
+.btn-zen.act:hover { background: #3a2a14; }
+
+/* ════════════════════════════════════════
+   CONTROLES
+════════════════════════════════════════ */
+.ctrl-bar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-top: 26px;
+}
+
+.btn {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 11px 26px;
+  border-radius: 50px; border: none; cursor: pointer;
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(13px, 1.4vw, 16px); font-weight: 600;
+  letter-spacing: .04em;
+  transition: all .2s; white-space: nowrap;
+  position: relative; overflow: hidden;
+}
+.btn::after {
+  content: '';
+  position: absolute; inset: 0;
+  background: linear-gradient(135deg, rgba(255,255,255,.15) 0%, transparent 55%);
+  pointer-events: none;
+}
+.btn:active { transform: scale(.96); }
+
+.btn-terra  { background:var(--terra);  color:#fff; box-shadow:0 2px 10px rgba(184,80,48,.38); }
+.btn-terra:hover  { background:#9a3c1c; transform:translateY(-1px); }
+
+.btn-sage { background:var(--sage); color:#fff; box-shadow:0 2px 10px rgba(108,158,86,.38); }
+.btn-sage:hover { background:var(--sage-dk); transform:translateY(-1px); }
+.btn-sage:disabled { background:#b7b09a; box-shadow:none; cursor:not-allowed; opacity:.6; }
+.btn-sage:disabled:hover { transform:none; }
+
+svg.ico { width:14px; height:14px; flex-shrink:0; }
+
+/* ════════════════════════════════════════
+   BOUTONS FIXES
+════════════════════════════════════════ */
+#btn-regles {
+  position: fixed; top: 14px; left: 22px;
+  font-family: 'Lora', Georgia, serif;
+  font-size: .74rem; font-style: italic; letter-spacing: .09em;
+  color: var(--terra);
+  background: linear-gradient(to bottom, #fdfaf3 60%, #f2e8d5);
+  border: 1.5px solid rgba(184,80,48,.28);
+  border-radius: 20px;
+  padding: .4rem 1.1rem;
+  cursor: pointer; opacity: .78;
+  transition: opacity .2s, background .2s, box-shadow .2s, transform .15s;
+  text-decoration: none; display: inline-flex; align-items: center; gap: .38em;
+  box-shadow: 0 2px 8px rgba(184,80,48,.08), 0 1px 3px rgba(36,26,12,.07);
+  z-index: 803;
+}
+#btn-regles:hover {
+  opacity: 1;
+  background: linear-gradient(to bottom, #fff9f0, #f0e4cc);
+  box-shadow: 0 4px 14px rgba(184,80,48,.14), 0 1px 4px rgba(36,26,12,.09);
+  transform: translateY(-1px);
+}
+
+#btn-back {
+  position: fixed; bottom: 16px; left: 18px;
+  font-family: 'Lora', Georgia, serif;
+  font-size: .67rem; font-style: italic; letter-spacing: .06em;
+  color: #7a6a5a;
+  background: none; border: 1px solid rgba(61,50,40,.2);
+  border-radius: 3px; padding: .32rem .72rem;
+  cursor: pointer; opacity: .6;
+  transition: opacity .2s, background .2s;
+  text-decoration: none; display: inline-block;
+  z-index: 803;
+}
+#btn-back:hover { opacity: 1; background: rgba(232,220,200,.7); }
+
+/* ════════════════════════════════════════
+   RESPONSIVE — TABLETTES (≤ 900px)
+════════════════════════════════════════ */
+@media (max-width: 900px) {
+  .header { padding: 60px 20px 18px; }
+
+  #btn-regles {
+    top: 10px; left: 50%;
+    transform: translateX(-50%);
+    font-size: .68rem;
+    padding: .34rem .9rem;
+  }
+  #btn-regles:hover { transform: translateX(-50%) translateY(-1px); }
+
+  .frame { padding: 32px 24px; min-height: 220px; }
+}
+
+/* ════════════════════════════════════════
+   RESPONSIVE — TÉLÉPHONES (≤ 560px)
+════════════════════════════════════════ */
+@media (max-width: 560px) {
+  body { padding: 16px 10px; }
+  .header { padding: 54px 12px 14px; }
+  .orn-rule { padding: 0 10px; }
+
+  .frame { padding: 26px 18px; min-height: 190px; border-radius: 10px; }
+
+  .ctrl-bar { gap: 10px; }
+  .btn { padding: 10px 18px; font-size: 13px; flex: 1 1 auto; justify-content: center; }
+
+  .orn { width: 30px; height: 30px; }
+
+  #btn-regles { font-size: .62rem; padding: .3rem .75rem; }
+
+  .btn-zen { top: 10px; right: 10px; font-size: 9px; padding: 4px 9px; }
+}
+</style>
+</head>
+<body>
+
+<a href="auplusprocheregles.html" id="btn-regles">✦ Exemples de règles</a>
+
+<!-- Corners -->
+<svg class="orn tl" viewBox="0 0 46 46" fill="none"><path d="M5 5L5 21M5 5L21 5" stroke="#b85030" stroke-width="1.6" stroke-linecap="round"/><path d="M5 5Q13 9 17 17" stroke="#b85030" stroke-width="1" stroke-linecap="round"/><circle cx="5" cy="5" r="2.2" fill="#b85030"/><path d="M11 5L11 8M5 11L8 11" stroke="#b85030" stroke-width=".9" stroke-linecap="round" opacity=".55"/><path d="M16 5L16 7M5 16L7 16" stroke="#b85030" stroke-width=".7" stroke-linecap="round" opacity=".3"/></svg>
+<svg class="orn tr" viewBox="0 0 46 46" fill="none"><path d="M5 5L5 21M5 5L21 5" stroke="#b85030" stroke-width="1.6" stroke-linecap="round"/><path d="M5 5Q13 9 17 17" stroke="#b85030" stroke-width="1" stroke-linecap="round"/><circle cx="5" cy="5" r="2.2" fill="#b85030"/><path d="M11 5L11 8M5 11L8 11" stroke="#b85030" stroke-width=".9" stroke-linecap="round" opacity=".55"/><path d="M16 5L16 7M5 16L7 16" stroke="#b85030" stroke-width=".7" stroke-linecap="round" opacity=".3"/></svg>
+<svg class="orn bl" viewBox="0 0 46 46" fill="none"><path d="M5 5L5 21M5 5L21 5" stroke="#b85030" stroke-width="1.6" stroke-linecap="round"/><path d="M5 5Q13 9 17 17" stroke="#b85030" stroke-width="1" stroke-linecap="round"/><circle cx="5" cy="5" r="2.2" fill="#b85030"/><path d="M11 5L11 8M5 11L8 11" stroke="#b85030" stroke-width=".9" stroke-linecap="round" opacity=".55"/><path d="M16 5L16 7M5 16L7 16" stroke="#b85030" stroke-width=".7" stroke-linecap="round" opacity=".3"/></svg>
+<svg class="orn br" viewBox="0 0 46 46" fill="none"><path d="M5 5L5 21M5 5L21 5" stroke="#b85030" stroke-width="1.6" stroke-linecap="round"/><path d="M5 5Q13 9 17 17" stroke="#b85030" stroke-width="1" stroke-linecap="round"/><circle cx="5" cy="5" r="2.2" fill="#b85030"/><path d="M11 5L11 8M5 11L8 11" stroke="#b85030" stroke-width=".9" stroke-linecap="round" opacity=".55"/><path d="M16 5L16 7M5 16L7 16" stroke="#b85030" stroke-width=".7" stroke-linecap="round" opacity=".3"/></svg>
+
+<!-- ══ HEADER ══ -->
+<div class="header">
+  <h1>
+    <span class="au">Au</span>
+    <span class="plus">plus</span>
+    <span class="proche">proche</span>
+  </h1>
+  <div class="orn-rule">
+    <div class="orn-line"></div>
+    <span class="orn-c">— ✦ jeu de culture générale ✦ —</span>
+    <div class="orn-line"></div>
+  </div>
+</div>
+
+<!-- ══ MAIN ══ -->
+<div class="page-main">
+  <div class="main">
+    <div class="frame">
+      <button class="btn-zen" id="btn-zen" onclick="toggleZen()">
+        <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7V4h16v3"/><path d="M9 20h6"/><path d="M12 4v16"/></svg>
+        Aa
+      </button>
+      <div class="frame-content">
+        <div id="question-ph">
+          <span class="ph-glyph">?</span>
+          Appuyez sur<br>« Nouvelle question »
+        </div>
+        <div id="question"></div>
+        <div class="answer-wrap" id="answerWrap">
+          <div class="answer-inner">
+            <div class="answer-label">Réponse</div>
+            <div id="answer"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="ctrl-bar">
+      <button class="btn btn-terra" onclick="newQuestion()">
+        <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16"/><path d="M16 16h5v5"/></svg>
+        Nouvelle question
+      </button>
+      <button class="btn btn-sage" id="btn-answer" onclick="toggleAnswer()" disabled>
+        <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><path d="M12 17h.01"/></svg>
+        Réponse
+      </button>
+    </div>
+  </div>
+</div>
+
+<a href="index.html" id="btn-back">← Retour aux jeux</a>
+
+<script>
+/* ── DATA ── */
+const QUESTIONS = [
+  { q: "Combien de pays au monde n'ont aucun accès direct à la mer ou à un océan ?", r: "44" },
+  { q: "Combien de pays partagent une frontière terrestre avec le Brésil ?", r: "10" },
+  { q: "Combien de membres compte l'Union européenne ?", r: "27" },
+  { q: "Combien de fuseaux horaires différents compte le territoire de la Russie ?", r: "11" },
+  { q: "Combien d'îles composent l'archipel du Japon (selon le dernier comptage officiel du gouvernement de 2023) ?", r: "14 125" },
+  { q: "Combien de pays constituent l'Afrique selon l'ONU ?", r: "54" },
+  { q: "Combien d'États fédérés composent les États-Unis d'Amérique ?", r: "50" },
+  { q: "Combien de pays limitrophes la France métropolitaine possède-t-elle ?", r: "8" },
+  { q: "Combien de départements composent la France métropolitaine et d'outre-mer au total ?", r: "101" },
+  { q: "Combien de pays composent le continent sud-américain (hors territoires dépendants) ?", r: "12" },
+  { q: "Combien de régions administratives compte la France métropolitaine depuis 2016 ?", r: "13" },
+  { q: "Combien d'habitants compte la Terre environ en 2024 (en milliards) ?", r: "8,1" },
+  { q: "Combien de pays bordent la mer Méditerranée ?", r: "21" },
+  { q: "Quelle est la superficie de la Terre couverte par les océans (en pourcentage) ?", r: "71" },
+  { q: "Combien d'états composent l'Australie ?", r: "6" },
+  { q: "Quelle est la longueur de la Grande Muraille de Chine en kilomètres (estimation officielle totale) ?", r: "21 196" },
+  { q: "Combien de préfectures composent le Japon ?", r: "47" },
+  { q: "Combien de pays traversent l'équateur terrestre ?", r: "13" },
+  { q: "Combien de provinces compte le Canada ?", r: "10" },
+  { q: "Combien de communes compte environ la France métropolitaine ?", r: "34 935" },
+  { q: "Combien de pays en Afrique centrale ou de l'Ouest ont le franc CFA pour monnaie ?", r: "14" },
+  { q: "Combien de pays composent le Royaume-Uni ?", r: "4" },
+  { q: "Combien de volcans actifs recense-t-on environ dans le monde ?", r: "1 500" },
+  { q: "Combien d'habitants comptait Paris intra-muros au recensement officiel de 2021 (en millions) ?", r: "2,1" },
+  { q: "Combien de micro-États d'Europe ont une superficie inférieure à 500 km² ?", r: "6" },
+  { q: "Quelle est l'altitude du mont Everest en mètres ?", r: "8 849" },
+  { q: "Quelle est la profondeur maximale connue de la fosse des Mariannes en mètres ?", r: "10 994" },
+  { q: "Combien de kilomètres séparant la Terre de la Lune en moyenne ?", r: "384 400" },
+  { q: "Combien de ponts traversent la Seine dans Paris intra-muros ?", r: "37" },
+  { q: "Combien de pays sont membres de l'Organisation des Nations unies (ONU) ?", r: "193" },
+  { q: "En quelle année l'homme a-t-il marché sur la Lune pour la première fois ?", r: "1969" },
+  { q: "En quelle année a eu lieu la Révolution française ?", r: "1789" },
+  { q: "Pendant combien d'années a duré la guerre de Cent Ans ?", r: "116" },
+  { q: "En quelle année le Mur de Berlin est-il tombé ?", r: "1989" },
+  { q: "Combien de jours a duré le règne le plus court d'un roi de France (Louis XIX) ?", r: "20 minutes" },
+  { q: "En quelle année le D-Day (Débarquement de Normandie) a-t-il eu lieu ?", r: "1944" },
+  { q: "En quelle année la Tour Eiffel a-t-elle été inaugurée pour l'Exposition universelle ?", r: "1889" },
+  { q: "En quelle année Christophe Colomb est-il arrivé en Amérique ?", r: "1492" },
+  { q: "Combien d'années la construction de la cathédrale Notre-Dame de Paris a-t-elle duré environ ?", r: "182" },
+  { q: "En quelle année le droit de vote des femmes a-t-il été accordé en France ?", r: "1944" },
+  { q: "En quelle année le Concorde a-t-il effectué son tout premier vol ?", r: "1969" },
+  { q: "Pendant combien d'années a régné Louis XIV le Roi-Soleil ?", r: "72" },
+  { q: "En quelle année l'esclavage a-t-il été définitivement aboli en France ?", r: "1848" },
+  { q: "En quelle année a été signé le traité de Versailles mettant fin à la Première Guerre mondiale ?", r: "1919" },
+  { q: "En quelle année le Titanic a-t-il coulé ?", r: "1912" },
+  { q: "Combien de temps a duré la traversée du premier vol transatlantique de Charles Lindbergh en heures ?", r: "33" },
+  { q: "En quelle année l'Euro est-il devenu la monnaie fiduciaire en circulation (billets et pièces) ?", r: "2002" },
+  { q: "En quelle année la Joconde a-t-elle été volée au Musée du Louvre ?", r: "1911" },
+  { q: "Combien de Merveilles du monde antique existait-il ?", r: "7" },
+  { q: "En quelle année la télévision en couleur a-t-elle été introduite en France ?", r: "1967" },
+  { q: "Combien de présidents la Ve République française a-t-elle connus jusqu'en 2024 ?", r: "8" },
+  { q: "En quelle année le TGV français a-t-il été commercialisé pour la première fois ?", r: "1981" },
+  { q: "Pendant combien de jours le siège de Stalingrad a-t-il duré environ ?", r: "200" },
+  { q: "En quelle année Nelson Mandela a-t-il été libéré de prison ?", r: "1990" },
+  { q: "En quelle année l'Iphone d'Apple a-t-il été présenté pour la toute première fois ?", r: "2007" },
+  { q: "En quelle année l'abolition de la peine de mort a-t-elle été votée en France ?", r: "1981" },
+  { q: "En quelle année la station spatiale internationale (ISS) a-t-elle accueilli ses premiers occupants ?", r: "2000" },
+  { q: "En quelle année a eu lieu la bataille de Waterloo ?", r: "1815" },
+  { q: "Combien de personnes ont marché sur la Lune au total (programme Apollo) ?", r: "12" },
+  { q: "En quelle année la déclaration universelle des droits de l'homme a-t-elle été adoptée par l'ONU ?", r: "1948" },
+  { q: "Combien d'os compte le corps humain adulte ?", r: "206" },
+  { q: "Combien de touches compte un piano à queue standard ?", r: "88" },
+  { q: "Combien de films composent la saga cinématographique originale Star Wars (épisodes I à IX) ?", r: "9" },
+  { q: "Combien de pièces comporte un jeu d'échecs au début d'une partie ?", r: "32" },
+  { q: "Combien d'Oscars le film Titanic a-t-il remportés en 1998 ?", r: "11" },
+  { q: "Combien de cordes possède une guitare classique standard ?", r: "6" },
+  { q: "Combien de minutes dure le film 'Le Seigneur des Anneaux : Le Retour du Roi' version longue ?", r: "263" },
+  { q: "Combien de joueurs composent une équipe de rugby à XV sur le terrain ?", r: "15" },
+  { q: "Combien de cartes compte un jeu de cartes traditionnel complet (sans les jokers) ?", r: "52" },
+  { q: "Combien de symphonies Ludwig van Beethoven a-t-il composées ?", r: "9" },
+  { q: "Combien de cases compte un plateau de Scrabble ?", r: "225" },
+  { q: "Combien de secondes durent 15 minutes ?", r: "900" },
+  { q: "Combien de lettres compte l'alphabet grec ?", r: "24" },
+  { q: "Combien de dents un adulte humain possède-t-il normalement (avec dents de sagesse) ?", r: "32" },
+  { q: "Combien de tomes compte la saga littéraire originale Harry Potter ?", r: "7" },
+  { q: "Combien de kilomètres mesure un marathon officiel ?", r: "42,195" },
+  { q: "Combien de côtés possède un décagone ?", r: "10" },
+  { q: "Combien de joueurs composent une équipe de volley-ball sur le terrain ?", r: "6" },
+  { q: "Combien de fois la France a-t-elle remporté la Coupe du Monde de football masculin ?", r: "2" },
+  { q: "Combien de marches compte la Tour Eiffel jusqu'au sommet (accès public/technique) ?", r: "1 665" },
+  { q: "Combien de minutes dure une mi-temps dans un match de football ?", r: "45" },
+  { q: "Combien de nains accompagnent Blanche-Neige dans le conte des frères Grimm ?", r: "7" },
+  { q: "Combien de planètes composent le système solaire ?", r: "8" },
+  { q: "Combien de cœurs possède une pieuvre ?", r: "3" },
+  { q: "Combien de fils compte la marionnette Guignol originale ?", r: "0 (c'est une marionnette à gaine)" },
+  { q: "Combien de statues de la Liberté originales en bronze sont visibles à Paris ?", r: "5" },
+  { q: "Combien de tableaux de la série des Tournesols de Van Gogh existent dans le monde ?", r: "5" },
+  { q: "Combien d'alvéoles compte une boîte d'œufs standard vendue en supermarché ?", r: "12" },
+  { q: "Combien de petits carreaux noirs et blancs comporte un plateau de jeu de dames français (10x10) ?", r: "100" },
+  { q: "Combien de cordes possède un violon classique ?", r: "4" },
+  { q: "Quelle est la vitesse de la lumière dans le vide en km/s (arrondi à l'unité près) ?", r: "299 792" },
+  { q: "Quelle est la température du zéro absolu en degrés Celsius (°C) ?", r: "-273,15" },
+  { q: "Combien de paires de chromosomes possède une cellule humaine normale ?", r: "23" },
+  { q: "Combien de muscles compte environ le corps humain ?", r: "640" },
+  { q: "Combien de pattes ont les arachnides ?", r: "8" },
+  { q: "Combien de vertèbres cervicales possède une girafe ?", r: "7" },
+  { q: "Quel est le numéro atomique de l'or (Au) dans le tableau périodique ?", r: "79" },
+  { q: "Combien de jours met la Terre pour faire une révolution complète autour du Soleil ?", r: "365,25" },
+  { q: "Combien de tentacules possède un calmar géant ?", r: "10" },
+  { q: "Quelle est la hauteur en mètres de la plus haute cascade du monde (Saut de l'Ange au Venezuela) ?", r: "979" },
+  { q: "Combien de minutes la lumière du Soleil met-elle environ pour atteindre la Terre ?", r: "8" },
+  { q: "Combien de litres de sang un corps humain adulte contient-il en moyenne ?", r: "5" },
+  { q: "Combien de dents un chat adulte possède-t-il ?", r: "30" },
+  { q: "Combien de grammes pèse un litre d'eau pure à 4 °C ?", r: "1 000" },
+  { q: "Combien de battements de cœur par minute effectue un colibri au repos environ ?", r: "600" },
+  { q: "Combien de doigts/griffes possède un paresseux à trois doigts sur chaque patte ?", r: "3" },
+  { q: "Quel est l'âge approximatif de l'Univers en milliards d'années ?", r: "13,8" },
+  { q: "Quel est le numéro atomique du carbone dans le tableau périodique ?", r: "6" },
+  { q: "Combien d'estomacs (ou compartiments stomacaux) possède une vache ?", r: "4" },
+  { q: "Combien de degrés d'angle la somme des angles d'un triangle fait-elle ?", r: "180" },
+  { q: "Combien de valves compte le cœur humain ?", r: "4" },
+  { q: "Quelle est la masse approximative du cerveau humain chez l'adulte en grammes ?", r: "1 400" },
+  { q: "Combien d'yeux ont la plupart des abeilles domestiques ?", r: "5" },
+  { q: "Combien de paires de côtes compte la cage thoracique humaine ?", r: "12" },
+  { q: "Combien de satellites naturels (lunes) possède la planète Mars ?", r: "2" },
+  { q: "Combien de phases principales comporte le cycle de la Lune ?", r: "8" },
+  { q: "Quel est le numéro atomique de l'hydrogène ?", r: "1" },
+  { q: "Combien de mètres mesure un terrain de football officiel en longueur maximale ?", r: "120" },
+  { q: "Combien de décibels atteint environ un feu d'artifice à proximité ?", r: "140" },
+  { q: "Combien de minutes dure une révolution de la Station Spatiale Internationale autour de la Terre ?", r: "90" },
+  { q: "Combien de pays ont une frontière terrestre commune avec la Chine ?", r: "14" },
+  { q: "Combien d'États fédérés composent le Mexique ?", r: "31" },
+  { q: "Quel est l'indicatif téléphonique international de la France ?", r: "+33" },
+  { q: "Combien d'arrondissements compte la ville de Paris ?", r: "20" },
+  { q: "Combien d'arrondissements compte la ville de Lyon ?", r: "9" },
+  { q: "Combien d'arrondissements compte la ville de Marseille ?", r: "16" },
+  { q: "Combien de départements composent la région Bretagne ?", r: "4" },
+  { q: "Combien de pays forment la Scandinavie au sens géographique le plus strict (Norvège, Suède, Danemark) ?", r: "3" },
+  { q: "Combien de capitales officielles possède l'Afrique du Sud ?", r: "3" },
+  { q: "Quelle est la superficie du Vatican en hectares environ ?", r: "44" },
+  { q: "Combien d'étoiles figurent sur le drapeau des États-Unis ?", r: "50" },
+  { q: "Combien de rayures horizontales figurent sur le drapeau des États-Unis ?", r: "13" },
+  { q: "Combien de couleurs composent l'arc-en-ciel selon la décomposition traditionnelle d'Isaac Newton ?", r: "7" },
+  { q: "Combien de pays souverains composent l'Amérique du Nord (Canada, États-Unis, Mexique) ?", r: "3" },
+  { q: "Combien de mers bordent la péninsule italienne ?", r: "4" },
+  { q: "Quelle est la longueur approximative du fleuve Amazone en kilomètres ?", r: "6 992" },
+  { q: "Quelle est la hauteur de la Tour de Pise en mètres environ ?", r: "56" },
+  { q: "Combien d'habitants compte la principauté de Monaco environ (en milliers) ?", r: "39" },
+  { q: "Combien de fuseaux horaires couvrent les 50 États des États-Unis ?", r: "6" },
+  { q: "Combien d'îles principales composent l'archipel d'Hawaï ?", r: "8" },
+  { q: "Quelle est l'altitude du mont Blanc en mètres (mesure officielle de 2023) ?", r: "4 805" },
+  { q: "Combien d'États souverains se partagent la péninsule Ibérique (hors territoire britannique) ?", r: "3" },
+  { q: "Combien de cantons composent la Confédération suisse ?", r: "26" },
+  { q: "Quelle est la longueur totale du réseau du métro de Paris en kilomètres environ ?", r: "226" },
+  { q: "Combien de ponts traversent le Grand Canal à Venise ?", r: "4" },
+  { q: "Combien de pays ont un littoral bordé par la mer Noire ?", r: "6" },
+  { q: "Quelle est la hauteur totale de la Statue de la Liberté à New York en mètres (socle compris) ?", r: "93" },
+  { q: "Combien de comtés traditionnels composent la République d'Irlande ?", r: "26" },
+  { q: "Combien de grandes pyramides composent le complexe funéraire de Gizeh en Égypte ?", r: "3" },
+  { q: "Combien de pays membres de l'Union européenne utilisent l'Euro comme monnaie officielle en 2024 ?", r: "20" },
+  { q: "En quelle année le Mur de Berlin a-t-il été construit ?", r: "1961" },
+  { q: "Combien d'années a duré la Seconde Guerre mondiale (1939-1945) ?", r: "6" },
+  { q: "En quelle année la toute première ligne du métro parisien a-t-elle été inaugurée ?", r: "1900" },
+  { q: "En quelle année la France a-t-elle officiellement adopté le franc Germinal ?", r: "1803" },
+  { q: "Combien de rois de France ont porté le prénom Louis ?", r: "18" },
+  { q: "En quelle année l'Union soviétique (URSS) a-t-elle été officiellement dissoute ?", r: "1991" },
+  { q: "En quelle année la catastrophe nucléaire de Tchernobyl a-t-elle eu lieu ?", r: "1986" },
+  { q: "En quelle année le canal de Suez a-t-il été inauguré ?", r: "1869" },
+  { q: "Combien de jours a duré la traversée de l'Atlantique par le navire Mayflower en 1620 ?", r: "66" },
+  { q: "En quelle année la Première Guerre mondiale s'est-elle achevée ?", r: "1918" },
+  { q: "En quelle année la reine Elizabeth II est-elle montée sur le trône du Royaume-Uni ?", r: "1952" },
+  { q: "Combien d'années complètes la reine Elizabeth II a-t-elle régné sur le Royaume-Uni ?", r: "70" },
+  { q: "En quelle année l'incendie de la cathédrale Notre-Dame de Paris a-t-il eu lieu ?", r: "2019" },
+  { q: "En quelle année le télescope spatial Hubble a-t-il été mis en orbite ?", r: "1990" },
+  { q: "En quelle année la Première République française a-t-elle été proclamée ?", r: "1792" },
+  { q: "En quelle année s'est déroulée la célèbre bataille de Marignan ?", r: "1515" },
+  { q: "En quelle année l'Empire romain d'Occident s'est-il effondré ?", r: "476" },
+  { q: "En quelle année Gutenberg a-t-il imprimé sa célèbre Bible à 42 lignes environ ?", r: "1455" },
+  { q: "En quelle année le tout premier vol motorisé des frères Wright a-t-il eu lieu ?", r: "1903" },
+  { q: "Combien d'années s'écoulent conventionnellement pour définir la période du Moyen Âge (476-1492) ?", r: "1 016" },
+  { q: "En quelle année la Révolution russe d'Octobre s'est-elle déroulée ?", r: "1917" },
+  { q: "En quelle année le traité de Maastricht créant l'Union européenne a-t-il été signé ?", r: "1992" },
+  { q: "En quelle année la majorité civile et le droit de vote à 18 ans ont-ils été instaurés en France ?", r: "1974" },
+  { q: "En quelle année le premier message a-t-il été transmis sur le réseau ARPANET (ancêtre d'Internet) ?", r: "1969" },
+  { q: "En quelle année la sonde spatiale Voyager 1 a-t-elle été lancée ?", r: "1977" },
+  { q: "En quelle année la Statue de la Liberté a-t-elle été inaugurée à New York ?", r: "1886" },
+  { q: "En quelle année Neil Armstrong, le premier homme sur la Lune, est-il décédé ?", r: "2012" },
+  { q: "En quelle année le premier vol commercial du Concorde a-t-il eu lieu ?", r: "1976" },
+  { q: "En quelle année la déclaration d'indépendance des États-Unis a-t-elle été signée ?", r: "1776" },
+  { q: "En quelle année la chute de Constantinople a-t-elle marqué la fin de l'Empire byzantin ?", r: "1453" },
+  { q: "Combien de films composent la trilogie cinématographique du Seigneur des Anneaux ?", r: "3" },
+  { q: "Combien de saisons compte la série américaine culte 'Friends' ?", r: "10" },
+  { q: "En quelle année le tout premier film d'animation 'Toy Story' est-il sorti au cinéma ?", r: "1995" },
+  { q: "Combien de films composent la saga principale 'Harry Potter' au cinéma ?", r: "8" },
+  { q: "Combien de boules de cristal faut-il réunir dans le manga Dragon Ball pour invoquer Shenron ?", r: "7" },
+  { q: "En quelle année le film 'Avatar' de James Cameron est-il sorti au cinéma ?", r: "2009" },
+  { q: "Combien de membres composent la Communauté de l'Anneau au départ dans Le Seigneur des Anneaux ?", r: "9" },
+  { q: "En quelle année la plateforme Netflix a-t-elle lancé son service de streaming vidéo ?", r: "2007" },
+  { q: "Combien de saisons compte la série télévisée 'Game of Thrones' ?", r: "8" },
+  { q: "Combien de dalmatiens sont au cœur de l'intrigue du célèbre grand classique de Disney ?", r: "101" },
+  { q: "Combien d'Oscars le film 'La La Land' a-t-il remportés en 2017 ?", r: "6" },
+  { q: "En quelle année le jeu vidéo Pac-Man est-il sorti pour la première fois en borne d'arcade ?", r: "1980" },
+  { q: "Combien de super-héros forment l'équipe originale des Avengers dans le film de 2012 ?", r: "6" },
+  { q: "Combien de nains accompagnent Bilbo le Hobbit dans son aventure ?", r: "13" },
+  { q: "En quelle année la console PlayStation 1 de Sony est-elle sortie au Japon ?", r: "1994" },
+  { q: "Combien de volets composent la trilogie de films 'Retour vers le futur' ?", r: "3" },
+  { q: "Combien de anneaux entrelacés composent le symbole officiel des Jeux Olympiques ?", r: "5" },
+  { q: "En quelle année le réseau social Facebook a-t-il été lancé par Mark Zuckerberg ?", r: "2004" },
+  { q: "Combien de films 'Indiana Jones' sont sortis au cinéma avec Harrison Ford ?", r: "5" },
+  { q: "En quelle année le film 'Jurassic Park' de Steven Spielberg est-il sorti en salles ?", r: "1993" },
+  { q: "Combien de formes d'évolutions différentes le Pokémon Évoli possède-t-il ?", r: "8" },
+  { q: "En quelle année la console Game Boy de Nintendo est-elle sortie au Japon ?", r: "1989" },
+  { q: "Combien de rennes tirent le traîneau du Père Noël selon la tradition (en comptant Rudolph) ?", r: "9" },
+  { q: "Combien de lettres comporte le mot 'Supercalifragilisticexpialidocious' en anglais ?", r: "34" },
+  { q: "En quelle année le dernier épisode de la série 'Breaking Bad' a-t-il été diffusé ?", r: "2013" },
+  { q: "Combien de minutes dure le film 'Titanic' de James Cameron ?", r: "195" },
+  { q: "En quelle année l'album mythique 'Thriller' de Michael Jackson est-il sorti ?", r: "1982" },
+  { q: "Combien de films composent la trilogie 'The Dark Knight' réalisée par Christopher Nolan ?", r: "3" },
+  { q: "En quelle année la plateforme d'hébergement vidéo YouTube a-t-elle été créée ?", r: "2005" },
+  { q: "Combien de pièces composent le jeu vidéo Tetris (les 'tetriminos') ?", r: "7" },
+  { q: "Combien de cordes possède une grande harpe de concert standard ?", r: "47" },
+  { q: "Combien de musiciens composent un quatuor à cordes classique ?", r: "4" },
+  { q: "Combien de symphonies Wolfgang Amadeus Mozart a-t-il composées au total ?", r: "41" },
+  { q: "Combien de cordes possède un ukulélé standard ?", r: "4" },
+  { q: "En quelle année le groupe The Beatles s'est-il officiellement séparé ?", r: "1970" },
+  { q: "Combien de notes de musique forment la gamme diatonique naturelle ?", r: "7" },
+  { q: "En quelle année le légendaire festival de musique de Woodstock s'est-il déroulé ?", r: "1969" },
+  { q: "Combien de membres comptaient les Beatles à leur apogée ?", r: "4" },
+  { q: "Combien de pistons (valves) possède une trompette classique moderne ?", r: "3" },
+  { q: "En quelle année la première Fête de la Musique a-t-elle été lancée en France ?", r: "1982" },
+  { q: "Combien de cordes possède une contrebasse classique standard ?", r: "4" },
+  { q: "En quelle année la toute première édition du Concours Eurovision de la chanson a-t-elle eu lieu ?", r: "1956" },
+  { q: "Combien de clés comporte une clarinette moderne standard ?", r: "17" },
+  { q: "Combien de musiciens composent un trio de jazz traditionnel ?", r: "3" },
+  { q: "En quelle année le duo de musique électronique Daft Punk a-t-il annoncé sa séparation ?", r: "2021" },
+  { q: "Combien de panneaux articulés ou peints compose un triptyque en art plastique ?", r: "3" },
+  { q: "Combien de statues de pierre géantes (Moaï) recense-t-on environ sur l'île de Pâques ?", r: "887" },
+  { q: "Combien de tableaux Vincent van Gogh a-t-il vendus de son vivant de manière documentée ?", r: "1" },
+  { q: "Combien de vers comporte un sonnet en poésie classique française ?", r: "14" },
+  { q: "Combien d'actes comporte une tragédie classique du théâtre français du XVIIe siècle ?", r: "5" },
+  { q: "Combien d'éléments chimiques sont répertoriés dans le tableau périodique officiel ?", r: "118" },
+  { q: "Quel est le numéro atomique de l'oxygène (O) dans le tableau périodique ?", r: "8" },
+  { q: "Combien de paires d'arcs aortiques (considérés comme cœurs) possède un ver de terre ?", r: "5" },
+  { q: "Combien de planètes géantes gazeuses compte notre système solaire ?", r: "4" },
+  { q: "Combien de dents possède un chien adulte de race moyenne en denture complète ?", r: "42" },
+  { q: "Quelle est la vitesse du son dans l'air à 20 °C en km/h environ ?", r: "1 235" },
+  { q: "Combien de tentacules (bras) possède une pieuvre ?", r: "8" },
+  { q: "Combien de pattes possède un insecte adulte ?", r: "6" },
+  { q: "Combien de paires de côtes composent la cage thoracique humaine ?", r: "12" },
+  { q: "Combien de stades principaux comporte le développement complet d'un papillon ?", r: "4" },
+  { q: "Quelle est la durée moyenne de gestation d'une éléphante d'Afrique en mois ?", r: "22" },
+  { q: "Combien de minutes la Terre met-elle pour tourner d'un degré sur son axe d'involutions ?", r: "4" },
+  { q: "Quelle est la température d'ébullition de l'eau pure en degrés Fahrenheit à pression atmosphérique normale ?", r: "212" },
+  { q: "Combien de vertèbres cervicales possède le cou humain ?", r: "7" },
+  { q: "Combien de paires de pattes possède un cloporte (crustacé terrestre) ?", r: "7" },
+  { q: "Combien de cavités (chambres) internes le cœur humain comporte-t-il ?", r: "4" },
+  { q: "Quelle est la température corporelle normale moyenne de l'être humain en degrés Celsius ?", r: "37" },
+  { q: "Combien de pochettes stomacales (compartiments) possède un dromadaire ?", r: "3" },
+  { q: "Quel est le numéro atomique de l'hélium (He) ?", r: "2" },
+  { q: "Combien d'heures la Terre met-elle environ pour effectuer une rotation complète sur elle-même ?", r: "24" },
+  { q: "Combien de satellites naturels possède la planète Terre ?", r: "1" },
+  { q: "Combien de paires de pattes possèdent les crustacés décapodes (comme le crabe ou la crevette) ?", r: "5" },
+  { q: "Combien de paupières possède un chat par œil (en comptant la membrane nictitante) ?", r: "3" },
+  { q: "Combien de battements d'ailes par seconde effectue une mouche domestique en moyenne ?", r: "200" },
+  { q: "Quelle est la vitesse de pointe maximale d'un guépard en course en km/h environ ?", r: "110" },
+  { q: "Combien de vertèbres compte la colonne vertébrale humaine à la naissance ?", r: "33" },
+  { q: "Quel est le temps de gestation moyen d'une chienne en jours ?", r: "63" },
+  { q: "Combien de paires de nerfs crâniens possède l'être humain ?", r: "12" },
+  { q: "Quel est le pourcentage d'azote (diazote) contenu dans l'atmosphère terrestre environ ?", r: "78" },
+  { q: "Quel est le pourcentage d'oxygène (dioxygène) contenu dans l'air terrestre environ ?", r: "21" },
+  { q: "Combien de bras possède la grande majorité des espèces d'étoiles de mer ?", r: "5" },
+  { q: "Quel est le numéro atomique de l'hydrogène (H) ?", r: "1" },
+  { q: "Combien de dents de lait comporte la dentition temporaire d'un enfant ?", r: "20" },
+  { q: "Quelle est la température moyenne à la surface de la Terre en degrés Celsius environ ?", r: "15" },
+  { q: "Combien d'acides aminés dits 'essentiels' l'être humain doit-il puiser dans son alimentation ?", r: "9" },
+  { q: "Combien de joueurs d'une même équipe sont présents simultanément sur le terrain au basket-ball ?", r: "5" },
+  { q: "Combien de joueurs d'une même équipe sont présents sur le terrain au handball ?", r: "7" },
+  { q: "Combien de minutes dure un match de rugby à XV réglementaire (hors prolongations) ?", r: "80" },
+  { q: "Combien de trous comporte un parcours de golf standard complet ?", r: "18" },
+  { q: "Combien de points vaut un essai transformé au rugby à XV ?", r: "7" },
+  { q: "Combien de boules possède chaque joueur lors d'une partie de pétanque en tête-à-tête ?", r: "3" },
+  { q: "Combien de zones/anneaux concentriques composent une cible de fléchettes traditionnelle ?", r: "5" },
+  { q: "Combien de quilles faut-il faire tomber d'un coup au bowling pour réaliser un strike ?", r: "10" },
+  { q: "Combien de dames (pions) possède chaque joueur au départ d'une partie de Backgammon ?", r: "15" },
+  { q: "Combien de joueurs en défense sont alignés sur le terrain au baseball ?", r: "9" },
+  { q: "Combien de yards mesure un terrain de football américain (hors zones d'embut) ?", r: "100" },
+  { q: "Combien de minutes dure un quart de temps dans un match de basket-ball en NBA ?", r: "12" },
+  { q: "Combien de cartes comporte la main finale distribuée à chaque joueur à la belote ?", r: "8" },
+  { q: "Combien de mètres séparent le lanceur du batteur au baseball environ ?", r: "18,4" },
+  { q: "Combien de tournois Majeurs composent le Grand Chelem au tennis ?", r: "4" },
+  { q: "Combien de joueurs par équipe sont dans l'eau simultanément lors d'un match de water-polo ?", r: "7" },
+  { q: "Combien de points rapporte un tir réussi derrière la ligne des trois points au basket-ball ?", r: "3" },
+  { q: "Combien de billes rouges sont placées sur la table au début d'une partie de Snooker ?", r: "15" },
+  { q: "Combien de mètres mesure la longueur d'une piscine olympique officielle ?", r: "50" },
+  { q: "En quelle année les premiers Jeux Olympiques modernes de l'ère contemporaine ont-ils eu lieu à Athènes ?", r: "1896" },
+  { q: "Combien de faces possède un dé à jouer standard ?", r: "6" },
+  { q: "Combien de millilitres contient une bouteille de vin standard de 75 cl ?", r: "750" },
+  { q: "Combien de grammes pèse une baguette de pain classique selon la tradition boulangère en France ?", r: "250" },
+  { q: "Combien de litres contient une pièce (ou fût) traditionnelle de vin de Bordeaux ?", r: "225" },
+  { q: "Combien de carrés de chocolat comporte généralement une tablette standard de 100 grammes (moule 4x6) ?", r: "24" },
+  { q: "Combien de centilitres contient une canette de soda standard en France ?", r: "33" },
+  { q: "En quelle année le permis de conduire à points a-t-il été instauré en France ?", r: "1992" },
+  { q: "Combien de points compte le solde maximal d'un permis de conduire français ?", r: "12" },
+  { q: "Combien de chiffres comporte un numéro de Sécurité sociale en France (hors clé de contrôle) ?", r: "13" },
+  { q: "Combien de chiffres compose un code postal en France métropolitaine ?", r: "5" },
+  { q: "Combien d'heures comprend la durée légale du travail hebdomadaire à temps plein en France ?", r: "35" },
+  { q: "En quelle année le casque à vélo est-il devenu obligatoire en France pour les enfants de moins de 12 ans ?", r: "2017" },
+  { q: "Combien de bougies allume-t-on au total sur la couronne d'Avent durant les quatre dimanches précédant Noël ?", r: "4" },
+  { q: "Combien d'alvéoles comporte un plateau à œuf (ou alvéole d'élevage) standard complet en carton ?", r: "30" },
+  { q: "Combien de centilitres contient une bouteille de champagne au format 'Magnum' ?", r: "150" },
+  { q: "Combien d'Oscars le film 'Le Seigneur des anneaux : Le Retour du roi' a-t-il remportés en 2004 ?", r: "11" },
+  { "q": "En quelle année le tout premier jeu vidéo de la licence 'The Legend of Zelda' est-il sorti au Japon ?", "r": "1986" },
+  { "q": "Combien de cartes comporte un paquet de cartes Uno traditionnel complet ?", "r": "108" },
+  { "q": "En quelle année le film 'Pulp Fiction' de Quentin Tarantino a-t-il remporté la Palme d'Or à Cannes ?", "r": "1994" },
+  { "q": "Combien de planètes composent le système solaire dans l'univers du jeu vidéo 'Outer Wilds' (hors satellites et DLC) ?", "r": "5" },
+  { "q": "En quelle année le premier film 'Star Wars' (Épisode IV : Un nouvel espoir) est-il sorti au cinéma aux États-Unis ?", "r": "1977" },
+  { "q": "Combien de touches comporte un piano à queue de concert standard moderne ?", "r": "88" },
+  { "q": "En quelle année le jeu de société 'Catan' (Les Colons de Catan) a-t-il été publié pour la première fois en Allemagne ?", "r": "1995" },
+  { "q": "En quelle année l'album légendaire 'The Dark Side of the Moon' de Pink Floyd est-il sorti ?", "r": "1973" },
+  { "q": "En quelle année le film d'animation 'Le Voyage de Chihiro' de Hayao Miyazaki est-il sorti au Japon ?", "r": "2001" },
+  { "q": "Combien de pièces composent le plateau du jeu d'Échecs au début d'une partie (les deux camps réunis) ?", "r": "32" },
+  { "q": "Combien de cases comporte un plateau de jeu de Scrabble francophone classique ?", "r": "225" },
+  { "q": "Combien de lettres 'K' contient le sac de jetons du jeu Scrabble en version française ?", "r": "1" },
+  { "q": "Combien de pixels de largeur fait une résolution vidéo Full HD standard (1080p) ?", "r": "1920" },
+  { "q": "Combien de vers comporte un poème japonais traditionnel de type Haïku ?", "r": "3" },
+  { "q": "Combien de syllabes au total comporte la structure classique d'un Haïku (5-7-5) ?", "r": "17" },
+  { "q": "Combien de cartes composent un jeu de Tarot traditionnel complet (avec atouts et excuse) ?", "r": "78" },
+  { "q": "En quelle année le jeu vidéo 'Minecraft' est-il sorti dans sa première version alpha publique ?", "r": "2009" },
+  { "q": "En quelle année la console Nintendo 64 est-elle sortie au Japon ?", "r": "1996" },
+  { "q": "Combien de films composent la saga 'Matrix' réalisée par les sœurs Wachowski (avec Matrix Resurrections) ?", "r": "4" },
+  { "q": "Combien de marches compte l'escalier menant au sommet du Rocher du Lion à Sigiriya au Sri Lanka environ ?", "r": "1200" },
+  { "q": "Combien de marches compte la Tour Eiffel jusqu'au sommet (via les escaliers) ?", "r": "1665" },
+  { "q": "Combien d'États des États-Unis ont une frontière terrestre commune avec le Canada ?", "r": "13" },
+  { "q": "Combien de pays ont une frontière terrestre commune avec la France métropolitaine ?", "r": "8" },
+  { "q": "Combien de ponts traversent la Seine dans la ville de Paris intra-muros ?", "r": "37" },
+  { "q": "Combien d'États membres composent l'Organisation des Nations Unies (ONU) ?", "r": "193" },
+  { "q": "Combien de préfectures composent le Japon ?", "r": "47" },
+  { "q": "Combien de pays au monde sont totalement enclavés sans aucun accès direct à la mer ou à l'océan ?", "r": "44" },
+  { "q": "Combien d'étoiles composent l'astérisme principal de la Grande Ourse (la 'Casserole') ?", "r": "7" },
+  { "q": "Combien de pays souverains composent le continent de l'Amérique du Sud ?", "r": "12" },
+  { "q": "En quelle année la statue du Christ Rédempteur à Rio de Janeiro a-t-elle été inaugurée ?", "r": "1931" },
+  { "q": "Combien d'îles et atolls composent l'archipel de la Polynésie française ?", "r": "118" },
+  { "q": "Combien de kilomètres séparent la côte française de la côte anglaise au point le plus étroit du pas de Calais ?", "r": "34" },
+  { "q": "Combien d'États fédérés composent l'Australie ?", "r": "6" },
+  { "q": "Quelle était la hauteur originelle de la grande pyramide de Khéops en mètres (avec son pyramidion) ?", "r": "146" },
+  { "q": "Combien de kilomètres mesure le canal de Panama dans toute sa longueur ?", "r": "80" },
+  { "q": "Combien de tunnels sous-marins parallèles forment le réseau du Tunnel sous la Manche ?", "r": "3" },
+  { "q": "Combien de lacs majeurs forment les Great Lakes (Grands Lacs) d'Amérique du Nord ?", "r": "5" },
+  { "q": "Combien d'États composent l'Inde ?", "r": "28" },
+  { "q": "Combien de pays bordent la mer Méditerranée ?", "r": "21" },
+  { "q": "En quelle année Molière est-il décédé ?", "r": "1673" },
+  { "q": "En quelle année le paquebot Titanic a-t-il coulé lors de sa traversée inaugurale ?", "r": "1912" },
+  { "q": "En quelle année la Tour Eiffel a-t-elle été officiellement inaugurée pour l'Exposition Universelle ?", "r": "1889" },
+  { "q": "Combien de mètres mesure la hauteur totale du Taj Mahal en Inde ?", "r": "73" },
+  { "q": "En quelle année le tableau 'La Joconde' de Léonard de Vinci a-t-il été volé au musée du Louvre ?", "r": "1911" },
+  { "q": "Combien de fables rassemble au total l'œuvre complète de Jean de La Fontaine ?", "r": "243" },
+  { "q": "En quelle année Neil Armstrong a-t-il posé le premier pas sur la Lune ?", "r": "1969" },
+  { "q": "Combien d'années a duré la construction du Colisée de Rome (72 à 80 ap. J.-C.) ?", "r": "8" },
+  { "q": "En quelle année la Révolution française a-t-elle débuté avec la prise de la Bastille ?", "r": "1789" },
+  { "q": "Combien de papes ont porté le nom officiel de 'Pie' dans l'histoire du Vatican ?", "r": "12" },
+  { "q": "En quelle année la cité de Pompéi a-t-elle été détruite par l'éruption du Vésuve ?", "r": "79" },
+  { "q": "Combien d'apôtres accompagnent Jésus-Christ lors de la Cène ?", "r": "12" },
+  { "q": "En quelle année Alexandre le Grand est-il mort à Babylone ?", "r": "323" },
+  { "q": "Combien de symphonies Ludwig van Beethoven a-t-il composées au total ?", "r": "9" },
+  { "q": "En quelle année Charlemagne a-t-il été couronné empereur d'Occident à Rome ?", "r": "800" },
+  { "q": "En quelle année la peste noire s'est-elle déclarée pour la première fois en Europe continentale ?", "r": "1347" },
+  { "q": "Combien de fois Napoléon Ier a-t-il été exilé au cours de sa vie ?", "r": "2" },
+  { "q": "En quelle année l'écrivain Victor Hugo est-il décédé ?", "r": "1885" },
+  { "q": "En quelle année le Mur de Berlin est-il tombé ?", "r": "1989" },
+  { "q": "Combien de présidents la Ve République française a-t-elle connus jusqu'en 2024 ?", "r": "8" },
+  { "q": "Quel est le numéro atomique du Carbone (C) dans le tableau périodique ?", "r": "6" },
+  { "q": "Quel est le numéro atomique de l'Or (Au) dans le tableau périodique ?", "r": "79" },
+  { "q": "Quel est le numéro atomique du Fer (Fe) dans le tableau périodique ?", "r": "26" },
+  { "q": "Combien de cœurs possède une pieuvre géante du Pacifique ?", "r": "3" },
+  { "q": "Combien de paires de chromosomes compte le caryotype humain normal ?", "r": "23" },
+  { "q": "Combien de vertèbres lombaires possède la colonne vertébrale humaine ?", "r": "5" },
+  { "q": "Quelle est la distance moyenne de la Terre au Soleil en millions de kilomètres ?", "r": "149" },
+  { "q": "Combien de minutes la lumière du Soleil met-elle environ pour parvenir jusqu'à la Terre ?", "r": "8" },
+  { "q": "Combien de dents possède un humain adulte avec ses 4 dents de sagesse ?", "r": "32" },
+  { "q": "Combien de secondes compte une heure entière ?", "r": "3600" },
+  { "q": "Combien de muscles compte le corps humain environ ?", "r": "639" },
+  { "q": "Combien d'os compose le squelette d'un humain adulte ?", "r": "206" },
+  { "q": "Quelle est la température du zéro absolu en degrés Celsius (°C) environ ?", "r": "-273" },
+  { "q": "Combien de faces équilatérales possède un icosaèdre régulier ?", "r": "20" },
+  { "q": "Combien de sommets possède un cube ?", "r": "8" },
+  { "q": "Combien d'arêtes possède un octaèdre régulier ?", "r": "12" },
+  { "q": "Combien de battements d'ailes par seconde effectue un colibri en vol stationnaire environ ?", "r": "80" },
+  { "q": "Combien de doigts compte chaque patte arrière d'un chien (hors ergot) ?", "r": "4" },
+  { "q": "Combien de paires de pattes possède une araignée ?", "r": "4" },
+  { "q": "Quel est le numéro atomique du Cuivre (Cu) ?", "r": "29" },
+  { "q": "Combien de cases compte un échiquier complet ?", "r": "64" },
+  { "q": "Combien de cases compte un damier officiel (jeu de dames international) ?", "r": "100" },
+  { "q": "Combien de pions chaque joueur possède-t-il au départ d'une partie de dames internationales ?", "r": "20" },
+  { "q": "Combien de cartes comporte un jeu de cartes traditionnel complet avec les 2 jokers ?", "r": "54" },
+  { "q": "Combien d'alvéoles numérotées compte une roulette européenne (avec le zéro) ?", "r": "37" },
+  { "q": "Combien de boules sont présentes dans le boulier du Loto français traditionnel ?", "r": "49" },
+  { "q": "Combien de mètres mesure la hauteur d'un panier de basket-ball réglementaire ?", "r": "3,05" },
+  { "q": "Combien de mètres mesure un terrain de tennis en longueur pour un match de simple ?", "r": "23,77" },
+  { "q": "Combien de minutes dure un match de football américain en temps effectif (4 quart-temps) ?", "r": "60" },
+  { "q": "Combien de mètres mesure la longueur d'un terrain de football homologué par la FIFA (standard) ?", "r": "105" },
+  { "q": "Combien de tours de piste complets effectue un coureur sur un 1500 mètres en athlétisme (piste de 400m) ?", "r": "3,75" },
+  { "q": "Combien de minutes dure la mi-temps d'un match de football professionnel ?", "r": "15" },
+  { "q": "Combien de joueurs composent une équipe sur le terrain lors d'un match de volleyball ?", "r": "6" },
+  { "q": "Combien de kilomètres compte la distance officielle d'un marathon (au kilomètre près) ?", "r": "42" },
+  { "q": "En quelle année la France a-t-elle remporté sa première Coupe du Monde de football ?", "r": "1998" },
+  { "q": "Combien de ceintures de couleurs différentes précèdent la ceinture noire au judo traditionnel en France ?", "r": "6" },
+  { "q": "Combien de disciplines composent le décathlon en athlétisme masculin ?", "r": "10" },
+  { "q": "Combien de points vaut au minimum un lancer franc réussi au basket-ball ?", "r": "1" },
+  { "q": "Combien de joueurs composent une équipe de baseball sur le terrain en défense ?", "r": "9" },
+  { "q": "En quelle année les Jeux Olympiques d'été ont-ils eu lieu à Paris pour la deuxième fois de l'histoire (avant 2024) ?", "r": "1924" }
+];
+
+let currentAnswer = '';
+let answerShown = false;
+
+function newQuestion() {
+  const pick = QUESTIONS[Math.floor(Math.random() * QUESTIONS.length)];
+  currentAnswer = pick.r;
+
+  document.getElementById('question-ph').style.display = 'none';
+
+  const qEl = document.getElementById('question');
+  qEl.classList.remove('pop');
+  qEl.style.opacity = '0';
+  qEl.textContent = '';
+  void qEl.offsetWidth;
+  qEl.textContent = pick.q;
+  qEl.classList.add('pop');
+
+  answerShown = false;
+  document.getElementById('answerWrap').classList.remove('show');
+  document.getElementById('answer').textContent = '';
+
+  document.getElementById('btn-answer').disabled = false;
+}
+
+function toggleAnswer() {
+  if (!currentAnswer) return;
+  answerShown = !answerShown;
+  if (answerShown) {
+    document.getElementById('answer').textContent = currentAnswer;
+    document.getElementById('answerWrap').classList.add('show');
+  } else {
+    document.getElementById('answerWrap').classList.remove('show');
+  }
+}
+
+function toggleZen() {
+  document.body.classList.toggle('zen-mode');
+  document.getElementById('btn-zen').classList.toggle('act');
+}
+</script>
+</body>
+</html>
