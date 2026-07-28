@@ -372,7 +372,7 @@ svg.ico { width:14px; height:14px; flex-shrink:0; }
    RESPONSIVE — TÉLÉPHONES (≤ 560px)
 ════════════════════════════════════════ */
 @media (max-width: 560px) {
-  body { padding: 16px 10px; }
+  body { padding: 16px 10px 24px; }
   .header { padding: 54px 12px 14px; }
   .orn-rule { padding: 0 10px; }
 
@@ -386,6 +386,42 @@ svg.ico { width:14px; height:14px; flex-shrink:0; }
   #btn-regles { font-size: .62rem; padding: .3rem .75rem; }
 
   .btn-zen { top: 10px; right: 10px; font-size: 9px; padding: 4px 9px; }
+
+  /* Le bouton "Retour" quitte le positionnement fixe pour ne jamais
+     chevaucher les autres boutons : il redevient un élément normal,
+     placé sous les contrôles du jeu. */
+  #btn-back {
+    position: static;
+    display: block;
+    width: max-content;
+    margin: 28px auto 0;
+    opacity: .75;
+  }
+}
+
+/* ════════════════════════════════════════
+   RESPONSIVE — TRÈS PETITS ÉCRANS (≤ 380px)
+════════════════════════════════════════ */
+@media (max-width: 380px) {
+  .header { padding: 50px 8px 12px; }
+  #btn-regles {
+    font-size: .58rem;
+    padding: .28rem .65rem;
+    top: 8px;
+  }
+  .frame { padding: 20px 14px; min-height: 170px; }
+  .btn-zen { top: 8px; right: 8px; font-size: 8.5px; padding: 3px 7px; gap: 3px; }
+  .ctrl-bar { flex-direction: column; align-items: stretch; }
+  .btn { width: 100%; }
+}
+
+/* Écrans bas (paysage mobile) : évite que le bouton "Aa" ou les coins
+   ne se marchent dessus quand la hauteur est réduite */
+@media (max-height: 480px) and (max-width: 900px) {
+  body { padding-top: 10px; }
+  .header { padding-top: 46px; padding-bottom: 10px; }
+  .frame { min-height: 140px; padding: 20px 22px; }
+  .ctrl-bar { margin-top: 16px; }
 }
 </style>
 </head>
