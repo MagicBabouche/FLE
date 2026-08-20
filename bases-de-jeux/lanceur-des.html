@@ -5,22 +5,16 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Lanceur de Dés</title>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Lora:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/FLE/style.css">
 <style>
 :root {
-  --cream:    #f0e8d5;
-  --paper:    #faf5e8;
-  --ink:      #2a1f10;
-  --ink-mid:  #5a4830;
-  --ink-dim:  #9a8060;
-  --ink-ghost:#c8a870;
-  --terra:    #b85030;
-
+  /* --cream, --paper, --ink, --ink-mid, --ink-dim, --ink-ghost, --terra
+     sont déjà définies dans style.css, avec les mêmes valeurs : pas besoin
+     de les redéfinir ici. */
   --d0: #e8c49a; --d1: #a8c898; --d2: #b0a8d8; --d3: #e8d480; --d4: #90c8d8;
   --d5: #e0a8b8; --d6: #f0c080; --d7: #98d0b8; --d8: #c8a0d0; --d9: #d0c8a0;
   --dot: #2a1f10;
 }
-
-*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
 
 body {
   min-height: 100vh;
