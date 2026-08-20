@@ -5,27 +5,48 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>3 phrases 3 éléments</title>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Lora:ital,wght@0,400;0,600;1,400&family=Montserrat:wght@700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="/FLE/style.css">
 <style>
-/* Couleurs propres à cette page (les 3 colonnes de cartes) */
 :root {
+  --cream:    #f0e8d5;
+  --paper:    #faf5e8;
+  --ink:      #2a1f10;
+  --ink-mid:  #5a4830;
+  --ink-dim:  #9a8060;
+  --ink-ghost:#c8a870;
+  --terra:    #b85030;
+
   --c1: #e8c49a; --c2: #a8c898; --c3: #b0a8d8;
 }
 
-/* Cette page occupe tout l'écran sans scroll (contrairement aux autres
-   pages du site) : on doit donc surcharger quelques réglages du body
-   définis dans style.css (hauteur, débordement, image de fond, espacement). */
+*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+
+html, body { height: 100%; }
+
 body {
   height: 100vh;
   width: 100vw;
   overflow: hidden;
+  min-height: 100vh;
+  background: var(--cream);
   background-image:
     url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='600' height='600'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.68' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='600' height='600' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E"),
     radial-gradient(ellipse at 50% 0%, rgba(255,248,228,.6) 0%, transparent 60%);
+  font-family: 'Lora', Georgia, serif;
+  color: var(--ink);
+  display: flex;
+  flex-direction: column;
   align-items: stretch;
   padding: 14px 22px 16px;
   gap: 8px;
   position: relative;
+}
+
+body::after {
+  content: '';
+  position: fixed; inset: 8px;
+  border: 1.5px solid rgba(184,80,48,.2);
+  border-radius: 6px;
+  pointer-events: none; z-index: 900;
 }
 
 /* ── HEADER ── */
