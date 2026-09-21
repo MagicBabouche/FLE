@@ -313,6 +313,58 @@ h1 .mot { color:var(--ink); }
   to   { opacity:1; transform:translateY(0) scale(1); }
 }
 
+/* ── ÉDITION MANUELLE ── */
+.edit-icon {
+  position: absolute; right: 32px; top: 50%; transform: translateY(-50%);
+  width: 22px; height: 22px; border: none; border-radius: 50%;
+  background: rgba(255,255,255,.34); color: var(--ink-mid);
+  font-size: 11px; line-height: 1; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  opacity: .55; transition: opacity .2s, background .2s;
+  z-index: 5; padding: 0;
+}
+.edit-icon:hover { opacity: 1; background: rgba(255,255,255,.7); }
+
+.slot-input {
+  width: calc(100% - 52px);
+  background: rgba(255,255,255,.5);
+  border: 1.5px solid rgba(36,26,12,.28);
+  border-radius: 6px;
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(14px, 2vw, 24px);
+  font-weight: 700; letter-spacing: .06em;
+  text-transform: uppercase; text-align: center;
+  padding: 4px 8px; color: var(--ink);
+  z-index: 5; position: relative; outline: none;
+}
+
+/* Édition de la lettre */
+.edit-letter {
+  position: absolute; top: 10px; right: 10px;
+  width: 26px; height: 26px; border-radius: 50%;
+  border: 1px solid rgba(184,80,48,.22);
+  background: rgba(255,255,255,.55); color: var(--ink-mid);
+  font-size: 12px; cursor: pointer; z-index: 6;
+  display: flex; align-items: center; justify-content: center;
+  opacity: .5; transition: opacity .2s, background .2s; padding: 0;
+}
+.edit-letter:hover { opacity: 1; background: #fff; }
+
+#bigLetter[contenteditable="true"] {
+  outline: 2px dashed rgba(184,80,48,.4);
+  outline-offset: 10px;
+  border-radius: 8px;
+  min-width: .6em;
+  padding: 0 .06em;
+}
+#bigLetter.small { font-size: clamp(30px, 5vw, 64px); letter-spacing: .02em; text-align: center; }
+
+.edit-hint {
+  position: absolute; bottom: 8px; left: 0; right: 0;
+  text-align: center; font-style: italic; font-size: 10px;
+  color: var(--ink-ghost); z-index: 6; pointer-events: none;
+}
+
 .slot-empty {
   font-style: italic; font-size: 12px;
   color: rgba(88,72,46,.22);
@@ -538,6 +590,7 @@ svg.ico { width:13px; height:13px; flex-shrink:0; }
   <!-- Letter -->
   <div class="col-letter">
     <div class="letter-frame">
+      <button class="edit-letter" id="editLetterBtn" onclick="editLetter()" title="Écrire la lettre ou le mot moi-même">✎</button>
       <span id="bigLetter"></span>
       <div id="letterPh">
         <span class="ph-glyph">A–Z</span>
@@ -643,6 +696,8 @@ function toggleLock(i) {
 
 function renderThemeSlot(i) {
   const card = document.getElementById(`slot-${i}`);
+  const editBtn = `<button class="edit-icon" title="Écrire le thème moi-même"
+      onclick="event.stopPropagation(); editSlot(${i})">✎</button>`;
   if (slotThemes[i]) {
     const locked = slotLocked[i];
     card.className = 'slot-card act' + (locked ? ' locked clickable' : ' clickable');
@@ -650,13 +705,99 @@ function renderThemeSlot(i) {
     card.onclick = () => toggleLock(i);
     card.innerHTML = `
       <span class="slot-n">${i+1}</span>
-      <span class="slot-theme anim" style="color:${SLOT_TX[i]}">${slotThemes[i]}</span>
+      <span class="slot-theme anim" style="color:${SLOT_TX[i]}">${escapeHtml(slotThemes[i])}</span>
+      ${editBtn}
       ${locked ? '<span class="lock-icon">🔒</span>' : '<span class="lock-icon" style="opacity:.18">🔓</span>'}`;
   } else {
     card.className = 'slot-card act';
     card.onclick = null;
-    card.innerHTML = `<span class="slot-n">${i+1}</span><span class="slot-empty">en attente…</span>`;
+    card.innerHTML = `<span class="slot-n">${i+1}</span><span class="slot-empty">en attente…</span>${editBtn}`;
   }
+}
+
+function escapeHtml(s) {
+  return String(s).replace(/[&<>"']/g, c =>
+    ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+/* ══════════════════════════════════
+   ÉDITION MANUELLE — THÈMES
+══════════════════════════════════ */
+function editSlot(i) {
+  if (!slotActive[i]) return;              // le cadre doit être sur ON
+  const card = document.getElementById(`slot-${i}`);
+  card.onclick = null;
+  card.className = 'slot-card act';
+  card.innerHTML = `<span class="slot-n">${i+1}</span>`;
+
+  const input = document.createElement('input');
+  input.type = 'text';
+  input.className = 'slot-input';
+  input.value = slotThemes[i] || '';
+  input.placeholder = 'Votre thème…';
+  input.maxLength = 40;
+  card.appendChild(input);
+  input.focus();
+  input.select();
+
+  let done = false;
+  const commit = (save) => {
+    if (done) return;
+    done = true;
+    if (save) {
+      const v = input.value.trim();
+      slotThemes[i] = v;
+      if (!v) slotLocked[i] = false;
+    }
+    renderThemeSlot(i);
+  };
+  input.onkeydown = (e) => {
+    if (e.key === 'Enter') { e.preventDefault(); commit(true); }
+    if (e.key === 'Escape') { e.preventDefault(); commit(false); }
+  };
+  input.onblur = () => commit(true);
+}
+
+/* ══════════════════════════════════
+   ÉDITION MANUELLE — LETTRE
+══════════════════════════════════ */
+function editLetter() {
+  const el = document.getElementById('bigLetter');
+  const frame = el.parentElement;
+  document.getElementById('letterPh').style.display = 'none';
+  el.classList.remove('pop');
+  el.style.opacity = '1';
+
+  const hint = document.createElement('div');
+  hint.className = 'edit-hint';
+  hint.textContent = 'Entrée pour valider · Échap pour annuler';
+  frame.appendChild(hint);
+
+  const before = el.textContent;
+  el.contentEditable = 'true';
+  el.focus();
+  document.execCommand && document.execCommand('selectAll', false, null);
+
+  let done = false;
+  const finish = (save) => {
+    if (done) return;
+    done = true;
+    el.contentEditable = 'false';
+    hint.remove();
+    let v = (save ? el.textContent : before).trim().toUpperCase();
+    el.textContent = v;
+    el.classList.toggle('small', v.length > 2);
+    if (!v) {
+      el.style.opacity = '0';
+      document.getElementById('letterPh').style.display = 'flex';
+    }
+    el.onkeydown = null; el.onblur = null;
+  };
+  el.onkeydown = (e) => {
+    if (e.key === 'Enter') { e.preventDefault(); finish(true); }
+    if (e.key === 'Escape') { e.preventDefault(); finish(false); }
+  };
+  el.onblur = () => finish(true);
 }
 
 
@@ -667,7 +808,8 @@ function generateLetter() {
   const l = LETTERS[Math.floor(Math.random() * LETTERS.length)];
   const el = document.getElementById('bigLetter');
   document.getElementById('letterPh').style.display = 'none';
-  el.classList.remove('pop');
+  el.classList.remove('pop', 'small');
+  el.contentEditable = 'false';
   el.style.opacity = '0'; el.textContent = '';
   void el.offsetWidth;
   el.textContent = l;
